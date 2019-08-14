@@ -11,12 +11,14 @@
 
 	<properties>
 		<jacksonVersion>2.9.3</jacksonVersion>
+		<springBootVersion>2.1.7.RELEASE</springBootVersion>
 		<outputsRoot>${project.basedir}</outputsRoot>
 	</properties>
-	
+
 	<modules>
 		<module>aws-lambda-json-to-dynamodb</module>
 		<module>aws-sqs-to-elasticsearch</module>
+		<module>spring-angular-evchargers-statistics</module>
 	</modules>
 
 	<dependencies>
