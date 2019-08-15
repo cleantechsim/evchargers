@@ -1,16 +1,20 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
 import { AppComponent } from './app.component';
+import { DynamicGraphComponent } from './dynamic-graph/dynamic-graph.component';
+import { DynamicGraphService } from './dynamic-graph.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    DynamicGraphComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [DynamicGraphService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

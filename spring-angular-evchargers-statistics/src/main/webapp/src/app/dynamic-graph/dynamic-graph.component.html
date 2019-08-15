@@ -1,0 +1,9 @@
+<div id="{{divElementId}}" class="graph-outer">
+    <div *ngIf="graphTitle">
+        <span class="line-graph-title">{{graphTitle}}</span>-<span class="line-graph-subtitle">{{graphSubTitle}}</span>
+    </div>
+
+    <div class="graph-canvas-wrapper">
+        <canvas id="{{canvasElementId}}" class="graph-canvas"></canvas>
+    </div>
+</div>

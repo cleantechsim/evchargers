@@ -76,12 +76,7 @@
 					<artifactId>maven-war-plugin</artifactId>
 					<version>3.2.3</version>
 					<configuration>
-						<warSourceDirectory>src/main/webapp/dist/angular-evchargers-statistics-client</warSourceDirectory>
-
-					<!-- 
-						<warSourceDirectory>src/main/resources/static</warSourceDirectory>
-
--->
+						<warSourceDirectory>src/main/resources</warSourceDirectory>
 					</configuration>
 				</plugin>
 
