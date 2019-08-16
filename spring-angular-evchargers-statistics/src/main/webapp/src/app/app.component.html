@@ -3,13 +3,20 @@
   <p id="main-text">Shows global statistics for EV charging stations</p>
 
   <div id="all-graphs">
-    <div id="chargers-by-country-and-year">
 
-      <app-dynamic-graph #chargersByCountryAndYear graphId="chargersByCountryAndYear">test text</app-dynamic-graph>
-
+    <div id="chargers-by-country-and-year-inputs">
+      <select (change)="onChargersByCountryAndYearChange($event.target.value)">
+        <option *ngFor="let presentation of presentations" value="{{presentation.value}}">{{presentation.text}}</option>
+      </select>
     </div>
 
-    <div id="average-charger-power-by-year">
+    <div id="chargers-by-country-and-year-graph">
+      <app-dynamic-graph #chargersByCountryAndYear graphId="chargersByCountryAndYear">test text</app-dynamic-graph>
+    </div>
+
+    <div id="average-charger-power-by-year-inputs">
+    </div>
+    <div id="average-charger-power-by-year-graphs">
 
       <!--
       <app-dynamic-graph graphId="averageChargerPowerByYear">some text</app-dynamic-graph>

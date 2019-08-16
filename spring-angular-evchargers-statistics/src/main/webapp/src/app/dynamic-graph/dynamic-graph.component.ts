@@ -16,6 +16,23 @@ export class DynamicGraphComponent<PARAMS> {
 
   private chart: Chart;
 
+  private static convertDataSets(datasets: ChartJSDataset[]): ChartDataSets[] {
+    const chartDataSets: ChartDataSets[] = [];
+
+    for (const dataset of datasets) {
+
+      const ds: ChartDataSets = {
+        label: dataset.label,
+        data: dataset.data,
+        fill: false
+      };
+
+      chartDataSets.push(ds);
+    }
+
+    return chartDataSets;
+  }
+
   constructor(private dynamicGraphService: DynamicGraphService<PARAMS>) {
     this.graphTitle = null;
   }
@@ -30,36 +47,21 @@ export class DynamicGraphComponent<PARAMS> {
 
   init(params: PARAMS): void {
     const canvasElement: HTMLCanvasElement = document.getElementById(this.canvasElementId) as HTMLCanvasElement;
-
     const ctx: CanvasRenderingContext2D = canvasElement.getContext('2d');
 
     this.dynamicGraphService.getGraphData(this.graphId, params).subscribe(chartJSData => {
 
       this.chart = new Chart(ctx, this.createChartConfiguration(chartJSData));
     });
-
   }
 
   private createChartConfiguration(chartData: ChartJSData): Chart.ChartConfiguration {
-
-    const chartDataSets: ChartDataSets[] = [];
-
-    for (const dataSet of chartData.datasets) {
-
-      const ds: ChartDataSets = {
-        label: dataSet.label,
-        data: dataSet.data,
-        fill: false
-      };
-
-      chartDataSets.push(ds);
-    }
 
     const config: Chart.ChartConfiguration = {
       type: 'line',
       data: {
         labels: chartData.labels,
-        datasets: chartDataSets
+        datasets: DynamicGraphComponent.convertDataSets(chartData.datasets)
       },
       options: {
         scales: {
@@ -76,6 +78,10 @@ export class DynamicGraphComponent<PARAMS> {
   }
 
   public update(params: PARAMS): void {
+    this.dynamicGraphService.getGraphData(this.graphId, params).subscribe(data => {
+      this.chart.data.datasets = DynamicGraphComponent.convertDataSets(data.datasets);
 
+      this.chart.update();
+    });
   }
 }
