@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { ChargersByCountryAndYearParams } from './chargers-by-country-and-year.service';
+import { DynamicGraphComponent } from './dynamic-graph/dynamic-graph.component';
 
 @Component({
   selector: 'app-root',
@@ -6,10 +8,12 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
+  @ViewChild('chargersByCountryAndYear', null) chargersByCountryAndYear: DynamicGraphComponent<ChargersByCountryAndYearParams>;
 
-  title = 'angular-evchargers-statistics-client';
+  ngAfterViewInit(): void {
 
-  public testProperty = 'testProperty';
+    this.chargersByCountryAndYear.init(new ChargersByCountryAndYearParams(10, null, null));
 
+  }
 }

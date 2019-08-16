@@ -8,11 +8,13 @@ import { ChartJSData, ChartJSDataset } from '../chart-data';
   templateUrl: './dynamic-graph.component.html',
   styleUrls: ['./dynamic-graph.component.css']
 })
-export class DynamicGraphComponent<PARAMS> implements OnInit, AfterViewInit {
+export class DynamicGraphComponent<PARAMS> {
 
   @Input() graphId: string;
 
   graphTitle: string;
+
+  private chart: Chart;
 
   constructor(private dynamicGraphService: DynamicGraphService<PARAMS>) {
     this.graphTitle = null;
@@ -26,26 +28,16 @@ export class DynamicGraphComponent<PARAMS> implements OnInit, AfterViewInit {
     return this.graphId + 'Canvas';
   }
 
-  public get testText(): string {
-    return 'the';
-  }
-
-  public ngOnInit(): void {
-
-  }
-
-  public ngAfterViewInit(): void {
-
+  init(params: PARAMS): void {
     const canvasElement: HTMLCanvasElement = document.getElementById(this.canvasElementId) as HTMLCanvasElement;
 
     const ctx: CanvasRenderingContext2D = canvasElement.getContext('2d');
 
-    this.dynamicGraphService.getGraphData(this.graphId, null).subscribe(chartJSData => {
+    this.dynamicGraphService.getGraphData(this.graphId, params).subscribe(chartJSData => {
 
-      const chart: Chart = new Chart(ctx, this.createChartConfiguration(chartJSData));
-
-      chart.update();
+      this.chart = new Chart(ctx, this.createChartConfiguration(chartJSData));
     });
+
   }
 
   private createChartConfiguration(chartData: ChartJSData): Chart.ChartConfiguration {
