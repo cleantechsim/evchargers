@@ -1,11 +1,12 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DynamicGraphComponent } from './dynamic-graph.component';
-import { ChargersByCountryAndYearParams } from '../chargers-by-country-and-year.service';
+import { ChargersByCountryAndYearParams, ChargersByCountryAndYearService } from '../chargers-by-country-and-year.service';
+import { ChartJSData } from '../chart-data';
 
 describe('DynamicGraphComponent', () => {
-  let component: DynamicGraphComponent<ChargersByCountryAndYearParams>;
-  let fixture: ComponentFixture<DynamicGraphComponent<ChargersByCountryAndYearParams>>;
+  let component: DynamicGraphComponent<ChargersByCountryAndYearParams, ChartJSData>;
+  let fixture: ComponentFixture<DynamicGraphComponent<ChargersByCountryAndYearParams, ChartJSData>>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({

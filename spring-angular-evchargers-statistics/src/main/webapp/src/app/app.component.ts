@@ -1,6 +1,13 @@
 import { Component, ViewChild, AfterViewInit } from '@angular/core';
-import { ChargersByCountryAndYearParams, ChargersByCountryAndYearPresentation } from './chargers-by-country-and-year.service';
+
+import {
+  ChargersByCountryAndYearParams,
+  ChargersByCountryAndYearPresentation,
+  ChargersByCountryAndYearService
+} from './chargers-by-country-and-year.service';
+
 import { DynamicGraphComponent } from './dynamic-graph/dynamic-graph.component';
+import { ChartJSData } from './chart-data';
 
 export class PresentationToText {
 
@@ -49,7 +56,12 @@ export class AppComponent implements AfterViewInit {
       'Total number of chargers')
   ];
 
-  @ViewChild('chargersByCountryAndYear', null) private chargersByCountryAndYear: DynamicGraphComponent<ChargersByCountryAndYearParams>;
+  @ViewChild('chargersByCountryAndYear', null)
+  private chargersByCountryAndYear: DynamicGraphComponent<ChargersByCountryAndYearParams, ChartJSData>;
+
+  constructor(private chargersByCountryAndYearService: ChargersByCountryAndYearService) {
+
+  }
 
   ngAfterViewInit(): void {
 
@@ -59,7 +71,7 @@ export class AppComponent implements AfterViewInit {
       null,
       null);
 
-    this.chargersByCountryAndYear.init(params);
+    this.chargersByCountryAndYear.init(params, this.chargersByCountryAndYearService);
   }
 
   get presentations(): PresentationToText[] {
@@ -90,6 +102,6 @@ export class AppComponent implements AfterViewInit {
       null,
       null);
 
-    this.chargersByCountryAndYear.update(params);
+    this.chargersByCountryAndYear.update(params, this.chargersByCountryAndYearService);
   }
 }

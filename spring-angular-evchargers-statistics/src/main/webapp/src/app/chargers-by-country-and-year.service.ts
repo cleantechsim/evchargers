@@ -5,6 +5,7 @@ import { Observable, Subject } from 'rxjs';
 import { ChargersByCountryAndYearRoadServiceHelper } from './chargers-by-country-and-year-road.service-helper';
 import { ChargersByCountryAndYearInhabitantsServiceHelper } from './chargers-by-country-and-year-inhabitants.service-helper';
 import { ChargersByCountryAndYearTotalServiceHelper } from './chargers-by-country-and-year-total.service-helper';
+import { DynamicGraphService } from './dynamic-graph.service';
 
 export enum ChargersByCountryAndYearPresentation {
   TOTAL_NUMBER_OF_CHARGERS,
@@ -15,7 +16,7 @@ export enum ChargersByCountryAndYearPresentation {
 @Injectable({
   providedIn: 'root'
 })
-export class ChargersByCountryAndYearService {
+export class ChargersByCountryAndYearService implements DynamicGraphService<ChargersByCountryAndYearParams, ChartJSData> {
 
   constructor(private http: HttpClient) {
 
