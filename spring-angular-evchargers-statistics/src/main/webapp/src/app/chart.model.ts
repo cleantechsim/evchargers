@@ -5,8 +5,6 @@ export class ChartJS {
     type: string;
 
     data: ChartJSData;
-
-    options: ChartJSOptions;
 }
 
 export class ChartJSData {
@@ -30,8 +28,3 @@ export class ChartJSDataset {
     label: string;
     data: number[];
 }
-
-export class ChartJSOptions {
-
-}
-

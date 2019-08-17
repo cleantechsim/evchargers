@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { ChartJSData, ChartJSDataset } from './chart.model';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { ChargersByCountryAndYearRoadServiceHelper } from './chargers-by-country-and-year-road.service-helper';
 import { ChargersByCountryAndYearInhabitantsServiceHelper } from './chargers-by-country-and-year-inhabitants.service-helper';
 import { ChargersByCountryAndYearTotalServiceHelper } from './chargers-by-country-and-year-total.service-helper';
 import { DynamicGraphService } from './dynamic-graph.service';
-import { CountryChartJSData } from './common.model';
+import { CountryChartJSData, CommonByCountryAndYearParams } from './common.model';
 
 export enum ChargersByCountryAndYearPresentation {
   TOTAL_NUMBER_OF_CHARGERS,
@@ -56,7 +55,7 @@ export class ChargersByCountryAndYearService
   }
 }
 
-export class ChargersByCountryAndYearParams {
+export class ChargersByCountryAndYearParams extends CommonByCountryAndYearParams {
 
   contructor() {
 
@@ -64,22 +63,16 @@ export class ChargersByCountryAndYearParams {
 
   constructor(
     private pres: ChargersByCountryAndYearPresentation,
-    private c: string[],
-    private maxC: number, // Max to return unless list of countries is specified
+    c: string[],
+    maxC: number, // Max to return unless list of countries is specified
     private minCP: number,
     private maxCP: number) {
+
+    super(c, maxC);
   }
 
   public get presentation(): ChargersByCountryAndYearPresentation {
     return this.pres;
-  }
-
-  public get countriesToReturn(): string[] {
-    return this.c;
-  }
-
-  public get maxCountriesToReturn(): number {
-    return this.maxC;
   }
 
   public get minChargePower(): number {

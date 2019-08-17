@@ -30,5 +30,20 @@ export class CountryChartJSData extends ChartJSData {
     }
 }
 
+export class CommonByCountryAndYearParams {
 
+    constructor(
+        private c: string[],
+        private maxC: number, // Max to return unless list of countries is specified
+    ) {
 
+    }
+
+    public get countriesToReturn(): string[] {
+        return this.c;
+    }
+
+    public get maxCountriesToReturn(): number {
+        return this.maxC;
+    }
+}

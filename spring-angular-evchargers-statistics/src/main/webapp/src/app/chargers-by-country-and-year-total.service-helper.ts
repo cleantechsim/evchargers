@@ -1,8 +1,8 @@
 
 import { ChargersByCountryAndYearParams } from './chargers-by-country-and-year.service';
-import { ChartJSData, ChartJSDataset } from './chart.model';
+import { ChartJSDataset } from './chart.model';
 import { CountryChartJSData } from './common.model';
-import { ChargersByCountryAndYearServiceHelper, CountryAndCount } from './chargers-by-country-and-year.service-helper';
+import { ChargersByCountryAndYearServiceHelper } from './chargers-by-country-and-year.service-helper';
 
 class YearsAndDataSet {
     constructor(public years: string[], public dataset: ChartJSDataset) {
