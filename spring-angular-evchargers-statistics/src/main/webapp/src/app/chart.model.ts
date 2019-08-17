@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 
 // Chart JS datatypes
 export class ChartJS {
