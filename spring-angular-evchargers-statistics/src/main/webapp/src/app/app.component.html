@@ -11,18 +11,15 @@
 
       <div id="chargers-by-country-and-year-inputs-countries">
         <label id="chargers-by-country-and-year-inputs-countries-label">Select countries</label>
-        <div id="chargers-by-country-and-year-inputs-countries-list">
-          <div *ngFor="let country of allCountries" class="chargers-by-country-and-year-inputs-country">
-            <input type="checkbox" [attr.checked]="country.displayed ? 'checked' : null" value="{{country.countryCode}}"
-              (change)="onChargersByCountryCountriesChange($event.target.value, $event.target.checked)"
-              class="chargers-by-country-and-year-inputs-country-input" />
-            <label>{{country.displayName}}</label>
-          </div>
-        </div>
+        <app-country-selection #chargersByCountryAndYearCountrySelection
+          (countriesChanged)="chargersByCountryAndYearGraph.onCountriesSelectionChange($event)">
+        </app-country-selection>
       </div>
     </div>
 
-    <app-chargers-by-country-and-year-graph #chargersByCountryAndYearGraph></app-chargers-by-country-and-year-graph>
+    <app-chargers-by-country-and-year-graph #chargersByCountryAndYearGraph
+      (serverCountriesChanged)="chargersByCountryAndYearCountrySelection.updateCountries($event.displayedCountries, $event.allCountries)">
+    </app-chargers-by-country-and-year-graph>
 
     <div id="average-charger-power-by-year-inputs">
     </div>

@@ -81,27 +81,30 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
 
     const params: ChargersByCountryAndYearParams = new ChargersByCountryAndYearParams(
       this.curPresentation,
-      this.selectedCountries,
+      null,
       BaseByCountryAndYearGraphComponent.MAX_COUNTRIES,
       null,
       null);
 
     this.chargersByCountryAndYear.init(params, this.chargersByCountryAndYearService)
-      .subscribe(result => this.updateCountries(result.displayedCountries, result.allCountries));
+      .subscribe(result => {
+        this.updateCountries(result.displayedCountries, result.allCountries);
+        this.updateGraphForPresentation(this.selectedCountries, this.curPresentation);
+      });
   }
 
   get presentations(): PresentationToText[] {
     return Arrays.copy(ChargersByCountryAndYearGraphComponent.PRESENTATIONS);
   }
 
-  updateGraph(): void {
-    this.updateGraphForPresentation(this.curPresentation);
+  updateGraph(countries: string[]): void {
+    this.updateGraphForPresentation(countries, this.curPresentation);
   }
 
-  private updateGraphForPresentation(presentation: ChargersByCountryAndYearPresentation): void {
+  private updateGraphForPresentation(countries: string[], presentation: ChargersByCountryAndYearPresentation): void {
     const params: ChargersByCountryAndYearParams = new ChargersByCountryAndYearParams(
       presentation,
-      this.selectedCountries,
+      countries,
       BaseByCountryAndYearGraphComponent.MAX_COUNTRIES,
       null,
       null);
@@ -122,6 +125,6 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
     const presentation: ChargersByCountryAndYearPresentation = presentationText.presentation;
 
     this.updatePresentation(presentation);
-    this.updateGraphForPresentation(presentation);
+    this.updateGraphForPresentation(this.selectedCountries, presentation);
   }
 }

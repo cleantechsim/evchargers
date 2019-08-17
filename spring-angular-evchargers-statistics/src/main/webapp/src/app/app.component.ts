@@ -3,8 +3,8 @@ import {
   ChargersByCountryAndYearGraphComponent,
   PresentationToText
 } from './chargers-by-country-and-year-graph/chargers-by-country-and-year-graph.component';
-import { UICountry } from './base-by-country-and-year-graph.component';
-
+import { CountrySelectionComponent } from './country-selection/country-selection.component';
+import { ServerCountries } from './base-by-country-and-year-graph.component';
 
 @Component({
   selector: 'app-root',
@@ -17,10 +17,7 @@ export class AppComponent {
   private chargersByCountryAndYearGraphComponent: ChargersByCountryAndYearGraphComponent;
 
   constructor() {
-  }
 
-  get allCountries(): UICountry[] {
-    return this.chargersByCountryAndYearGraphComponent.allCountries;
   }
 
   get presentations(): PresentationToText[] {
@@ -29,9 +26,5 @@ export class AppComponent {
 
   onChargersByCountryAndYearPresentationChange(value: string): void {
     this.chargersByCountryAndYearGraphComponent.onChargersByCountryAndYearPresentationChange(value);
-  }
-
-  onChargersByCountryCountriesChange(value: string, selected: boolean): void {
-    this.chargersByCountryAndYearGraphComponent.onChargersByCountryCountriesChange(value, selected);
   }
 }

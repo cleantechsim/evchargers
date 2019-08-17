@@ -1,0 +1,8 @@
+<div id="country-selection-list">
+    <div *ngFor="let country of allCountries">
+        <input type="checkbox" [attr.checked]="country.displayed ? 'checked' : null" value="{{country.countryCode}}"
+            (change)="onCountrySelectionChange($event.target.value, $event.target.checked)"
+            class="country-selection-checkbox-input" />
+        <label>{{country.displayName}}</label>
+    </div>
+</div>

@@ -6,12 +6,14 @@ import { ChargersByCountryAndYearService } from './chargers-by-country-and-year.
 import { CapacityByCountryAndYearService } from './capacity-by-country-and-year.service';
 import { HttpClientModule } from '@angular/common/http';
 import { ChargersByCountryAndYearGraphComponent } from './chargers-by-country-and-year-graph/chargers-by-country-and-year-graph.component';
+import { CountrySelectionComponent } from './country-selection/country-selection.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DynamicGraphComponent,
-    ChargersByCountryAndYearGraphComponent
+    ChargersByCountryAndYearGraphComponent,
+    CountrySelectionComponent
   ],
   imports: [
     BrowserModule,

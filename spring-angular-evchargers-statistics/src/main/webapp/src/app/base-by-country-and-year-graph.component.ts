@@ -1,14 +1,21 @@
+import { Output, EventEmitter } from '@angular/core';
+
+import { Arrays } from './arrays.util';
 
 import { Country } from './common.model';
 
-export class UICountry extends Country {
+export class ServerCountries {
 
-    constructor(country: Country, private disp: boolean) {
-        super(country.countryCode, country.displayName);
+    constructor(private dc: Country[], private ac: Country[]) {
+
     }
 
-    get displayed(): boolean {
-        return this.disp;
+    get displayedCountries(): Country[] {
+        return this.dc;
+    }
+
+    get allCountries(): Country[] {
+        return this.ac;
     }
 }
 
@@ -16,46 +23,29 @@ export abstract class BaseByCountryAndYearGraphComponent {
 
     static MAX_COUNTRIES = 1;
 
-    private acountries: UICountry[];
-    private selCountries: object;
+    private selCountries: string[];
 
-    protected abstract updateGraph(): void;
+    @Output() serverCountriesChanged: EventEmitter<ServerCountries> = new EventEmitter();
+
+    protected abstract updateGraph(countries: string[]): void;
+
+    protected get selectedCountries(): string[] {
+        return this.selCountries;
+    }
 
     protected updateCountries(displayedCountries: Country[], allCountries: Country[]): void {
 
-        this.acountries = [];
+        this.selCountries = [];
 
-        allCountries.forEach(c => {
-            const displayed: boolean = displayedCountries.find(dc => dc.countryCode === c.countryCode) != null;
+        displayedCountries.forEach(c => this.selCountries.push(c.countryCode));
 
-            this.acountries.push(new UICountry(c, displayed));
-        });
-
-        this.selCountries = {};
-        displayedCountries.forEach(c => this.selCountries[c.countryCode] = null);
-
-        this.acountries.sort((c1, c2) => c1.displayName < c2.displayName ? -1 : (c1.displayName > c2.displayName ? 1 : 0));
+        this.serverCountriesChanged.emit(new ServerCountries(displayedCountries, allCountries));
     }
 
-    protected get selectedCountries(): string[] {
-        return this.selCountries ? Object.keys(this.selCountries) : null;
+    public onCountriesSelectionChange(countries: string[]): void {
+
+        this.selCountries = Arrays.copy(countries);
+
+        this.updateGraph(countries);
     }
-
-    get allCountries(): UICountry[] {
-        return this.acountries;
-    }
-
-    onChargersByCountryCountriesChange(value: string, selected: boolean): void {
-
-        if (selected) {
-            this.selCountries[value] = null;
-        } else {
-            delete this.selCountries[value];
-        }
-
-        console.log('## selected ' + value + '/' + selected + '/' + JSON.stringify(this.selectedCountries));
-
-        this.updateGraph();
-    }
-
 }
