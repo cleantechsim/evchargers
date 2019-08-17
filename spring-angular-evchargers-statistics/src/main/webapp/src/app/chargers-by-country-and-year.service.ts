@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ChartJSData, ChartJSDataset } from './chart-data';
+import { ChartJSData, ChartJSDataset } from './chart.model';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { ChargersByCountryAndYearRoadServiceHelper } from './chargers-by-country-and-year-road.service-helper';
 import { ChargersByCountryAndYearInhabitantsServiceHelper } from './chargers-by-country-and-year-inhabitants.service-helper';
 import { ChargersByCountryAndYearTotalServiceHelper } from './chargers-by-country-and-year-total.service-helper';
 import { DynamicGraphService } from './dynamic-graph.service';
+import { CountryChartJSData } from './common.model';
 
 export enum ChargersByCountryAndYearPresentation {
   TOTAL_NUMBER_OF_CHARGERS,
@@ -16,19 +17,20 @@ export enum ChargersByCountryAndYearPresentation {
 @Injectable({
   providedIn: 'root'
 })
-export class ChargersByCountryAndYearService implements DynamicGraphService<ChargersByCountryAndYearParams, ChartJSData> {
+export class ChargersByCountryAndYearService
+  implements DynamicGraphService<ChargersByCountryAndYearParams, CountryChartJSData> {
 
   constructor(private http: HttpClient) {
 
   }
 
-  public getGraphData(params: ChargersByCountryAndYearParams): Observable<ChartJSData> {
+  public getGraphData(params: ChargersByCountryAndYearParams): Observable<CountryChartJSData> {
 
-    const result: Subject<ChartJSData> = new Subject<ChartJSData>();
+    const result: Subject<CountryChartJSData> = new Subject<CountryChartJSData>();
 
     this.http.post<any>('/rest/statistics/chargersByYear', params).subscribe(data => {
 
-      let chartJS: ChartJSData;
+      let chartJS: CountryChartJSData;
 
       switch (params.presentation) {
         case ChargersByCountryAndYearPresentation.PER_THOUSAND_KM_OF_ROAD:
@@ -62,13 +64,18 @@ export class ChargersByCountryAndYearParams {
 
   constructor(
     private pres: ChargersByCountryAndYearPresentation,
-    private maxC: number,
+    private c: string[],
+    private maxC: number, // Max to return unless list of countries is specified
     private minCP: number,
     private maxCP: number) {
   }
 
   public get presentation(): ChargersByCountryAndYearPresentation {
     return this.pres;
+  }
+
+  public get countriesToReturn(): string[] {
+    return this.c;
   }
 
   public get maxCountriesToReturn(): number {

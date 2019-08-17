@@ -1,6 +1,7 @@
 
 import { ChargersByCountryAndYearParams } from './chargers-by-country-and-year.service';
-import { ChartJSData, ChartJSDataset } from './chart-data';
+import { ChartJSData, ChartJSDataset } from './chart.model';
+import { CountryChartJSData } from './common.model';
 import { ChargersByCountryAndYearServiceHelper, CountryAndCount } from './chargers-by-country-and-year.service-helper';
 
 class YearsAndDataSet {
@@ -10,7 +11,7 @@ class YearsAndDataSet {
 
 export class ChargersByCountryAndYearTotalServiceHelper extends ChargersByCountryAndYearServiceHelper {
 
-    static getTotal(params: ChargersByCountryAndYearParams, data: any): ChartJSData {
+    static getTotal(params: ChargersByCountryAndYearParams, data: any): CountryChartJSData {
 
         const jsonCountries: any = data.countries;
 
@@ -43,7 +44,6 @@ export class ChargersByCountryAndYearTotalServiceHelper extends ChargersByCountr
 
         return new YearsAndDataSet(years, new ChartJSDataset(label, datasetArray));
     }
-
 
     private static getTotalByYear(data: any): object {
 

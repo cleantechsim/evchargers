@@ -54,3 +54,27 @@
     align-items: center;
 }
 
+#chargers-by-country-and-year-inputs-countries-label {
+    font-family: sans-serif;
+    font-size: 1em;
+
+    font-weight: 650;
+
+    display: block;
+
+    padding: 1em 0 1em 0;
+}
+
+#chargers-by-country-and-year-inputs-countries-list {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;
+
+    overflow: auto;    
+}
+
+.chargers-by-country-and-year-inputs-country-input + label {
+    font-family: sans-serif;
+    font-size: 1em;
+}

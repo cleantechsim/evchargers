@@ -1,11 +1,11 @@
 
 import { ChargersByCountryAndYearServiceHelper } from './chargers-by-country-and-year.service-helper';
 import { ChargersByCountryAndYearParams } from './chargers-by-country-and-year.service';
-import { ChartJSData } from './chart-data';
+import { CountryChartJSData } from './common.model';
 
 export class ChargersByCountryAndYearInhabitantsServiceHelper extends ChargersByCountryAndYearServiceHelper {
 
-    static getPerInhabitants(params: ChargersByCountryAndYearParams, data: any): ChartJSData {
+    static getPerInhabitants(params: ChargersByCountryAndYearParams, data: any): CountryChartJSData {
 
         return this.getChartData(
             data.countries,

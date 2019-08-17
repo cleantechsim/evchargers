@@ -1,4 +1,5 @@
-import { ChartJSData, ChartJSDataset } from './chart-data';
+import { ChartJSData, ChartJSDataset } from './chart.model';
+import { CountryChartJSData, Country } from './common.model';
 import { ChargersByCountryAndYearParams } from './chargers-by-country-and-year.service';
 
 export class JSONCountryChargerYears {
@@ -104,7 +105,7 @@ export class ChargersByCountryAndYearServiceHelper {
         params: ChargersByCountryAndYearParams,
         datasets: ChartJSDataset[],
         yearsFn: (country: JSONCountryChargerYears) => string[],
-        makeDataPoint: (country: JSONCountryChargerYears, value: number) => number): ChartJSData {
+        makeDataPoint: (country: JSONCountryChargerYears, value: number) => number): CountryChartJSData {
 
         const maxValueByCountry: object = this.getMaxValueByCountry(jsonCountries, makeDataPoint);
 
@@ -127,19 +128,39 @@ export class ChargersByCountryAndYearServiceHelper {
         params: ChargersByCountryAndYearParams,
         datasets: ChartJSDataset[],
         yearsFn: (country: JSONCountryChargerYears) => string[],
-        makeDataPoint: (country: JSONCountryChargerYears, value: number) => number): ChartJSData {
+        makeDataPoint: (country: JSONCountryChargerYears, value: number) => number): CountryChartJSData {
 
-        const numCountries = params && params.maxCountriesToReturn
-            ? Math.min(countryAndCount.length, params.maxCountriesToReturn)
-            : countryAndCount.length;
+        let countriesToReturn: string[];
+
+        if (params.countriesToReturn != null) {
+            countriesToReturn = params.countriesToReturn;
+        } else {
+            const numCountries = params && params.maxCountriesToReturn
+                ? Math.min(countryAndCount.length, params.maxCountriesToReturn)
+                : countryAndCount.length;
+
+            countriesToReturn = [];
+
+            for (let i = 0; i < numCountries; ++i) {
+                countriesToReturn.push(countryAndCount[i].country);
+            }
+        }
 
         // Now have countries sorted, make datasets for the countries with most chargers
 
         const allYearsMap: object = {};
 
+        const countries: Country[] = [];
+        const allCountries: Country[] = [];
+
+        Object.keys(jsonCountries).forEach(countryCode => {
+            const country: JSONCountryChargerYears = jsonCountries[countryCode];
+
+            allCountries.push(new Country(countryCode, country.countryDisplayName));
+        });
+
         // Figure all years involved over all countries
-        for (let i = 0; i < numCountries; ++i) {
-            const countryCode: string = countryAndCount[i].country;
+        for (const countryCode of countriesToReturn) {
             const country: JSONCountryChargerYears = jsonCountries[countryCode];
             const years: string[] = yearsFn(country);
 
@@ -150,13 +171,12 @@ export class ChargersByCountryAndYearServiceHelper {
         allYears.sort();
 
         // Get data for each country
-        for (let i = 0; i < numCountries; ++i) {
+        for (const countryCode of countriesToReturn) {
 
             const countryDataset: number[] = [];
-
-            const countryCode: string = countryAndCount[i].country;
             const country: JSONCountryChargerYears = jsonCountries[countryCode];
-            const years: string[] = yearsFn(country);
+
+            countries.push(new Country(countryCode, country.countryDisplayName));
 
             // Iterate over each yer from total
             this.forEachYear(country, countryCode, allYears, countryDataset,
@@ -167,12 +187,11 @@ export class ChargersByCountryAndYearServiceHelper {
                     dataset.push(countForYear ? makeDataPoint(country, countForYear) : null);
                 });
 
+
             datasets.push(new ChartJSDataset(jsonCountries[countryCode].countryDisplayName, countryDataset));
         }
 
-        const chartJS: ChartJSData = new ChartJSData(allYears, datasets);
-
-        return chartJS;
+        return new CountryChartJSData(allYears, datasets, countries, allCountries);
     }
 }
 

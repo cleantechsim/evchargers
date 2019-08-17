@@ -5,9 +5,21 @@
   <div id="all-graphs">
 
     <div id="chargers-by-country-and-year-inputs">
-      <select (change)="onChargersByCountryAndYearChange($event.target.value)">
+      <select (change)="onChargersByCountryAndYearPresentationChange($event.target.value)">
         <option *ngFor="let presentation of presentations" value="{{presentation.value}}">{{presentation.text}}</option>
       </select>
+
+      <div id="chargers-by-country-and-year-inputs-countries">
+        <label id="chargers-by-country-and-year-inputs-countries-label">Select countries</label>
+        <div id="chargers-by-country-and-year-inputs-countries-list">
+          <div *ngFor="let country of allCountries" class="chargers-by-country-and-year-inputs-country">
+            <input type="checkbox" [attr.checked]="country.displayed ? 'checked' : null" value="{{country.countryCode}}"
+              (change)="onChargersByCountryCountriesChange($event.target.value, $event.target.checked)"
+              class="chargers-by-country-and-year-inputs-country-input" />
+            <label>{{country.displayName}}</label>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="chargers-by-country-and-year-graph">

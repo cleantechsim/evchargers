@@ -1,7 +1,8 @@
-import { Component, Input, OnInit, AfterViewInit, Inject } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
+import { Component, Input } from '@angular/core';
 import { Chart, ChartDataSets } from 'chart.js';
 import { DynamicGraphService } from '../dynamic-graph.service';
-import { ChartJSData, ChartJSDataset } from '../chart-data';
+import { ChartJSData, ChartJSDataset } from '../chart.model';
 
 @Component({
   selector: 'app-dynamic-graph',
@@ -45,14 +46,21 @@ export class DynamicGraphComponent<PARAMS, RESULT extends ChartJSData> {
     return this.graphId + 'Canvas';
   }
 
-  init(params: PARAMS, dynamicGraphService: DynamicGraphService<PARAMS, RESULT>): void {
+  init(params: PARAMS, dynamicGraphService: DynamicGraphService<PARAMS, RESULT>): Observable<RESULT> {
+
     const canvasElement: HTMLCanvasElement = document.getElementById(this.canvasElementId) as HTMLCanvasElement;
     const ctx: CanvasRenderingContext2D = canvasElement.getContext('2d');
+
+    const result: Subject<RESULT> = new Subject<RESULT>();
 
     dynamicGraphService.getGraphData(params).subscribe(chartJSData => {
 
       this.chart = new Chart(ctx, this.createChartConfiguration(chartJSData));
+
+      result.next(chartJSData);
     });
+
+    return result;
   }
 
   private createChartConfiguration(chartData: ChartJSData): Chart.ChartConfiguration {
@@ -77,11 +85,18 @@ export class DynamicGraphComponent<PARAMS, RESULT extends ChartJSData> {
     return config;
   }
 
-  public update(params: PARAMS, dynamicGraphService: DynamicGraphService<PARAMS, RESULT>): void {
+  public update(params: PARAMS, dynamicGraphService: DynamicGraphService<PARAMS, RESULT>): Observable<RESULT> {
+
+    const result: Subject<RESULT> = new Subject<RESULT>();
+
     dynamicGraphService.getGraphData(params).subscribe(data => {
       this.chart.data.datasets = DynamicGraphComponent.convertDataSets(data.datasets);
 
       this.chart.update();
+
+      result.next(data);
     });
+
+    return result;
   }
 }
