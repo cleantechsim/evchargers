@@ -4,28 +4,36 @@
 
   <div id="all-graphs">
 
-    <div id="chargers-by-country-and-year-inputs">
+    <div class="by-country-and-year-inputs">
       <select (change)="onChargersByCountryAndYearPresentationChange($event.target.value)">
         <option *ngFor="let presentation of presentations" value="{{presentation.value}}">{{presentation.text}}</option>
       </select>
 
       <div id="chargers-by-country-and-year-inputs-countries">
-        <label id="chargers-by-country-and-year-inputs-countries-label">Select countries</label>
+        <label class="by-country-and-year-inputs-countries-label">Select countries</label>
         <app-country-selection #chargersByCountryAndYearCountrySelection
           (countriesChanged)="chargersByCountryAndYearGraph.onCountriesSelectionChange($event)">
         </app-country-selection>
       </div>
     </div>
 
-    <app-chargers-by-country-and-year-graph #chargersByCountryAndYearGraph
-      (serverCountriesChanged)="chargersByCountryAndYearCountrySelection.updateCountries($event.displayedCountries, $event.allCountries)">
-    </app-chargers-by-country-and-year-graph>
-
-    <div id="capacity-by-country-and-year-inputs">
+    <div class="by-country-and-year-graph">
+      <app-chargers-by-country-and-year-graph #chargersByCountryAndYearGraph
+        (serverCountriesChanged)="chargersByCountryAndYearCountrySelection.updateCountries($event.displayedCountries, $event.allCountries)">
+      </app-chargers-by-country-and-year-graph>
     </div>
 
-    <div id="capacity-by-country-and-year-graphs">
-      <app-capacity-by-country-and-year-graph></app-capacity-by-country-and-year-graph>
+    <div class="by-country-and-year-inputs">
+      <label class="by-country-and-year-inputs-countries-label">Select countries</label>
+      <app-country-selection #capacityByCountryAndYearCountrySelection
+        (countriesChanged)="capacityByCountryAndYearGraph.onCountriesSelectionChange($event)">
+      </app-country-selection>
+    </div>
+
+    <div class="by-country-and-year-graph">
+      <app-capacity-by-country-and-year-graph #capacityByCountryAndYearGraph
+        (serverCountriesChanged)="capacityByCountryAndYearCountrySelection.updateCountries($event.displayedCountries, $event.allCountries)">
+        ></app-capacity-by-country-and-year-graph>
     </div>
   </div>
 </div>

@@ -1,0 +1,11 @@
+.graph-outer {
+    width: 100%;
+    height: 100%;
+}
+
+.graph-canvas-wrapper {
+    position: relative;
+    
+    width: 100%;
+    height: 100%;
+}

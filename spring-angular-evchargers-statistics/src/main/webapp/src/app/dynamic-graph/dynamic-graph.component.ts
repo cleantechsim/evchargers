@@ -78,7 +78,10 @@ export class DynamicGraphComponent<PARAMS, RESULT extends ChartJSData> {
               beginAtZero: true
             }
           }]
-        }
+        },
+
+        responsive: true,
+        maintainAspectRatio: false
       }
     };
 
