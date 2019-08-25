@@ -1,141 +1,22 @@
-
-
-  {
-    "ID": 130760,
-    "UUID": "3825B561-9BEE-443D-B320-5F66E1B94296",
-    "ParentChargePointID": null,
-    "DataProviderID": 1,
-    "DataProvider": {
-      "WebsiteURL": "http://openchargemap.org",
-      "Comments": null,
-      "DataProviderStatusType": {
-        "IsProviderEnabled": true,
-        "ID": 1,
-        "Title": "Manual Data Entry"
-      },
-      "IsRestrictedEdit": false,
-      "IsOpenDataLicensed": true,
-      "IsApprovedImport": true,
-      "License": "Licensed under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)",
-      "DateLastImported": null,
-      "ID": 1,
-      "Title": "Open Charge Map Contributors"
-    },
-    "DataProvidersReference": null,
-    "OperatorID": 19,
-    "OperatorInfo": {
-      "WebsiteURL": "http://zerocarbonworld.org/",
-      "Comments": "UK Charity promoting carbon reduction",
-      "PhonePrimaryContact": null,
-      "PhoneSecondaryContact": null,
-      "IsPrivateIndividual": false,
-      "AddressInfo": null,
-      "BookingURL": null,
-      "ContactEmail": "info@zerocarbonworld.com",
-      "FaultReportEmail": "info@zerocarbonworld.com",
-      "IsRestrictedEdit": null,
-      "ID": 19,
-      "Title": "Zero Carbon World"
-    },
-    "OperatorsReference": null,
-    "UsageTypeID": 6,
-    "UsageType": {
-      "IsPayAtLocation": false,
-      "IsMembershipRequired": false,
-      "IsAccessKeyRequired": false,
-      "ID": 6,
-      "Title": "Private - For Staff, Visitors or Customers"
-    },
-    "UsageCost": "Token required from local shop £5 for 3 hours",
-    "AddressInfo": {
-      "ID": 131106,
-      "Title": "Henderson Hall",
-      "AddressLine1": "Penpentre, ",
-      "AddressLine2": "Talybont-on-Usk, ",
-      "Town": "Powys",
-      "StateOrProvince": "Wales",
-      "Postcode": "LD3 7YQ",
-      "CountryID": 1,
-      "Country": {
-        "ISOCode": "GB",
-        "ContinentCode": "EU",
-        "ID": 1,
-        "Title": "United Kingdom"
-      },
-      "Latitude": 51.896484,
-      "Longitude": -3.290314,
-      "ContactTelephone1": "01874-676085",
-      "ContactTelephone2": null,
-      "ContactEmail": "hendersonhalltalybont@gmail.com",
-      "AccessComments": "Need a token to use the Charging Stations",
-      "RelatedURL": "https://talybontonusk.com/community-hall/electric-vehicle-charge-point/",
-      "Distance": null,
-      "DistanceUnit": 0
-    },
-    "NumberOfPoints": 1,
-    "GeneralComments": null,
-    "DatePlanned": null,
-    "DateLastConfirmed": null,
-    "StatusTypeID": 50,
-    "StatusType": {
-      "IsOperational": true,
-      "IsUserSelectable": true,
-      "ID": 50,
-      "Title": "Operational"
-    },
-    "DateLastStatusUpdate": "2019-08-13T16:20:00Z",
-    "DataQualityLevel": 1,
-    "DateCreated": "2019-08-13T16:04:00Z",
-    "SubmissionStatusTypeID": 200,
-    "SubmissionStatus": {
-      "IsLive": true,
-      "ID": 200,
-      "Title": "Submission Published"
-    },
-    "UserComments": null,
-    "PercentageSimilarity": null,
-    "Connections": [
-      {
-        "ID": 183066,
-        "ConnectionTypeID": 25,
-        "ConnectionType": {
-          "FormalName": "IEC 62196-2 Type 2",
-          "IsDiscontinued": false,
-          "IsObsolete": false,
-          "ID": 25,
-          "Title": "Mennekes (Type 2)"
-        },
-        "Reference": null,
-        "StatusTypeID": 50,
-        "StatusType": {
-          "IsOperational": true,
-          "IsUserSelectable": true,
-          "ID": 50,
-          "Title": "Operational"
-        },
-        "LevelID": 2,
-        "Level": {
-          "Comments": "Over 2 kW, usually non-domestic socket type",
-          "IsFastChargeCapable": false,
-          "ID": 2,
-          "Title": "Level 2 : Medium (Over 2kW)"
-        },
-        "Amps": 32,
-        "Voltage": 230,
-        "PowerKW": 7.0,
-        "CurrentTypeID": 10,
-        "CurrentType": {
-          "Description": "Alternating Current - Single Phase",
-          "ID": 10,
-          "Title": "AC (Single-Phase)"
-        },
-        "Quantity": 2,
-        "Comments": null
-      }
-    ],
-    "MediaItems": null,
-    "MetadataValues": null,
-    "IsRecentlyVerified": true,
-    "DateLastVerified": "2019-08-13T16:04:00Z"
-  }
-  
+{
+    "Records": [
+        {
+            "EventSource": "aws:sns",
+            "EventVersion": "1.0",
+            "EventSubscriptionArn": "arn:aws:sns:eu-west-1:684820422607:cleantechsim_evchargers_topic:b729e444-1067-445a-9bb8-0a06c883e645",
+            "Sns": {
+                "Type": "Notification",
+                "MessageId": "e4ab4188-2671-5fe1-8d60-145495d24761",
+                "TopicArn": "arn:aws:sns:eu-west-1:684820422607:cleantechsim_evchargers_topic",
+                "Subject": null,
+                "Message": "{\"ID\":93676,\"UUID\":\"1FC26EFB-60E4-4227-AF0F-93054ADD7E12\",\"DataProviderID\":1,\"OperatorID\":23,\"OperatorsReference\":\"36010\",\"UsageTypeID\":4,\"UsageCost\":\"HKD 2.90/kWh; /other tariffs for older cars\",\"AddressInfo\":{\"ID\":94022,\"Title\":\"Hong Kong - V City Supercharger\",\"AddressLine1\":\"83 Tuen Mun Heung Sze Wui RD\",\"Town\":\"Hong Kong\",\"CountryID\":4,\"Latitude\":22.396244,\"Longitude\":113.974016,\"DistanceUnit\":0,\"Country\":{\"ID\":4,\"ISOCode\":\"HK\",\"ContinentCode\":\"AS\",\"Title\":\"Hong Kong\"}},\"NumberOfPoints\":4,\"GeneralComments\":\"Charging4 Superchargers, available 24/7, up to 120kW\",\"StatusTypeID\":50,\"DateLastStatusUpdate\":\"2019-03-22T20:58:00Z\",\"DataQualityLevel\":1,\"DateCreated\":\"2017-10-05T05:33:00Z\",\"SubmissionStatusTypeID\":200,\"Connections\":[{\"ID\":132634,\"ConnectionTypeID\":27,\"StatusTypeID\":50,\"LevelID\":3,\"PowerKW\":120.0,\"CurrentTypeID\":30,\"Quantity\":4}],\"IsRecentlyVerified\":false,\"DownloadTime\":\"2019-08-25T16:04Z\"}",
+                "Timestamp": "2019-08-25T16:03:47.310Z",
+                "SignatureVersion": "1",
+                "Signature": "nsQpM7F5pR1Apm1oai5pNKiQ/BtENzuBFll0QD0CS1XkBasVT7nlOq+/9pPuM4OFdnqmn68X45bmRNKrnSOdXeeq6aOM5e1FfZmVeoG3G3mPLMaZPuN/RgJPio4GcT3dTY9c3rt2I3nxa/oOEhnKSYgXA7nEio7wTpCr78tbPq5FQ9P0zsgb7uORZ1+xkHWegO4Zie3QrCjY28NqPMTCw5+mTPC7uxyUuxPkkuzDCmw8Rl9gym5zwuVQq6TcVE+vilXpjpOJRtnNZB0W5rHV+zDaUPYEnzkHt0JE4RKr4Jg3grwgp40rKKEzDLVBx1vn1WXRrMmxxnKbSqzuz5DgWQ==",
+                "SigningCertUrl": "https://sns.eu-west-1.amazonaws.com/SimpleNotificationService-6aad65c2f9911b05cd53efda11f913f9.pem",
+                "UnsubscribeUrl": "https://sns.eu-west-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-1:684820422607:cleantechsim_evchargers_topic:b729e444-1067-445a-9bb8-0a06c883e645",
+                "MessageAttributes": {}
+            }
+        }
+    ]
+}

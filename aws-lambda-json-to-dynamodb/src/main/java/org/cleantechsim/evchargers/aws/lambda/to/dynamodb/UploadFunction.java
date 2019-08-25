@@ -1,5 +1,7 @@
 package org.cleantechsim.evchargers.aws.lambda.to.dynamodb;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -35,11 +37,13 @@ public class UploadFunction {
 					.withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
 					.build();
 			
-			final Map<String, AttributeValue> item = convertJson(json);
+			final List<Map<String, AttributeValue>> items = convertJson(json);
 			
-			final PutItemRequest request = new PutItemRequest("EVChargers", item);
+			for (Map<String, AttributeValue> item : items) {
+				final PutItemRequest request = new PutItemRequest("EVChargers", item);
 			
-			client.putItem(request);
+				client.putItem(request);
+			}
 		}
 		finally {
 			try {
@@ -96,7 +100,6 @@ public class UploadFunction {
 		}
 	}
 	
-	
 	private static List<AttributeValue> convertJsonArray(JsonNode jsonNode) {
 		
 		final List<AttributeValue> result = new ArrayList<>(jsonNode.size());
@@ -124,40 +127,76 @@ public class UploadFunction {
 		return result;
 	}
 	
-	static Map<String, AttributeValue> convertJson(InputStream json) {
+	static List<Map<String, AttributeValue>> convertJson(InputStream json) {
 
 		final ObjectMapper mapper = new ObjectMapper();
 		
-		final JsonNode node;
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		
+		final JsonNode snsMessage;
 		
 		try {
-			node = mapper.readTree(json);
+			final byte [] buf = new byte[10000];
+			for (;;) {
+				
+				final int bytesRead = json.read(buf);
+				
+				if (bytesRead < 0) {
+					break;
+				}
+				
+				baos.write(buf, 0, bytesRead);
+			}
+			
+			final String jsonString = new String(baos.toByteArray());
+			
+			snsMessage = mapper.readTree(new ByteArrayInputStream(jsonString.getBytes()));
+			
 		} catch (IOException ex) {
 			throw new IllegalStateException(ex);
 		}
-		
-		final JsonNode addressInfo = node.get("AddressInfo");
-		
-		final String country = addressInfo.get("Country").get("ISOCode").asText();
-		
-		final String id = node.get("ID").asText();
-		
-		final Map<String, AttributeValue> item = new HashMap<>();
-		
-		Objects.requireNonNull(country);
-		
-		item.put("Country", new AttributeValue(country));
-		// item.put("Location", new AttributeValue(sb.toString()));
-		
-		final AttributeValue value = new AttributeValue();
-		
-		value.setN(id);
-		
-		item.put("ID", value);
 
-		jsonToAttributes(node, item);
+		final JsonNode recordsNode = snsMessage.get("Records");
+		final int numRecords = recordsNode.size();
+		
+		final List<Map<String, AttributeValue>> list = new ArrayList<>();
 
-		return item;
+		for (int i = 0; i < numRecords; ++ i) {
+			final String message = recordsNode.get(i).get("Sns").get("Message").asText();
+	
+			final JsonNode messageNode;
+			
+			try {
+				messageNode = mapper.readTree(message);
+			}
+			catch (IOException ex) {
+				throw new IllegalStateException(ex);
+			}
+	
+			final JsonNode addressInfo = messageNode.get("AddressInfo");
+			
+			final String country = addressInfo.get("Country").get("ISOCode").asText();
+			
+			final String id = messageNode.get("ID").asText();
+			
+			final Map<String, AttributeValue> item = new HashMap<>();
+			
+			Objects.requireNonNull(country);
+			
+			item.put("Country", new AttributeValue(country));
+			
+			final AttributeValue value = new AttributeValue();
+			
+			value.setN(id);
+			
+			item.put("ID", value);
+	
+			jsonToAttributes(messageNode, item);
+
+			list.add(item);
+		}
+		
+		return list;
 	}
 	
 	@SuppressWarnings("unused")
