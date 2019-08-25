@@ -68,21 +68,46 @@ public class UploadFunction {
 				continue;
 			}
 			
-			final AttributeValue value = new AttributeValue();
+			final AttributeValue value;
 			
 			if (fieldNode.isNumber()) {
-				value.setN(fieldNode.asText());
+				
+				final String text = fieldNode.asText().trim();
+				
+				if (text.isEmpty()) {
+					value = null;
+				}
+				else {
+					value = new AttributeValue();
+					
+					value.setN(text);
+				}
 			}
 			else if (fieldNode.isTextual()) {
-				value.setS(fieldNode.asText());
+				
+				final String text = fieldNode.asText().trim();
+				
+				if (text.isEmpty()) {
+					value = null;
+				}
+				else {
+					value = new AttributeValue();
+					
+					value.setS(text);
+				}
 			}
 			else if (fieldNode.isBoolean()) {
+				value = new AttributeValue();
 				value.setBOOL(fieldNode.asBoolean());
 			}
 			else if (fieldNode.isArray()) {
 				
 				if (fieldNode.size() > 0) {
+					value = new AttributeValue();
 					value.setL(convertJsonArray(fieldNode));
+				}
+				else {
+					value = null;
 				}
 			}
 			else if (fieldNode.isObject()) {
@@ -90,13 +115,21 @@ public class UploadFunction {
 				
 				jsonToAttributes(fieldNode, subFields);
 				
-				value.setM(subFields);
+				if (!subFields.isEmpty()) {
+					value = new AttributeValue();
+					value.setM(subFields);
+				}
+				else {
+					value = null;
+				}
 			}
 			else {
 				throw new IllegalArgumentException("field is a " + fieldNode.getNodeType());
 			}
 			
-			fields.put(fieldName, value);
+			if (value != null) {
+				fields.put(fieldName, value);
+			}
 		}
 	}
 	
