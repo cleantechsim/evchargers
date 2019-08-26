@@ -65,6 +65,8 @@ public class SQSToElasticSearchMain {
 	
 	private static void pollForMessages(AmazonSQS client, HttpClientContext httpContext, HttpClientConnectionManager connectionManager, HttpRoute route, ObjectMapper objectMapper) throws IOException, InterruptedException, ExecutionException, HttpException {
 
+		int count = 0;
+		
 		for (;;) {
 			
 			final ConnectionRequest connRequest = connectionManager.requestConnection(route, null);
@@ -80,30 +82,15 @@ public class SQSToElasticSearchMain {
 				
 				request.setVisibilityTimeout(1);
 				
-				System.out.println("## call receiveMessage");
 				final ReceiveMessageResult result = client.receiveMessage(request);
 			
-				System.out.println("## got result " + result);
-				
 				if (result == null || result.getMessages().isEmpty()) {
 					break;
 				}
 				
 				for (Message message : result.getMessages()) {
 					
-					final String messageBody = message.getBody();
-
-					System.out.println("## got message body " + messageBody);
-					
-					final JsonNode jsonNode = objectMapper.readTree(messageBody);
-					
-					System.out.println("## got json node " + jsonNode);
-					jsonNode.fieldNames().forEachRemaining(name -> System.out.println(name));
-					
-					final String publishedMessage = messageBody;
-					
-					
-					System.out.println("## published message " + publishedMessage);
+					final String publishedMessage = message.getBody();
 
 					final JsonNode published = objectMapper.readTree(publishedMessage);
 					
@@ -118,8 +105,6 @@ public class SQSToElasticSearchMain {
 					}
 					
 					final String url = "/evchargers/_doc/" + id;
-					
-					System.out.println("## posting to " + url);
 					
 					final HttpPut put = new HttpPut(url);
 					
@@ -138,14 +123,17 @@ public class SQSToElasticSearchMain {
 					final HttpResponse response = connection.receiveResponseHeader();
 
 					if (response.getEntity() != null) {
-						
-						System.out.println("## response " + response.getEntity());
-						
 						EntityUtils.consume(response.getEntity());
 					}
 
 					if (response.getStatusLine().getStatusCode() >= 300) {
 						throw new IllegalStateException("Non-OK response " + response.getStatusLine().getStatusCode() + ' ' + response.getStatusLine().getReasonPhrase());
+					}
+					
+					++ count;
+					
+					if (count % 5000 == 0) {
+						System.out.println("Processed " + count + " since start");
 					}
 					
 					client.deleteMessage(queueUrl, message.getReceiptHandle());
