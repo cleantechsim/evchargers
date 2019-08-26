@@ -100,7 +100,7 @@ public class SQSToElasticSearchMain {
 					System.out.println("## got json node " + jsonNode);
 					jsonNode.fieldNames().forEachRemaining(name -> System.out.println(name));
 					
-					final String publishedMessage = jsonNode.get("Message").asText();
+					final String publishedMessage = messageBody;
 					
 					
 					System.out.println("## published message " + publishedMessage);
