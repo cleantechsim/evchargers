@@ -11,6 +11,17 @@ export class ChargersByCountryAndYearRoadServiceHelper extends ChargersByCountry
             params,
             [],
             country => Object.keys(country.valueByYear),
-            (country, numberOfChargers) => numberOfChargers / (country.roadNetworkLength / 1000));
+            (country, numberOfChargers) => {
+
+                let result: number;
+
+                if (numberOfChargers && country.roadNetworkLength) {
+                    result = numberOfChargers / (country.roadNetworkLength / 1000);
+                } else {
+                    result = 0;
+                }
+
+                return result;
+            });
     }
 }
