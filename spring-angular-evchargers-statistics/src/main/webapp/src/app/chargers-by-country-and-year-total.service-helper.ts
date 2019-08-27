@@ -53,9 +53,9 @@ export class ChargersByCountryAndYearTotalServiceHelper extends ChargersByCountr
 
             const countryYears = data.countries[countryCode];
 
-            for (const year of Object.keys(countryYears.countByYear)) {
+            for (const year of Object.keys(countryYears.valueByYear)) {
 
-                const count: number = countryYears.countByYear[year];
+                const count: number = countryYears.valueByYear[year];
 
                 if (totalByYear[year]) {
                     totalByYear[year] += count;
