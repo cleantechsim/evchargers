@@ -4,6 +4,7 @@
 
   <div id="all-graphs">
 
+    <div class="by-country-and-year-header">{{chargersHeader}}</div>
     <div class="by-country-and-year-inputs">
       <select (change)="onChargersByCountryAndYearPresentationChange($event.target.value)">
         <option *ngFor="let presentation of presentations" value="{{presentation.value}}">{{presentation.text}}</option>
@@ -21,6 +22,8 @@
         (serverCountriesChanged)="chargersByCountryAndYearCountrySelection.updateCountries($event.displayedCountries, $event.allCountries)">
       </app-chargers-by-country-and-year-graph>
     </div>
+
+    <div class="by-country-and-year-header">{{capacityHeader}}</div>
 
     <div class="by-country-and-year-inputs">
       <app-country-selection #capacityByCountryAndYearCountrySelection

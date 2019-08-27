@@ -24,6 +24,14 @@ export class AppComponent {
     return this.chargersByCountryAndYearGraphComponent.presentations;
   }
 
+  get chargersHeader() {
+    return 'Showing total number of chargers per year';
+  }
+
+  get capacityHeader() {
+    return 'Showing average power of chargers added each year';
+  }
+
   onChargersByCountryAndYearPresentationChange(value: string): void {
     this.chargersByCountryAndYearGraphComponent.onChargersByCountryAndYearPresentationChange(value);
   }
