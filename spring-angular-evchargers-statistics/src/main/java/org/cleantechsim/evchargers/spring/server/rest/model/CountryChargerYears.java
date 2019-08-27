@@ -1,24 +1,30 @@
 package org.cleantechsim.evchargers.spring.server.rest.model;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
-public final class CountryChargerYears {
+public final class CountryChargerYears extends CountryYears {
 
-	private final String countryDisplayName;
-	private final Map<Integer, Integer> countByYear;
+	private final Integer population;
+	private final Integer roadNetworkLength;
 
-	public CountryChargerYears(String countryDisplayName, Map<Integer, Integer> countByYear) {
-		this.countryDisplayName = countryDisplayName;
-		this.countByYear = Collections.unmodifiableMap(new HashMap<>(countByYear));
+	public CountryChargerYears(
+			String countryDisplayName,
+			Map<Integer, Integer> valueByYear,
+			Integer population,
+			Integer roadNetworkLength
+			) {
+		
+		super(countryDisplayName, valueByYear);
+		
+		this.population = population;
+		this.roadNetworkLength = roadNetworkLength;
 	}
 
-	public String getCountryDisplayName() {
-		return countryDisplayName;
+	public Integer getPopulation() {
+		return population;
 	}
 
-	public Map<Integer, Integer> getCountByYear() {
-		return countByYear;
+	public Integer getRoadNetworkLength() {
+		return roadNetworkLength;
 	}
 }

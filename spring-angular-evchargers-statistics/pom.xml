@@ -11,6 +11,11 @@
 	<name>evchargers-spring-server</name>
 	<description>CleanTechSim EV charger statistics spring server</description>
 
+	<properties>
+        <elasticsearch.version>6.8.2</elasticsearch.version>
+		<azure-storage.version>8.3.0</azure-storage.version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -61,6 +66,18 @@
 			<version>${springBootVersion}</version>
 			<scope>test</scope>
 		</dependency>
+		
+        <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}</version>
+        </dependency>
+
+                <dependency>
+                        <groupId>com.microsoft.azure</groupId>
+                        <artifactId>azure-storage</artifactId>
+                        <version>${azure-storage.version}</version>
+                </dependency>
 	</dependencies>
 
 	<build>
