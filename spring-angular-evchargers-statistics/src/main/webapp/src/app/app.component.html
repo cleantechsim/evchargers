@@ -2,39 +2,45 @@
   <h1 id="main-title">EV charger statistics</h1>
   <p id="main-text">Shows global statistics for EV charging stations</p>
 
-  <div id="all-graphs">
+  <div id="all-graphs-wrapper">
+    <div id="all-graphs">
 
-    <div class="by-country-and-year-header">{{chargersHeader}}</div>
-    <div class="by-country-and-year-inputs">
-      <select (change)="onChargersByCountryAndYearPresentationChange($event.target.value)">
-        <option *ngFor="let presentation of presentations" value="{{presentation.value}}">{{presentation.text}}</option>
-      </select>
+      <div class="by-country-and-year-header">{{chargersHeader}}</div>
 
-      <div id="chargers-by-country-and-year-inputs-countries">
-        <app-country-selection #chargersByCountryAndYearCountrySelection
-          (countriesChanged)="chargersByCountryAndYearGraph.onCountriesSelectionChange($event)">
+      <div class="by-country-and-year-inputs">
+        <select (change)="onChargersByCountryAndYearPresentationChange($event.target.value)">
+          <option *ngFor="let presentation of presentations" value="{{presentation.value}}">{{presentation.text}}
+          </option>
+        </select>
+
+        <div id="chargers-by-country-and-year-inputs-countries">
+          <app-country-selection #chargersByCountryAndYearCountrySelection
+            (countriesChanged)="chargersByCountryAndYearGraph.onCountriesSelectionChange($event)">
+          </app-country-selection>
+        </div>
+      </div>
+
+      <div class="by-country-and-year-graph">
+        <app-chargers-by-country-and-year-graph #chargersByCountryAndYearGraph
+          (serverCountriesChanged)="chargersByCountryAndYearCountrySelection.updateCountries($event.displayedCountries, $event.allCountries)">
+        </app-chargers-by-country-and-year-graph>
+      </div>
+
+      <div id="grid-spacer"></div>
+
+      <div id="capacity-header" class="by-country-and-year-header">{{capacityHeader}}</div>
+
+      <div class="by-country-and-year-inputs">
+        <app-country-selection #capacityByCountryAndYearCountrySelection
+          (countriesChanged)="capacityByCountryAndYearGraph.onCountriesSelectionChange($event)">
         </app-country-selection>
       </div>
-    </div>
 
-    <div class="by-country-and-year-graph">
-      <app-chargers-by-country-and-year-graph #chargersByCountryAndYearGraph
-        (serverCountriesChanged)="chargersByCountryAndYearCountrySelection.updateCountries($event.displayedCountries, $event.allCountries)">
-      </app-chargers-by-country-and-year-graph>
-    </div>
-
-    <div class="by-country-and-year-header">{{capacityHeader}}</div>
-
-    <div class="by-country-and-year-inputs">
-      <app-country-selection #capacityByCountryAndYearCountrySelection
-        (countriesChanged)="capacityByCountryAndYearGraph.onCountriesSelectionChange($event)">
-      </app-country-selection>
-    </div>
-
-    <div class="by-country-and-year-graph">
-      <app-capacity-by-country-and-year-graph #capacityByCountryAndYearGraph
-        (serverCountriesChanged)="capacityByCountryAndYearCountrySelection.updateCountries($event.displayedCountries, $event.allCountries)">
-        ></app-capacity-by-country-and-year-graph>
+      <div class="by-country-and-year-graph">
+        <app-capacity-by-country-and-year-graph #capacityByCountryAndYearGraph
+          (serverCountriesChanged)="capacityByCountryAndYearCountrySelection.updateCountries($event.displayedCountries, $event.allCountries)">
+          ></app-capacity-by-country-and-year-graph>
+      </div>
     </div>
   </div>
 </div>

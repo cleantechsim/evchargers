@@ -42,15 +42,39 @@
     padding-top: 5px;
 }
 
+
+#all-graphs-wrapper {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+}
+
 #all-graphs {
     width: 100%;
     height: 100%;
 
     display: grid;
     grid-template-columns: 30% 70%;
-    grid-template-rows: 3% 45% 3% 45%;
+    grid-template-rows: 3% 45% 3px 3% 45%;
 
-    grid-row-gap: 0.5%;    
+    grid-row-gap: 0.5%;
+
+    border: 3px solid #F0F0F0;
+    border-radius: 5px;
+
+    box-sizing: border-box;
+}
+
+#grid-spacer {
+    grid-column-start: 1;
+    grid-column-end: span 2;
+}
+
+#capacity-header {
+    border-top: 3px solid #F0F0F0;
+    width: 98%; /* for border not covering all width */
+    margin: auto;
 }
 
 .by-country-and-year-header {
@@ -60,6 +84,9 @@
     text-align: center;
     font-family: sans-serif;
     font-size: 1.05em;
+
+    padding-top: 3px;
+    box-sizing: border-box;
 }
 
 .by-country-and-year-inputs {
