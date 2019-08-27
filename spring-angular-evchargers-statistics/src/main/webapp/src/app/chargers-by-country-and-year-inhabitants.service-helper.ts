@@ -13,12 +13,12 @@ export class ChargersByCountryAndYearInhabitantsServiceHelper extends ChargersBy
             params,
             [],
             country => Object.keys(country.valueByYear),
-            (country, numberOfChargers) => {
+            (country, numberOfChargers, sum) => {
 
                 let result: number;
 
-                if (numberOfChargers && country.population) {
-                    result = numberOfChargers / (country.population / 1000);
+                if (sum && country.population) {
+                    result = sum / (country.population / 1000);
                 } else {
                     result = 0;
                 }

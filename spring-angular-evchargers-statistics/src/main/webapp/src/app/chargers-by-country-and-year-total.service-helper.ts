@@ -27,7 +27,7 @@ export class ChargersByCountryAndYearTotalServiceHelper extends ChargersByCountr
             params,
             datasets,
             country => globalTotal.years,
-            (country, value) => value);
+            (country, value, sum) => sum);
     }
 
     private static getJSDataSetSortedByYear(label: string, numberByYear: object): YearsAndDataSet {
@@ -38,8 +38,13 @@ export class ChargersByCountryAndYearTotalServiceHelper extends ChargersByCountr
 
         const datasetArray: number[] = [];
 
+        let sum = 0;
+
         for (const year of years) {
-            datasetArray.push(numberByYear[year]);
+
+            sum += numberByYear[year];
+
+            datasetArray.push(sum);
         }
 
         return new YearsAndDataSet(years, new ChartJSDataset(label, datasetArray));

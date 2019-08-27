@@ -16,7 +16,7 @@ export class BaseByCountryAndYearServiceHelper {
 
     private static getMaxValueByCountry<COUNTRY_JSON extends JSONCountryBase>(
         jsonCountries: object,
-        makeDataPoint: (country: COUNTRY_JSON, value: number) => number): object {
+        makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): object {
 
         // Get maximum per country
         const maxValueByCountry = {};
@@ -25,9 +25,9 @@ export class BaseByCountryAndYearServiceHelper {
             null,
             country => Object.keys(country.valueByYear),
             (allData, countryCode, country) => { maxValueByCountry[countryCode] = 0; return country; },
-            (country, countryCode, year, numberOfChargers) => {
+            (country, countryCode, year, numberOfChargers, sumNumberOfChargers) => {
 
-                const chargers = makeDataPoint(country, numberOfChargers);
+                const chargers = makeDataPoint(country, numberOfChargers, sumNumberOfChargers);
 
                 if (maxValueByCountry[countryCode] < chargers) {
                     maxValueByCountry[countryCode] = chargers;
@@ -43,7 +43,7 @@ export class BaseByCountryAndYearServiceHelper {
         allData: ALL_DATA,
         yearsFn: (country: COUNTRY_JSON) => string[],
         countryFn: (allData: ALL_DATA, countryCode: string, country: COUNTRY_JSON) => COUNTRY_DATA,
-        yearFn: (countryData: COUNTRY_DATA, countryCode: string, year: string, value: number) => void) {
+        yearFn: (countryData: COUNTRY_DATA, countryCode: string, year: string, value: number, sum: number) => void) {
 
         for (const countryCode of Object.keys(countries)) {
 
@@ -67,14 +67,18 @@ export class BaseByCountryAndYearServiceHelper {
         countryCode: string,
         years: string[],
         data: DATA,
-        yearFn: (data: DATA, countryCode: string, year: string, value: number) => void) {
+        yearFn: (data: DATA, countryCode: string, year: string, value: number, sum: number) => void) {
+
+        let sum = 0;
 
         for (const year of years) {
 
             const value: number = country.valueByYear[year];
 
+            sum += value;
+
             if (yearFn) {
-                yearFn(data, countryCode, year, value);
+                yearFn(data, countryCode, year, value, sum);
             }
         }
     }
@@ -102,7 +106,7 @@ export class BaseByCountryAndYearServiceHelper {
         params: CommonByCountryAndYearParams,
         datasets: ChartJSDataset[],
         yearsFn: (country: COUNTRY_JSON) => string[],
-        makeDataPoint: (country: COUNTRY_JSON, value: number) => number): CountryChartJSData {
+        makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): CountryChartJSData {
 
         const maxValueByCountry: object = this.getMaxValueByCountry(jsonCountries, makeDataPoint);
 
@@ -125,7 +129,7 @@ export class BaseByCountryAndYearServiceHelper {
         params: CommonByCountryAndYearParams,
         datasets: ChartJSDataset[],
         yearsFn: (country: COUNTRY_JSON) => string[],
-        makeDataPoint: (country: COUNTRY_JSON, value: number) => number): CountryChartJSData {
+        makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): CountryChartJSData {
 
         let countriesToReturn: string[];
 
@@ -177,11 +181,11 @@ export class BaseByCountryAndYearServiceHelper {
 
             // Iterate over each year from total
             this.forEachYear(country, countryCode, allYears, countryDataset,
-                (dataset, code, year, value) => {
+                (dataset, code, year, value, sum) => {
 
-                    const countForYear: number = country.valueByYear[year];
+                    const countForYear: number = value;
 
-                    dataset.push(countForYear ? makeDataPoint(country, countForYear) : null);
+                    dataset.push(countForYear ? makeDataPoint(country, countForYear, sum) : null);
                 });
 
 
