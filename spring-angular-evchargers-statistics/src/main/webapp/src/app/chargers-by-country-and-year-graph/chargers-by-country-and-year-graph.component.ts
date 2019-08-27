@@ -51,7 +51,8 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
       'per_thousand_inhabitants',
       'Per 1000 inhabitants'),
 
-    new PresentationToText(ChargersByCountryAndYearPresentation.TOTAL_NUMBER_OF_CHARGERS,
+    new PresentationToText(
+      ChargersByCountryAndYearPresentation.TOTAL_NUMBER_OF_CHARGERS,
       'total',
       'Total number of chargers')
   ];

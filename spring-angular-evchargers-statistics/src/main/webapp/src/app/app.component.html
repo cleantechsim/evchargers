@@ -10,7 +10,6 @@
       </select>
 
       <div id="chargers-by-country-and-year-inputs-countries">
-        <label class="by-country-and-year-inputs-countries-label">Select countries</label>
         <app-country-selection #chargersByCountryAndYearCountrySelection
           (countriesChanged)="chargersByCountryAndYearGraph.onCountriesSelectionChange($event)">
         </app-country-selection>
@@ -24,7 +23,6 @@
     </div>
 
     <div class="by-country-and-year-inputs">
-      <label class="by-country-and-year-inputs-countries-label">Select countries</label>
       <app-country-selection #capacityByCountryAndYearCountrySelection
         (countriesChanged)="capacityByCountryAndYearGraph.onCountriesSelectionChange($event)">
       </app-country-selection>
