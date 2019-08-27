@@ -1,0 +1,302 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
+    <link rel="stylesheet" href="/public/css/site.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div>test and change to something</div>
+
+    <div id="map"></div>
+
+    <script>
+
+        var allMarkers = {};
+
+        document.addEventListener('DOMContentLoaded', event => {
+            var map = L.map('map').setView([51.505, -0.09], 2.2);
+
+            // map.addEventListener('zoomend', event => queryClustersAndPoints(map, 'zoomend'));
+            map.addEventListener('resize', event => queryClustersAndPoints(map, 'resize'));
+            map.addEventListener('moveend', event => queryClustersAndPoints(map, 'moveend'))
+
+            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                maxZoom: 18,
+                id: 'mapbox.streets',
+                accessToken: 'pk.eyJ1IjoiY2xlYW50ZWNoc2ltIiwiYSI6ImNqemgzbXFncDBxb2EzbW5yNGthbmw2eWIifQ.zVEa05l5txqao_on4IwX9A'
+            }).addTo(map);
+        })
+
+        function queryClustersAndPoints(map, eventType) {
+
+            const debug = true;
+            if (!map) {
+                throw "No map"
+            }
+
+            var zoom = map.getZoom();
+            var bounds = map.getBounds();
+
+            swLongitude = normalizeLongitude(bounds._southWest.lng);
+            neLongitude = normalizeLongitude(bounds._northEast.lng);
+
+            var markerWidthKMs = computeMaxDiameterMarker(map, 25, debug);
+
+            if (debug) {
+                console.log('## marker width in kms ' + markerWidthKMs);
+            }
+
+            axios.get('/rest/map'
+                + '?zoom=' + zoom
+                + '&swLatitude=' + bounds._southWest.lat
+                + '&swLongitude=' + swLongitude
+                + '&neLatitude=' + bounds._northEast.lat
+                + '&neLongitude=' + neLongitude
+                + '&markerDiameterKM=' + markerWidthKMs
+
+            ).then(function (response) {
+                updateMarkers(map, response.data, debug);
+            })
+        }
+
+        function computeMaxDiameterMarker(map, markerWidthInPixels, debug) {
+
+            var mapGeoBounds = map.getBounds();
+            var mapPixelBounds = map.getSize();
+
+            var centerLatitude = mapGeoBounds.getCenter().lat;
+            var centerLongitude = mapGeoBounds.getCenter().lng;
+
+            // Find distance at middle of map
+            var geoWidthMeters = map.distance(
+                L.latLng(
+                    centerLatitude,
+                    mapGeoBounds.getWest()
+                ),
+                L.latLng(
+                    centerLatitude,
+                    mapGeoBounds.getEast())
+            );
+
+            var halfWorldWidthMeters = map.distance(
+                L.latLng(0, 0),
+                L.latLng(0, 180));
+
+
+            if (debug) {
+                console.log('## world width ' + (halfWorldWidthMeters * 2 / 1000));
+                console.log('## center latitude ' + centerLatitude);
+                console.log('## width in meters ' + geoWidthMeters + ', km ' + (geoWidthMeters / 1000))
+
+                var geoHeightMeters = map.distance(
+                    L.latLng(
+                        mapGeoBounds.getNorth(),
+                        centerLongitude
+                    ),
+                    L.latLng(
+                        mapGeoBounds.getSouth(),
+                        centerLongitude)
+                );
+
+                console.log('## heigh in meters ' + geoHeightMeters + ', km ' + (geoHeightMeters / 1000))
+            }
+
+
+            var pixelWorldBounds = map.getPixelWorldBounds();
+            var pixelWorldWidth = pixelWorldBounds.max.x - pixelWorldBounds.min.x;
+            var displayWidthInPixels = map.getSize().x;
+
+            if (debug) {
+                console.log('## display width ' + displayWidthInPixels + ', pixel width ' + pixelWorldWidth);
+            }
+
+            if (displayWidthInPixels > pixelWorldWidth) {
+                // Showing more than the complete world map, stop displaying clustering
+                mapWidthMeters = null;
+            }
+            else if (displayWidthInPixels > pixelWorldWidth / 2) {
+                // When computing map width in km we have to take heed of map.distance()
+                // returnning the shortest path around the globe, not across the map as it is displayed
+                if (geoWidthMeters < halfWorldWidthMeters) {
+                    // Displaying more than half of world but map width less than half
+                    // which means distance was measured "on the other side of the globe"
+                    // Adjust by subtracting from circumference
+
+                    mapWidthMeters = (halfWorldWidthMeters * 2) - geoWidthMeters;
+                }
+                else {
+                    // Return map width meters. This code path probably never runs
+                    mapWidthMeters = geoWidthMeters;
+                }
+            }
+            else {
+                // Showing less than half, just returns mapWidthMeters
+                mapWidthMeters = geoWidthMeters;
+            }
+
+            if (debug) {
+                console.log('## map width in meters ' + mapWidthMeters);
+            }
+
+            var markerDiameterKMs;
+
+            if (mapWidthMeters != null) {
+                if (markerWidthInPixels > displayWidthInPixels) {
+                    // No space for markers, just disable
+                    markerDiameterKMs = null;
+                }
+                else {
+
+                    var markerRatio = markerWidthInPixels / displayWidthInPixels;
+
+                    var markerWidthMeters = markerRatio * mapWidthMeters;
+
+                    markerDiameterKMs = markerWidthMeters / 1000;
+
+                }
+            }
+            else {
+                markerDiameterKMs = null;
+            }
+
+            if (debug) {
+                console.log('## Marker in km ' + markerDiameterKMs);
+            }
+
+            return markerDiameterKMs;
+        }
+
+
+        function normalizeLongitude(longitude) {
+            var result;
+
+            if (longitude > 180) {
+                result = 180
+            }
+            else if (longitude < -180) {
+                result = -180;
+            }
+            else {
+                result = longitude;
+            }
+
+            return result;
+        }
+
+        function updateMarkers(map, markers, debug) {
+
+            if (!map) {
+                throw "No map"
+            }
+
+            if (debug) {
+                // console.log('## map zoom level ' + map.getZoom());
+                console.log('## map bounds ' + JSON.stringify(map.getBounds()));
+                console.log('## pixel world bounds ' + JSON.stringify(map.getPixelWorldBounds()));
+                console.log('## size ' + JSON.stringify(map.getSize()));
+            }
+
+            // Update current markers based on a map of latitude/Longitude/count as string
+
+            var updatedMarkers = {};
+
+            for (var i = 0; i < markers.length; ++i) {
+
+                var marker = markers[i];
+                var key = '' + marker.latitude + '_' + marker.longitude + '_' + marker.count;
+
+                if (updateMarkers[key]) {
+                    throw "Multiple updates at " + key
+                }
+
+                if (allMarkers[key]) {
+                    // Already exists with same count so no need to update
+                    updatedMarkers[key] = allMarkers[key];
+                }
+                else {
+                    // New marker, must add
+
+                    if (debug) {
+                        console.log('## process marker ' + JSON.stringify(marker));
+                        console.log('## map ' + map);
+                    }
+
+                    // var added = L.marker([marker.latitude, marker.longitude]).addTo(map)
+
+                    var added = createSVGMarker([marker.latitude, marker.longitude], marker.count).addTo(map);
+
+                    if (debug) {
+                        console.log('## added marker ' + added);
+                    }
+
+                    // Add to map maintained on clientside so can dynamically remove later
+                    // if no longer present in result from server
+                    updatedMarkers[key] = added;
+                }
+            }
+
+            var existingMarkerKeys = Object.keys(allMarkers);
+
+            existingMarkerKeys.forEach(existingKey => {
+
+                if (updatedMarkers[existingKey]) {
+                    // Still in map
+                }
+                else {
+                    // Not in map, remove
+                    allMarkers[existingKey].remove();
+                }
+            })
+
+            // Swap map of current markers
+            allMarkers = updatedMarkers;
+        }
+
+        function createSVGMarker(pos, count) {
+
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+            svg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+
+            svg.setAttribute('width', 100);
+            svg.setAttribute('height', 100);
+
+            svg.setAttribute('viewBox', '0 0 500 500');
+
+            var html = '<g>'
+            html += '<circle cx="250" cy="250" r="200" stroke="blue" fill="blue"/>';
+            // html += '<rect x="0" y="0" width="100" height="100" fill="red"></rect>';
+            html += '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="10em" fill="black">'
+            html += count.toString();
+            html += '</text>';
+            html += '</g>';
+
+            svg.innerHTML = html;
+
+            var sw = [pos[0] - 5.05, pos[1] - 5.05];
+            var ne = [pos[0] + 5.05, pos[1] + 5.05];
+
+            var placement = [sw, ne];
+
+            console.log('## add at ' + JSON.stringify(placement));
+
+            return L.svgOverlay(svg, placement);
+
+
+            /*
+                        var svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                        svgElement.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+                        svgElement.setAttribute('viewBox', "0 0 200 200");
+                        svgElement.innerHTML = '<rect width="200" height="200"/><rect x="75" y="23" width="50" height="50" style="fill:red"/><rect x="75" y="123" width="50" height="50" style="fill:#0013ff"/>';
+                        var svgElementBounds = [[32, -130], [13, -100]];
+                        return L.svgOverlay(svgElement, svgElementBounds);
+                        */
+        }
+    </script>
+</body>
+
+</html>
