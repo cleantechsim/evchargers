@@ -33,7 +33,7 @@ export abstract class BaseByCountryAndYearGraphComponent {
         return this.selCountries;
     }
 
-    protected updateCountries(displayedCountries: Country[], allCountries: Country[]): void {
+    protected updateCountriesAndEmitChanged(displayedCountries: Country[], allCountries: Country[]): void {
 
         this.selCountries = [];
 

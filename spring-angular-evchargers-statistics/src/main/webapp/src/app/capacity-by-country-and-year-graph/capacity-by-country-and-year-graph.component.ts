@@ -27,7 +27,7 @@ export class CapacityByCountryAndYearGraphComponent extends BaseByCountryAndYear
 
     this.capacityByCountryAndYear.init(params, this.capacityByCountryAndYearService)
       .subscribe(result => {
-        this.updateCountries(result.displayedCountries, result.allCountries);
+        this.updateCountriesAndEmitChanged(result.displayedCountries, result.allCountries);
         this.updateGraph(this.selectedCountries);
       });
   }
@@ -38,6 +38,6 @@ export class CapacityByCountryAndYearGraphComponent extends BaseByCountryAndYear
       BaseByCountryAndYearGraphComponent.MAX_COUNTRIES);
 
     this.capacityByCountryAndYear.update(params, this.capacityByCountryAndYearService)
-      .subscribe(result => this.updateCountries(result.displayedCountries, result.allCountries));
+      .subscribe(result => this.updateCountriesAndEmitChanged(result.displayedCountries, result.allCountries));
   }
 }

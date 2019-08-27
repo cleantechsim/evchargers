@@ -89,7 +89,7 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
 
     this.chargersByCountryAndYear.init(params, this.chargersByCountryAndYearService)
       .subscribe(result => {
-        this.updateCountries(result.displayedCountries, result.allCountries);
+        this.updateCountriesAndEmitChanged(result.displayedCountries, result.allCountries);
         this.updateGraphForPresentation(this.selectedCountries, this.curPresentation);
       });
   }
@@ -111,7 +111,7 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
       null);
 
     this.chargersByCountryAndYear.update(params, this.chargersByCountryAndYearService)
-      .subscribe(result => this.updateCountries(result.displayedCountries, result.allCountries));
+      .subscribe(result => this.updateCountriesAndEmitChanged(result.displayedCountries, result.allCountries));
   }
 
   onChargersByCountryAndYearPresentationChange(value: string): void {

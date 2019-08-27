@@ -175,7 +175,7 @@ export class BaseByCountryAndYearServiceHelper {
 
             countries.push(new Country(countryCode, country.countryDisplayName));
 
-            // Iterate over each yer from total
+            // Iterate over each year from total
             this.forEachYear(country, countryCode, allYears, countryDataset,
                 (dataset, code, year, value) => {
 
