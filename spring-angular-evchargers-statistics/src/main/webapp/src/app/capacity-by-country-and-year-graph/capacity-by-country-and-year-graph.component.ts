@@ -28,7 +28,6 @@ export class CapacityByCountryAndYearGraphComponent extends BaseByCountryAndYear
     this.capacityByCountryAndYear.init(params, this.capacityByCountryAndYearService)
       .subscribe(result => {
         this.updateCountriesAndEmitChanged(result.displayedCountries, result.allCountries);
-        this.updateGraph(this.selectedCountries);
       });
   }
 

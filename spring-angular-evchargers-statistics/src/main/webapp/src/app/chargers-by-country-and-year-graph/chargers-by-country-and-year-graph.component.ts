@@ -90,7 +90,6 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
     this.chargersByCountryAndYear.init(params, this.chargersByCountryAndYearService)
       .subscribe(result => {
         this.updateCountriesAndEmitChanged(result.displayedCountries, result.allCountries);
-        this.updateGraphForPresentation(this.selectedCountries, this.curPresentation);
       });
   }
 
