@@ -133,7 +133,6 @@ export class BaseByCountryAndYearServiceHelper {
         yearsFn: (country: COUNTRY_JSON) => string[],
         makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): CountryChartJSData {
 
-        let countriesToReturn: string[];
 
         const countryCodes: object = {};
 
@@ -141,38 +140,15 @@ export class BaseByCountryAndYearServiceHelper {
             countryCodes[cac.country] = cac.count;
         }
 
-        // Has user selected countries?
-        if (params.countriesToReturn != null) {
-            if (params.countriesToReturn.length === 0) {
-                // User selected countries but all deselected, set to null for check later in function
-                countriesToReturn = null;
-            } else {
-                countriesToReturn = params.countriesToReturn;
-            }
-        } else {
-            const numCountries = params && params.maxCountriesToReturn
-                ? Math.min(countryAndCount.length, params.maxCountriesToReturn)
-                : countryAndCount.length;
-
-            countriesToReturn = [];
-
-            // Get countries to display in graph based on max
-            for (let i = 0; i < numCountries; ++i) {
-                if (countryAndCount[i].count === 0) {
-                    break;
-                }
-
-                countriesToReturn.push(countryAndCount[i].country);
-            }
-        }
 
         // Now have countries sorted, make datasets for the countries with most chargers
         const displayedCountries: Country[] = [];
 
+        // Countries to return graph data for, null if not returning any graph data
+        const countriesToReturn: string[] = this.getCountriesToReturnGraphDataSetsFor(params, countryAndCount);
 
         // Find max value for all countries and all years for sorting selection list
         // independent of whether or not country is selected
-
 
         const allYears: string[] = this.getYearsFromCountriesSorted(
             jsonCountries,
@@ -228,6 +204,40 @@ export class BaseByCountryAndYearServiceHelper {
         allCountries.sort((country, other) => - comparator(country, other));
 
         return new CountryChartJSData(chartYears, datasets, displayedCountries, allCountries);
+    }
+
+    private static getCountriesToReturnGraphDataSetsFor(
+        params: CommonByCountryAndYearParams,
+        countryAndCount: CountryAndCount[]): string[] {
+
+        let countriesToReturn: string[];
+
+        // Has user selected countries?
+        if (params.countriesToReturn != null) {
+            if (params.countriesToReturn.length === 0) {
+                // User selected countries but all deselected, set to null for check later in function
+                countriesToReturn = null;
+            } else {
+                countriesToReturn = params.countriesToReturn;
+            }
+        } else {
+            const numCountries = params && params.maxCountriesToReturn
+                ? Math.min(countryAndCount.length, params.maxCountriesToReturn)
+                : countryAndCount.length;
+
+            countriesToReturn = [];
+
+            // Get countries to display in graph based on max
+            for (let i = 0; i < numCountries; ++i) {
+                if (countryAndCount[i].count === 0) {
+                    break;
+                }
+
+                countriesToReturn.push(countryAndCount[i].country);
+            }
+        }
+
+        return countriesToReturn;
     }
 
     private static getMaxValueByCountryForAllYears<COUNTRY_JSON extends JSONCountryBase>(
