@@ -133,13 +133,6 @@ export class BaseByCountryAndYearServiceHelper {
         yearsFn: (country: COUNTRY_JSON) => string[],
         makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): CountryChartJSData {
 
-
-        const countryCodes: object = {};
-
-        for (const cac of countryAndCount) {
-            countryCodes[cac.country] = cac.count;
-        }
-
         // Countries to return graph data for, null if not returning any graph data
         const countriesToReturn: string[] = this.getCountriesToReturnGraphDataSetsFor(params, countryAndCount);
 
@@ -307,7 +300,4 @@ export class BaseByCountryAndYearServiceHelper {
 
         return allYears;
     }
-
 }
-
-
