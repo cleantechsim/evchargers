@@ -129,7 +129,7 @@ export class BaseByCountryAndYearServiceHelper {
         jsonCountries: any,
         countryAndCount: CountryAndCount[],
         params: CommonByCountryAndYearParams,
-        datasets: ChartJSDataset[],
+        outDatasets: ChartJSDataset[],
         yearsFn: (country: COUNTRY_JSON) => string[],
         makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): CountryChartJSData {
 
@@ -139,10 +139,6 @@ export class BaseByCountryAndYearServiceHelper {
         for (const cac of countryAndCount) {
             countryCodes[cac.country] = cac.count;
         }
-
-
-        // Now have countries sorted, make datasets for the countries with most chargers
-        const displayedCountries: Country[] = [];
 
         // Countries to return graph data for, null if not returning any graph data
         const countriesToReturn: string[] = this.getCountriesToReturnGraphDataSetsFor(params, countryAndCount);
@@ -158,40 +154,19 @@ export class BaseByCountryAndYearServiceHelper {
         const maxValueByCountry = this.getMaxValueByCountryForAllYears(jsonCountries, allYears, makeDataPoint);
 
         let chartYears: string[];
+        const outDisplayedCountries: Country[] = [];
 
         if (countriesToReturn == null) {
             chartYears = allYears;
         } else {
-
-            const yearsForDisplayedCountries: string[] = this.getYearsFromCountriesSorted(
+            chartYears = this.addGraphDataSetsForCountries(
                 jsonCountries,
                 countriesToReturn,
-                yearsFn);
-
-            chartYears = yearsForDisplayedCountries;
-
-            // Get data for each country
-            for (const countryCode of countriesToReturn) {
-
-                const countryDataset: number[] = [];
-                const country: COUNTRY_JSON = jsonCountries[countryCode];
-
-                displayedCountries.push(new Country(countryCode, country.countryDisplayName));
-
-                // Iterate over each year from total
-                this.forEachYear(country, countryCode, yearsForDisplayedCountries, countryDataset,
-                    (dataset, code, year, value, sum) => {
-                        // If displayed, create dataset for graph
-
-                        const yearDataPoint: number = makeDataPoint(country, value, sum);
-
-                        dataset.push(yearDataPoint);
-                    });
-
-
-                // If displayed, create dataset for graph
-                datasets.push(new ChartJSDataset(jsonCountries[countryCode].countryDisplayName, countryDataset));
-            }
+                yearsFn,
+                makeDataPoint,
+                outDatasets,
+                outDisplayedCountries
+            );
         }
 
         // List of all countries, for selection
@@ -203,7 +178,47 @@ export class BaseByCountryAndYearServiceHelper {
 
         allCountries.sort((country, other) => - comparator(country, other));
 
-        return new CountryChartJSData(chartYears, datasets, displayedCountries, allCountries);
+        return new CountryChartJSData(chartYears, outDatasets, outDisplayedCountries, allCountries);
+    }
+
+    private static addGraphDataSetsForCountries<COUNTRY_JSON extends JSONCountryBase>(
+        jsonCountries: any,
+        countriesToReturn: string[],
+        yearsFn: (country: COUNTRY_JSON) => string[],
+        makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number,
+
+        outDatasets: ChartJSDataset[],
+        outDisplayedCountries: Country[]): string[] {
+
+        const yearsForDisplayedCountries: string[] = this.getYearsFromCountriesSorted(
+            jsonCountries,
+            countriesToReturn,
+            yearsFn);
+
+        // Get data for each country
+        for (const countryCode of countriesToReturn) {
+
+            const countryDataset: number[] = [];
+            const country: COUNTRY_JSON = jsonCountries[countryCode];
+
+            outDisplayedCountries.push(new Country(countryCode, country.countryDisplayName));
+
+            // Iterate over each year from total
+            this.forEachYear(country, countryCode, yearsForDisplayedCountries, countryDataset,
+                (dataset, code, year, value, sum) => {
+                    // If displayed, create dataset for graph
+
+                    const yearDataPoint: number = makeDataPoint(country, value, sum);
+
+                    dataset.push(yearDataPoint);
+                });
+
+
+            // If displayed, create dataset for graph
+            outDatasets.push(new ChartJSDataset(jsonCountries[countryCode].countryDisplayName, countryDataset));
+        }
+
+        return yearsForDisplayedCountries;
     }
 
     private static getCountriesToReturnGraphDataSetsFor(
@@ -292,6 +307,7 @@ export class BaseByCountryAndYearServiceHelper {
 
         return allYears;
     }
+
 }
 
 
