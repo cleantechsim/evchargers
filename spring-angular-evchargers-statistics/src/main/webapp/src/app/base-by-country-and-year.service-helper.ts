@@ -141,8 +141,14 @@ export class BaseByCountryAndYearServiceHelper {
             countryCodes[cac.country] = cac.count;
         }
 
+        // Has user selected countries?
         if (params.countriesToReturn != null) {
-            countriesToReturn = params.countriesToReturn;
+            if (params.countriesToReturn.length === 0) {
+                // User selected countries but all deselected, set to null for check later in function
+                countriesToReturn = null;
+            } else {
+                countriesToReturn = params.countriesToReturn;
+            }
         } else {
             const numCountries = params && params.maxCountriesToReturn
                 ? Math.min(countryAndCount.length, params.maxCountriesToReturn)
@@ -150,7 +156,7 @@ export class BaseByCountryAndYearServiceHelper {
 
             countriesToReturn = [];
 
-            // Get countries to display in graph
+            // Get countries to display in graph based on max
             for (let i = 0; i < numCountries; ++i) {
                 if (countryAndCount[i].count === 0) {
                     break;
@@ -166,8 +172,12 @@ export class BaseByCountryAndYearServiceHelper {
 
         const displayedCountries: Country[] = [];
 
-        // Figure all years involved over all countries
-        for (const countryCode of countriesToReturn) {
+        const countryCodesToFindYearsFor: string[] = countriesToReturn != null
+            ? countriesToReturn
+            : Object.keys(countryCodes);
+
+        // Figure all years involved over all countries from above
+        for (const countryCode of countryCodesToFindYearsFor) {
             const country: COUNTRY_JSON = jsonCountries[countryCode];
             const years: string[] = yearsFn(country);
 
@@ -183,7 +193,9 @@ export class BaseByCountryAndYearServiceHelper {
         // Get data for each country
         for (const countryCode of Object.keys(countryCodes)) {
 
-            const isDisplayedCountry: boolean = countriesToReturn.indexOf(countryCode) >= 0;
+            const isDisplayedCountry: boolean = countriesToReturn != null
+                ? countriesToReturn.indexOf(countryCode) >= 0
+                : false;
 
             const countryDataset: number[] = [];
             const country: COUNTRY_JSON = jsonCountries[countryCode];
