@@ -124,7 +124,6 @@ export class BaseByCountryAndYearServiceHelper {
             makeDataPoint);
     }
 
-
     private static makeChartData<COUNTRY_JSON extends JSONCountryBase>(
         jsonCountries: any,
         countryAndCount: CountryAndCount[],
@@ -202,10 +201,10 @@ export class BaseByCountryAndYearServiceHelper {
                     // If displayed, create dataset for graph
 
                     const yearDataPoint: number = makeDataPoint(country, value, sum);
+                    const rounded: number = yearDataPoint != null ? this.roundToThreeDecimals(yearDataPoint) : null;
 
-                    dataset.push(yearDataPoint);
+                    dataset.push(rounded);
                 });
-
 
             // If displayed, create dataset for graph
             outDatasets.push(new ChartJSDataset(jsonCountries[countryCode].countryDisplayName, countryDataset));
@@ -299,5 +298,9 @@ export class BaseByCountryAndYearServiceHelper {
         allYears.sort();
 
         return allYears;
+    }
+
+    private static roundToThreeDecimals(value: number): number {
+        return Math.round(value * 1000) / 1000;
     }
 }
