@@ -13,7 +13,7 @@
 
 	<properties>
         <jacksonVersion>2.9.3</jacksonVersion>
-		<azure-storage.version>8.3.0</azure-storage.version>
+		<azureStorageVersion>8.3.0</azureStorageVersion>
 	</properties>
 
 	<dependencies>
@@ -70,7 +70,7 @@
                 <dependency>
                         <groupId>com.microsoft.azure</groupId>
                         <artifactId>azure-storage</artifactId>
-                        <version>${azure-storage.version}</version>
+                        <version>${azureStorageVersion}</version>
                 </dependency>
 	</dependencies>
 
