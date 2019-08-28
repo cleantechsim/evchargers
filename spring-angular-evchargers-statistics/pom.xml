@@ -2,17 +2,17 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.cleantechsim</groupId>
-		<artifactId>root</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.7.RELEASE</version>
 	</parent>
 	<artifactId>spring-angular-evchargers-statistics</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>evchargers-spring-server</name>
 	<description>CleanTechSim EV charger statistics spring server</description>
 
 	<properties>
-        <elasticsearch.version>6.8.2</elasticsearch.version>
+        <jacksonVersion>2.9.3</jacksonVersion>
 		<azure-storage.version>8.3.0</azure-storage.version>
 	</properties>
 
@@ -20,19 +20,16 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jersey</artifactId>
-			<version>${springBootVersion}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>${springBootVersion}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
-			<version>5.1.9.RELEASE</version>
 		</dependency>
 
 		<dependency>
@@ -56,21 +53,18 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<version>${springBootVersion}</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<version>${springBootVersion}</version>
 			<scope>test</scope>
 		</dependency>
 		
         <dependency>
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>elasticsearch-rest-high-level-client</artifactId>
-                <version>${elasticsearch.version}</version>
         </dependency>
 
                 <dependency>
@@ -81,13 +75,15 @@
 	</dependencies>
 
 	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-maven-plugin</artifactId>
-				</plugin>
-
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-war-plugin</artifactId>
