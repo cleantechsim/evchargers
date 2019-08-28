@@ -167,71 +167,53 @@ export class BaseByCountryAndYearServiceHelper {
         }
 
         // Now have countries sorted, make datasets for the countries with most chargers
-
-        const allYearsMap: object = {};
-
         const displayedCountries: Country[] = [];
 
-        const countryCodesToFindYearsFor: string[] = countriesToReturn != null
-            ? countriesToReturn
-            : Object.keys(countryCodes);
 
-        // Figure all years involved over all countries from above
-        for (const countryCode of countryCodesToFindYearsFor) {
-            const country: COUNTRY_JSON = jsonCountries[countryCode];
-            const years: string[] = yearsFn(country);
+        // Find max value for all countries and all years for sorting selection list
+        // independent of whether or not country is selected
 
-            years.forEach(year => allYearsMap[year] = null);
-        }
 
-        const allYears: string[] = Object.keys(allYearsMap);
-        allYears.sort();
+        const allYears: string[] = this.getYearsFromCountriesSorted(
+            jsonCountries,
+            Object.keys(jsonCountries),
+            yearsFn);
 
-        // Use max value for countries as sort criteria
-        const maxValueByCountry = {};
+        const maxValueByCountry = this.getMaxValueByCountryForAllYears(jsonCountries, allYears, makeDataPoint);
 
-        // Get data for each country
-        for (const countryCode of Object.keys(countryCodes)) {
+        let chartYears: string[];
 
-            const isDisplayedCountry: boolean = countriesToReturn != null
-                ? countriesToReturn.indexOf(countryCode) >= 0
-                : false;
+        if (countriesToReturn == null) {
+            chartYears = allYears;
+        } else {
 
-            const countryDataset: number[] = [];
-            const country: COUNTRY_JSON = jsonCountries[countryCode];
+            const yearsForDisplayedCountries: string[] = this.getYearsFromCountriesSorted(
+                jsonCountries,
+                countriesToReturn,
+                yearsFn);
 
-            if (isDisplayedCountry) {
+            chartYears = yearsForDisplayedCountries;
+
+            // Get data for each country
+            for (const countryCode of countriesToReturn) {
+
+                const countryDataset: number[] = [];
+                const country: COUNTRY_JSON = jsonCountries[countryCode];
+
                 displayedCountries.push(new Country(countryCode, country.countryDisplayName));
-            }
 
-            // Iterate over each year from total
-            this.forEachYear(country, countryCode, allYears, countryDataset,
-                (dataset, code, year, value, sum) => {
+                // Iterate over each year from total
+                this.forEachYear(country, countryCode, yearsForDisplayedCountries, countryDataset,
+                    (dataset, code, year, value, sum) => {
+                        // If displayed, create dataset for graph
 
-                    const countForYear: number = value;
+                        const yearDataPoint: number = makeDataPoint(country, value, sum);
 
-                    const yearDataPoint = makeDataPoint(country, countForYear, sum);
-
-                    if (yearDataPoint != null) {
-                        const alreadyAdded: CountryWithValue = maxValueByCountry[countryCode];
-
-                        if (alreadyAdded == null || alreadyAdded.value < yearDataPoint) {
-                            maxValueByCountry[countryCode] = new CountryWithValue(
-                                countryCode,
-                                country.countryDisplayName,
-                                yearDataPoint);
-                        }
-                    }
-
-                    // If displayed, create dataset for graph
-                    if (isDisplayedCountry) {
                         dataset.push(yearDataPoint);
-                    }
-                });
+                    });
 
 
-            // If displayed, create dataset for graph
-            if (isDisplayedCountry) {
+                // If displayed, create dataset for graph
                 datasets.push(new ChartJSDataset(jsonCountries[countryCode].countryDisplayName, countryDataset));
             }
         }
@@ -245,7 +227,60 @@ export class BaseByCountryAndYearServiceHelper {
 
         allCountries.sort((country, other) => - comparator(country, other));
 
-        return new CountryChartJSData(allYears, datasets, displayedCountries, allCountries);
+        return new CountryChartJSData(chartYears, datasets, displayedCountries, allCountries);
+    }
+
+    private static getMaxValueByCountryForAllYears<COUNTRY_JSON extends JSONCountryBase>(
+        jsonCountries: any,
+        allYears: string[],
+        makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): object {
+
+        const maxValueByCountry = {};
+
+        for (const countryCode of Object.keys(jsonCountries)) {
+
+            const country: COUNTRY_JSON = jsonCountries[countryCode];
+
+            this.forEachYear(country, countryCode, allYears, null,
+                (param, code, year, value, sum) => {
+                    const yearDataPoint = makeDataPoint(country, value, sum);
+
+                    if (yearDataPoint != null) {
+                        const alreadyAdded: CountryWithValue = maxValueByCountry[countryCode];
+
+                        if (alreadyAdded == null || alreadyAdded.value < yearDataPoint) {
+                            maxValueByCountry[countryCode] = new CountryWithValue(
+                                countryCode,
+                                country.countryDisplayName,
+                                yearDataPoint);
+                        }
+                    }
+                });
+        }
+
+        return maxValueByCountry;
+    }
+
+    private static getYearsFromCountriesSorted<COUNTRY_JSON>(
+        jsonCountries: any,
+        countryCodes: string[],
+        yearsFn: (country: COUNTRY_JSON) => string[]): string[] {
+
+        const allYearsMap: object = {};
+
+        // Figure all years involved over all countries from above
+        for (const countryCode of countryCodes) {
+
+            const country: COUNTRY_JSON = jsonCountries[countryCode];
+            const years: string[] = yearsFn(country);
+
+            years.forEach(year => allYearsMap[year] = null);
+        }
+
+        const allYears: string[] = Object.keys(allYearsMap);
+        allYears.sort();
+
+        return allYears;
     }
 }
 
