@@ -15,7 +15,8 @@ export class PresentationToText {
   constructor(
     private pres: ChargersByCountryAndYearPresentation,
     private v: string,
-    private t: string) {
+    private t: string,
+    private h: string) {
   }
 
   get presentation(): ChargersByCountryAndYearPresentation {
@@ -29,6 +30,10 @@ export class PresentationToText {
   get text(): string {
     return this.t;
   }
+
+  get header(): string {
+    return this.h;
+  }
 }
 
 @Component({
@@ -38,23 +43,27 @@ export class PresentationToText {
 })
 export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYearGraphComponent implements AfterViewInit {
 
-  private static DEFAULT_PRESENTATION: ChargersByCountryAndYearPresentation = ChargersByCountryAndYearPresentation.PER_THOUSAND_KM_OF_ROAD;
+  private static DEFAULT_PRESENTATION: ChargersByCountryAndYearPresentation
+    = ChargersByCountryAndYearPresentation.PER_THOUSAND_KM_OF_ROAD;
 
   private static PRESENTATIONS: PresentationToText[] = [
     new PresentationToText(
       ChargersByCountryAndYearPresentation.PER_THOUSAND_KM_OF_ROAD,
       'per_thousand_km_of_road',
-      'Per 1000 km of road'),
+      'Per 1000 km of road',
+      'chargers per 1000 km of road'),
 
     new PresentationToText(
       ChargersByCountryAndYearPresentation.PER_THOUSAND_INHABITANTS,
       'per_thousand_inhabitants',
-      'Per 1000 inhabitants'),
+      'Per 1000 inhabitants',
+      'chargers per 1000 inhabitants'),
 
     new PresentationToText(
       ChargersByCountryAndYearPresentation.TOTAL_NUMBER_OF_CHARGERS,
       'total',
-      'Total number of chargers')
+      'Total number of chargers',
+      'total number of chargers')
   ];
 
   @ViewChild('chargersByCountryAndYear', null)
@@ -62,8 +71,14 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
 
   private curPresentation: ChargersByCountryAndYearPresentation;
 
+  private static getPresentationToText(presentation: ChargersByCountryAndYearPresentation): PresentationToText {
+    return ChargersByCountryAndYearGraphComponent.PRESENTATIONS.find(text => text.presentation === presentation);
+  }
+
   constructor(private chargersByCountryAndYearService: ChargersByCountryAndYearService) {
     super();
+
+    this.curPresentation = this.defaultPresentation.presentation;
   }
 
   private updatePresentation(value: ChargersByCountryAndYearPresentation) {
@@ -74,6 +89,10 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
     return ChargersByCountryAndYearGraphComponent.PRESENTATIONS.find(text => {
       return text.presentation === ChargersByCountryAndYearGraphComponent.DEFAULT_PRESENTATION;
     });
+  }
+
+  get curPresentationToText(): PresentationToText {
+    return ChargersByCountryAndYearGraphComponent.getPresentationToText(this.curPresentation);
   }
 
   ngAfterViewInit(): void {

@@ -13,6 +13,7 @@ import { ServerCountries } from './base-by-country-and-year-graph.component';
 })
 export class AppComponent {
 
+
   @ViewChild('chargersByCountryAndYearGraph', null)
   private chargersByCountryAndYearGraphComponent: ChargersByCountryAndYearGraphComponent;
 
@@ -25,7 +26,7 @@ export class AppComponent {
   }
 
   get chargersHeader() {
-    return 'Showing total number of chargers per year';
+    return 'Showing ' + this.chargersByCountryAndYearGraphComponent.curPresentationToText.header;
   }
 
   get capacityHeader() {
