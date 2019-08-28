@@ -42,8 +42,6 @@ export class CountrySelectionComponent {
 
     this.selCountries = {};
     displayedCountries.forEach(c => this.selCountries[c.countryCode] = null);
-
-    this.acountries.sort((c1, c2) => c1.displayName < c2.displayName ? -1 : (c1.displayName > c2.displayName ? 1 : 0));
   }
 
   private get selectedCountries(): string[] {

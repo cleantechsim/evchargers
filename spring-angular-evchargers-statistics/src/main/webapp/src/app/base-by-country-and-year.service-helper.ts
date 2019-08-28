@@ -1,5 +1,5 @@
 import { ChartJSDataset } from './chart.model';
-import { CountryChartJSData, Country, CommonByCountryAndYearParams } from './common.model';
+import { CountryChartJSData, Country, CountryWithValue, CommonByCountryAndYearParams } from './common.model';
 
 export class JSONCountryBase {
     countryDisplayName: string;
@@ -133,6 +133,12 @@ export class BaseByCountryAndYearServiceHelper {
 
         let countriesToReturn: string[];
 
+        const countryCodes: object = {};
+
+        for (const cac of countryAndCount) {
+            countryCodes[cac.country] = cac.count;
+        }
+
         if (params.countriesToReturn != null) {
             countriesToReturn = params.countriesToReturn;
         } else {
@@ -142,7 +148,12 @@ export class BaseByCountryAndYearServiceHelper {
 
             countriesToReturn = [];
 
+            // Get countries to display in graph
             for (let i = 0; i < numCountries; ++i) {
+                if (countryAndCount[i].count === 0) {
+                    break;
+                }
+
                 countriesToReturn.push(countryAndCount[i].country);
             }
         }
@@ -151,14 +162,7 @@ export class BaseByCountryAndYearServiceHelper {
 
         const allYearsMap: object = {};
 
-        const countries: Country[] = [];
-        const allCountries: Country[] = [];
-
-        Object.keys(jsonCountries).forEach(countryCode => {
-            const country: COUNTRY_JSON = jsonCountries[countryCode];
-
-            allCountries.push(new Country(countryCode, country.countryDisplayName));
-        });
+        const displayedCountries: Country[] = [];
 
         // Figure all years involved over all countries
         for (const countryCode of countriesToReturn) {
@@ -171,13 +175,20 @@ export class BaseByCountryAndYearServiceHelper {
         const allYears: string[] = Object.keys(allYearsMap);
         allYears.sort();
 
+        // Use max value for countries as sort criteria
+        const maxValueByCountry = {};
+
         // Get data for each country
-        for (const countryCode of countriesToReturn) {
+        for (const countryCode of Object.keys(countryCodes)) {
+
+            const isDisplayedCountry: boolean = countriesToReturn.indexOf(countryCode) >= 0;
 
             const countryDataset: number[] = [];
             const country: COUNTRY_JSON = jsonCountries[countryCode];
 
-            countries.push(new Country(countryCode, country.countryDisplayName));
+            if (isDisplayedCountry) {
+                displayedCountries.push(new Country(countryCode, country.countryDisplayName));
+            }
 
             // Iterate over each year from total
             this.forEachYear(country, countryCode, allYears, countryDataset,
@@ -185,14 +196,42 @@ export class BaseByCountryAndYearServiceHelper {
 
                     const countForYear: number = value;
 
-                    dataset.push(countForYear ? makeDataPoint(country, countForYear, sum) : null);
+                    const yearDataPoint = makeDataPoint(country, countForYear, sum);
+
+                    if (yearDataPoint != null) {
+                        const alreadyAdded: CountryWithValue = maxValueByCountry[countryCode];
+
+                        if (alreadyAdded == null || alreadyAdded.value < yearDataPoint) {
+                            maxValueByCountry[countryCode] = new CountryWithValue(
+                                countryCode,
+                                country.countryDisplayName,
+                                yearDataPoint);
+                        }
+                    }
+
+                    // If displayed, create dataset for graph
+                    if (isDisplayedCountry) {
+                        dataset.push(yearDataPoint);
+                    }
                 });
 
 
-            datasets.push(new ChartJSDataset(jsonCountries[countryCode].countryDisplayName, countryDataset));
+            // If displayed, create dataset for graph
+            if (isDisplayedCountry) {
+                datasets.push(new ChartJSDataset(jsonCountries[countryCode].countryDisplayName, countryDataset));
+            }
         }
 
-        return new CountryChartJSData(allYears, datasets, countries, allCountries);
+        // List of all countries, for selection
+        const allCountries: CountryWithValue[] = Object.values(maxValueByCountry);
+
+        // Sort by max
+        const comparator: (country: CountryWithValue, other: CountryWithValue) => number
+            = (country, other) => (country.value < other.value ? - 1 : (country.value > other.value ? 1 : 0));
+
+        allCountries.sort((country, other) => - comparator(country, other));
+
+        return new CountryChartJSData(allYears, datasets, displayedCountries, allCountries);
     }
 }
 

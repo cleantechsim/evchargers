@@ -15,9 +15,20 @@ export class Country {
     }
 }
 
+export class CountryWithValue extends Country {
+
+    constructor(code: string, name: string, private val: number) {
+        super(code, name);
+    }
+
+    get value() {
+        return this.val;
+    }
+}
+
 export class CountryChartJSData extends ChartJSData {
 
-    constructor(labels: string[], datasets: ChartJSDataset[], private dc: Country[], private ac: Country[]) {
+    constructor(labels: string[], datasets: ChartJSDataset[], private dc: Country[], private ac: CountryWithValue[]) {
         super(labels, datasets);
     }
 
@@ -25,7 +36,7 @@ export class CountryChartJSData extends ChartJSData {
         return this.dc;
     }
 
-    get allCountries(): Country[] {
+    get allCountries(): CountryWithValue[] {
         return this.ac;
     }
 }
