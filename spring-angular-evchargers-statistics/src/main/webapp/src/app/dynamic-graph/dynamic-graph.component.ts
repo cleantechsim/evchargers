@@ -93,6 +93,7 @@ export class DynamicGraphComponent<PARAMS, RESULT extends ChartJSData> {
     const result: Subject<RESULT> = new Subject<RESULT>();
 
     dynamicGraphService.getGraphData(params).subscribe(data => {
+      this.chart.data.labels = data.labels;
       this.chart.data.datasets = DynamicGraphComponent.convertDataSets(data.datasets);
 
       this.chart.update();
