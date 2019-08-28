@@ -1,10 +1,11 @@
 <div class="country-selection-wrapper">
-    <label class="country-selection-label">Select countries</label>
+    <label class="country-selection-label">Select countries (max {{maximumSelection}})</label>
     <div class="country-selection-list">
         <div *ngFor="let country of allCountries">
-            <input type="checkbox" [attr.checked]="country.displayed ? 'checked' : null" value="{{country.countryCode}}"
+            <input type="checkbox" [attr.checked]="country.displayed ? 'checked' : null"
+                [disabled]="checkboxEnabled(checkboxRef.value) ? null : 'disabled'" value="{{country.countryCode}}"
                 (change)="onCountrySelectionChange($event.target.value, $event.target.checked)"
-                class="country-selection-checkbox-input" />
+                class="country-selection-checkbox-input" #checkboxRef />
             <label>{{country.displayName}}</label>
         </div>
     </div>

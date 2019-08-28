@@ -2,6 +2,7 @@
 import { ChargersByCountryAndYearParams } from './chargers-by-country-and-year.service';
 import { ChartJSDataset } from './chart.model';
 import { CountryChartJSData } from './common.model';
+import { Color } from './color.util';
 import { ChargersByCountryAndYearServiceHelper } from './chargers-by-country-and-year.service-helper';
 
 class YearsAndDataSet {
@@ -26,6 +27,7 @@ export class ChargersByCountryAndYearTotalServiceHelper extends ChargersByCountr
             jsonCountries,
             params,
             datasets,
+            1,
             country => globalTotal.years,
             (country, value, sum) => sum);
     }
@@ -47,7 +49,12 @@ export class ChargersByCountryAndYearTotalServiceHelper extends ChargersByCountr
             datasetArray.push(sum);
         }
 
-        return new YearsAndDataSet(years, new ChartJSDataset(label, datasetArray));
+        const dataset: ChartJSDataset = new ChartJSDataset(
+            label,
+            Color.GREY,
+            datasetArray);
+
+        return new YearsAndDataSet(years, dataset);
     }
 
     private static getTotalByYear(data: any): object {

@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { Chart, ChartDataSets } from 'chart.js';
 import { DynamicGraphService } from '../dynamic-graph.service';
 import { ChartJSData, ChartJSDataset } from '../chart.model';
+import { Color } from '../color.util';
 
 @Component({
   selector: 'app-dynamic-graph',
@@ -22,9 +23,12 @@ export class DynamicGraphComponent<PARAMS, RESULT extends ChartJSData> {
 
     for (const dataset of datasets) {
 
+      const color: Color = dataset.color;
+
       const ds: ChartDataSets = {
         label: dataset.label,
         data: dataset.data,
+        borderColor: 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')',
         fill: false
       };
 

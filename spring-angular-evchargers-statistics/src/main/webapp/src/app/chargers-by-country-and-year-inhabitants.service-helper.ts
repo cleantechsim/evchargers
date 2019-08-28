@@ -12,6 +12,7 @@ export class ChargersByCountryAndYearInhabitantsServiceHelper extends ChargersBy
             data.countries,
             params,
             [],
+            0,
             country => Object.keys(country.valueByYear),
             (country, numberOfChargers, sum) => {
 

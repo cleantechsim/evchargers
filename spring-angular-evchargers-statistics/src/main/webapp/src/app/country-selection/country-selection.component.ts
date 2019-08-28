@@ -2,6 +2,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 
 import { Country } from '../common.model';
+import { Color } from '../color.util';
 
 export class UICountry extends Country {
 
@@ -50,6 +51,27 @@ export class CountrySelectionComponent {
 
   get allCountries(): UICountry[] {
     return this.acountries;
+  }
+
+  get maximumSelection(): number {
+    return Color.MAX_COLORS;
+  }
+
+  checkboxEnabled(value: string) {
+    let enabled: boolean;
+
+    if (Object.keys(this.selCountries).length < this.maximumSelection) {
+      enabled = true;
+    } else {
+      if (this.selCountries.hasOwnProperty(value)) {
+        // Already selected
+        enabled = true;
+      } else {
+        enabled = false;
+      }
+    }
+
+    return enabled;
   }
 
   onCountrySelectionChange(value: string, selected: boolean): void {

@@ -24,6 +24,7 @@ export class CapacityByCountryAndYearService implements DynamicGraphService<Capa
         data.countries,
         params,
         [],
+        0,
         country => Object.keys(country.valueByYear),
         (country, value) => value
       );

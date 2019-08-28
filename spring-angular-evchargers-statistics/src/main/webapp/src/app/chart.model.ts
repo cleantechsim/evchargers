@@ -1,3 +1,4 @@
+import { Color } from './color.util';
 
 // Chart JS datatypes
 export class ChartJS {
@@ -20,11 +21,18 @@ export class ChartJSData {
 
 export class ChartJSDataset {
 
-    constructor(label: string, data: number[]) {
-        this.label = label;
-        this.data = data;
+    constructor(private l: string, private c: Color, private d: number[]) {
     }
 
-    label: string;
-    data: number[];
+    get label(): string {
+        return this.l;
+    }
+
+    get color(): Color {
+        return this.c;
+    }
+
+    get data(): number[] {
+        return this.d;
+    }
 }

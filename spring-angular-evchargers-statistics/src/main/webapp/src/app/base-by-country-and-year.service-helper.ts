@@ -1,5 +1,6 @@
 import { ChartJSDataset } from './chart.model';
 import { CountryChartJSData, Country, CountryWithValue, CommonByCountryAndYearParams } from './common.model';
+import { Color } from './color.util';
 
 export class JSONCountryBase {
     countryDisplayName: string;
@@ -107,6 +108,7 @@ export class BaseByCountryAndYearServiceHelper {
         jsonCountries: any,
         params: CommonByCountryAndYearParams,
         datasets: ChartJSDataset[],
+        colorOffset: number,
         yearsFn: (country: COUNTRY_JSON) => string[],
         makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): CountryChartJSData {
 
@@ -120,6 +122,7 @@ export class BaseByCountryAndYearServiceHelper {
             sorted,
             params,
             datasets,
+            colorOffset,
             yearsFn,
             makeDataPoint);
     }
@@ -129,6 +132,7 @@ export class BaseByCountryAndYearServiceHelper {
         countryAndCount: CountryAndCount[],
         params: CommonByCountryAndYearParams,
         outDatasets: ChartJSDataset[],
+        colorOffset: number,
         yearsFn: (country: COUNTRY_JSON) => string[],
         makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): CountryChartJSData {
 
@@ -154,6 +158,7 @@ export class BaseByCountryAndYearServiceHelper {
             chartYears = this.addGraphDataSetsForCountries(
                 jsonCountries,
                 countriesToReturn,
+                colorOffset,
                 yearsFn,
                 makeDataPoint,
                 outDatasets,
@@ -176,6 +181,7 @@ export class BaseByCountryAndYearServiceHelper {
     private static addGraphDataSetsForCountries<COUNTRY_JSON extends JSONCountryBase>(
         jsonCountries: any,
         countriesToReturn: string[],
+        colorOffset: number,
         yearsFn: (country: COUNTRY_JSON) => string[],
         makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number,
 
@@ -206,8 +212,11 @@ export class BaseByCountryAndYearServiceHelper {
                     dataset.push(rounded);
                 });
 
+            const label: string = jsonCountries[countryCode].countryDisplayName;
+            const color: Color = Color.color(outDatasets.length - colorOffset);
+
             // If displayed, create dataset for graph
-            outDatasets.push(new ChartJSDataset(jsonCountries[countryCode].countryDisplayName, countryDataset));
+            outDatasets.push(new ChartJSDataset(label, color, countryDataset));
         }
 
         return yearsForDisplayedCountries;
