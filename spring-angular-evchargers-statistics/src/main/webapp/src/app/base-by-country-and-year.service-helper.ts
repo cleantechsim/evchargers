@@ -75,7 +75,9 @@ export class BaseByCountryAndYearServiceHelper {
 
             const value: number = country.valueByYear[year];
 
-            sum += value;
+            if (value) {
+                sum += value;
+            }
 
             if (yearFn) {
                 yearFn(data, countryCode, year, value, sum);
