@@ -1,6 +1,11 @@
 <div class="main-container">
   <h1 id="main-title">EV charger statistics</h1>
-  <p id="main-text">Shows global statistics for EV charging stations</p>
+  <p id="main-text-paragraph">
+    <span class="main-text-span">Shows statistics for EV charging stations for countries with more than </span>
+    <input id="minimum-number-of-chargers-input" type="number" [attr.value]="defaultMinimumChargers" min="0"
+      max="100000" (change)="onMinimumChargersUpdate($event.target.value)" />
+    <span class="main-text-span"> chargers in total</span>
+  </p>
 
   <div id="all-graphs-wrapper">
     <div id="all-graphs">

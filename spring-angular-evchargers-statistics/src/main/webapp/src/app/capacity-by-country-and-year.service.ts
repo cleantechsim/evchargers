@@ -42,8 +42,9 @@ export class CapacityByCountryAndYearParams extends CommonByCountryAndYearParams
 
   constructor(
     c: string[],
+    minNumChargers: number,
     maxC: number // Max to return unless list of countries is specified
   ) {
-    super(c, maxC);
+    super(c, minNumChargers, maxC);
   }
 }

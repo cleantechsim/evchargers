@@ -4,6 +4,7 @@ import { Color } from './color.util';
 
 export class JSONCountryBase {
     countryDisplayName: string;
+    numberOfChargers: number;
     valueByYear: object;
 }
 
@@ -13,16 +14,32 @@ export class CountryAndCount {
     }
 }
 
+export class CountriesInput {
+    constructor(private c: string[], private r: string[]) {
+
+    }
+
+    get countriesToReturn(): string[] {
+        return this.c;
+    }
+
+    get relevantCountries(): string[] {
+        return this.r;
+    }
+}
+
 export class BaseByCountryAndYearServiceHelper {
 
     private static getMaxValueByCountry<COUNTRY_JSON extends JSONCountryBase>(
         jsonCountries: object,
+        countries: string[],
         makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): object {
 
         // Get maximum per country
         const maxValueByCountry = {};
         this.forEachCountryYear<object, COUNTRY_JSON, COUNTRY_JSON>(
             jsonCountries,
+            countries,
             null,
             country => Object.keys(country.valueByYear),
             (allData, countryCode, country) => { maxValueByCountry[countryCode] = 0; return country; },
@@ -40,17 +57,18 @@ export class BaseByCountryAndYearServiceHelper {
 
     // Iterate over countries and years in JSON input
     private static forEachCountryYear<ALL_DATA, COUNTRY_DATA, COUNTRY_JSON extends JSONCountryBase>(
-        countries: any,
+        jsonCountries: any,
+        countries: string[],
         allData: ALL_DATA,
         yearsFn: (country: COUNTRY_JSON) => string[],
         countryFn: (allData: ALL_DATA, countryCode: string, country: COUNTRY_JSON) => COUNTRY_DATA,
         yearFn: (countryData: COUNTRY_DATA, countryCode: string, year: string, value: number, sum: number) => void) {
 
-        for (const countryCode of Object.keys(countries)) {
+        for (const countryCode of countries) {
 
             let countryData: COUNTRY_DATA;
 
-            const country: COUNTRY_JSON = countries[countryCode];
+            const country: COUNTRY_JSON = jsonCountries[countryCode];
 
             if (countryFn) {
                 countryData = countryFn(allData, countryCode, country);
@@ -112,7 +130,28 @@ export class BaseByCountryAndYearServiceHelper {
         yearsFn: (country: COUNTRY_JSON) => string[],
         makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): CountryChartJSData {
 
-        const maxValueByCountry: object = this.getMaxValueByCountry(jsonCountries, makeDataPoint);
+        let relevantCountries: string[];
+
+        if (!params.minNumberOfChargers) {
+            throw new Error('Min number of chargers not defined');
+        }
+
+        if (params.minNumberOfChargers === 0) {
+            relevantCountries = Object.keys(jsonCountries);
+        } else {
+            relevantCountries = [];
+
+            for (const countryCode of Object.keys(jsonCountries)) {
+
+                const countryJson: COUNTRY_JSON = jsonCountries[countryCode];
+
+                if (countryJson.numberOfChargers >= params.minNumberOfChargers) {
+                    relevantCountries.push(countryCode);
+                }
+            }
+        }
+
+        const maxValueByCountry: object = this.getMaxValueByCountry(jsonCountries, relevantCountries, makeDataPoint);
 
         // Sort data
         const sorted: CountryAndCount[] = this.sortNumberByCountryDescending(maxValueByCountry);
@@ -137,27 +176,32 @@ export class BaseByCountryAndYearServiceHelper {
         makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): CountryChartJSData {
 
         // Countries to return graph data for, null if not returning any graph data
-        const countriesToReturn: string[] = this.getCountriesToReturnGraphDataSetsFor(params, countryAndCount);
+        const filtered: CountriesInput = this.getCountriesToReturnGraphDataSetsFor(params, countryAndCount);
 
         // Find max value for all countries and all years for sorting selection list
         // independent of whether or not country is selected
 
         const allYears: string[] = this.getYearsFromCountriesSorted(
             jsonCountries,
-            Object.keys(jsonCountries),
+            filtered.relevantCountries,
             yearsFn);
 
-        const maxValueByCountry = this.getMaxValueByCountryForAllYears(jsonCountries, allYears, makeDataPoint);
+        const maxValueByCountry = this.getMaxValueByCountryForAllYears(
+            jsonCountries,
+            filtered.relevantCountries,
+            allYears,
+            makeDataPoint);
 
         let chartYears: string[];
         const outDisplayedCountries: Country[] = [];
 
-        if (countriesToReturn == null) {
+        if (filtered.countriesToReturn == null) {
+            // No countries to return, show labels for all years in graph
             chartYears = allYears;
         } else {
             chartYears = this.addGraphDataSetsForCountries(
                 jsonCountries,
-                countriesToReturn,
+                filtered.countriesToReturn,
                 colorOffset,
                 yearsFn,
                 makeDataPoint,
@@ -224,17 +268,45 @@ export class BaseByCountryAndYearServiceHelper {
 
     private static getCountriesToReturnGraphDataSetsFor(
         params: CommonByCountryAndYearParams,
-        countryAndCount: CountryAndCount[]): string[] {
+        countryAndCount: CountryAndCount[]): CountriesInput {
+
+        const relevantCountries: object = {};
+
+        for (const cac of countryAndCount) {
+            relevantCountries[cac.country] = true;
+        }
+
+        // Filter user suggested countries to return by relevant countries
+        let userSelectedCountriesToReturn: string[];
+
+        if (params.countriesToReturn != null) {
+            if (params.countriesToReturn.length === 0) {
+                userSelectedCountriesToReturn = params.countriesToReturn;
+            } else {
+                // Filter against relevant countries
+                // eg. if changed minimum number of chargers from 1000 to 1500
+                // and some previously checked countries are now outside of range
+                userSelectedCountriesToReturn = [];
+
+                for (const countryCode of params.countriesToReturn) {
+                    if (relevantCountries[countryCode]) {
+                        userSelectedCountriesToReturn.push(countryCode);
+                    }
+                }
+            }
+        } else {
+            userSelectedCountriesToReturn = null;
+        }
 
         let countriesToReturn: string[];
 
         // Has user selected countries?
-        if (params.countriesToReturn != null) {
-            if (params.countriesToReturn.length === 0) {
+        if (userSelectedCountriesToReturn != null) {
+            if (userSelectedCountriesToReturn.length === 0) {
                 // User selected countries but all deselected, set to null for check later in function
                 countriesToReturn = null;
             } else {
-                countriesToReturn = params.countriesToReturn;
+                countriesToReturn = userSelectedCountriesToReturn;
             }
         } else {
             const numCountries = params && params.maxCountriesToReturn
@@ -253,17 +325,18 @@ export class BaseByCountryAndYearServiceHelper {
             }
         }
 
-        return countriesToReturn;
+        return new CountriesInput(countriesToReturn, Object.keys(relevantCountries));
     }
 
     private static getMaxValueByCountryForAllYears<COUNTRY_JSON extends JSONCountryBase>(
         jsonCountries: any,
+        countries: string[],
         allYears: string[],
         makeDataPoint: (country: COUNTRY_JSON, value: number, sum: number) => number): object {
 
         const maxValueByCountry = {};
 
-        for (const countryCode of Object.keys(jsonCountries)) {
+        for (const countryCode of countries) {
 
             const country: COUNTRY_JSON = jsonCountries[countryCode];
 
@@ -278,6 +351,7 @@ export class BaseByCountryAndYearServiceHelper {
                             maxValueByCountry[countryCode] = new CountryWithValue(
                                 countryCode,
                                 country.countryDisplayName,
+                                country.numberOfChargers,
                                 yearDataPoint);
                         }
                     }

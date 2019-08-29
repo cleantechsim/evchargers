@@ -9,12 +9,13 @@ public final class CountryChargerYears extends CountryYears {
 
 	public CountryChargerYears(
 			String countryDisplayName,
+			int numberOfChargers,
 			Map<Integer, Integer> valueByYear,
 			Integer population,
 			Integer roadNetworkLength
 			) {
 		
-		super(countryDisplayName, valueByYear);
+		super(countryDisplayName, numberOfChargers, valueByYear);
 		
 		this.population = population;
 		this.roadNetworkLength = roadNetworkLength;

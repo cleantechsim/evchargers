@@ -6,7 +6,6 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.apache.http.HttpHost;
@@ -57,8 +56,9 @@ public class ElasticSearchEVChargerStatistics implements EVChargerStatistics {
 		return getPerCountryYearResult(
 				aggregations,
 				yearBucket -> (int)yearBucket.getDocCount(),
-				(countryName, valueByYear) -> new CountryChargerYears(
+				(countryName, numberOfChargers, valueByYear) -> new CountryChargerYears(
 					countryName,
+					numberOfChargers,
 					valueByYear,
 					getCountryPopulation.apply(countryName),
 					getCountryRoadNetworkSize.apply(countryName)));
@@ -130,10 +130,15 @@ public class ElasticSearchEVChargerStatistics implements EVChargerStatistics {
 		return countryAggregation;
 	}
 	
+	@FunctionalInterface
+	interface CreateFunction<T> {
+		T create(String countryDisplayName, int numberOfChargers, Map<Integer, Integer> valueByYear);
+	}
+	
 	private static <T extends CountryYears> Map<String, T> getPerCountryYearResult(
 			Aggregations aggregations,
 			Function<Histogram.Bucket, Integer> getByYearValue,
-			BiFunction<String, Map<Integer, Integer>, T> create) {
+			CreateFunction<T> create) {
 		
 		final Aggregation countryAggregationResult = aggregations.get(AGGREGATION_COUNTRY);
 
@@ -167,7 +172,7 @@ public class ElasticSearchEVChargerStatistics implements EVChargerStatistics {
 			if (!valueByYear.isEmpty()) {
 				final String countryName = countryBucket.getKeyAsString();
 				
-				final T entry = create.apply(countryName, valueByYear);
+				final T entry = create.create(countryName, (int)countryBucket.getDocCount(), valueByYear);
 				
 				countries.put(countryName, entry);
 			}

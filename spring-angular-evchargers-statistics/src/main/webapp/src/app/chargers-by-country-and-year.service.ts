@@ -66,11 +66,12 @@ export class ChargersByCountryAndYearParams extends CommonByCountryAndYearParams
   constructor(
     private pres: ChargersByCountryAndYearPresentation,
     c: string[],
+    minNumChargers: number,
     maxC: number, // Max to return unless list of countries is specified
     private minCP: number,
     private maxCP: number) {
 
-    super(c, maxC);
+    super(c, minNumChargers, maxC);
   }
 
   public get presentation(): ChargersByCountryAndYearPresentation {

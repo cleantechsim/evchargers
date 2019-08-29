@@ -3,7 +3,6 @@ import { Component, Output, EventEmitter } from '@angular/core';
 
 import { Country } from '../common.model';
 import { Color } from '../color.util';
-
 export class UICountry extends Country {
 
   constructor(country: Country, private disp: boolean) {

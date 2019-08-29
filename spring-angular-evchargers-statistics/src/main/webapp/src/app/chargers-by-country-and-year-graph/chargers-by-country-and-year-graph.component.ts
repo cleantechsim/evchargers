@@ -5,7 +5,7 @@ import {
   ChargersByCountryAndYearService
 } from '../chargers-by-country-and-year.service';
 import { DynamicGraphComponent } from '../dynamic-graph/dynamic-graph.component';
-import { CountryChartJSData } from '../common.model';
+import { CountryChartJSData, UpdateMinimumChargers } from '../common.model';
 import { BaseByCountryAndYearGraphComponent } from '../base-by-country-and-year-graph.component';
 
 import { Arrays } from '../arrays.util';
@@ -41,7 +41,7 @@ export class PresentationToText {
   templateUrl: './chargers-by-country-and-year-graph.component.html',
   styleUrls: ['./chargers-by-country-and-year-graph.component.css']
 })
-export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYearGraphComponent implements AfterViewInit {
+export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYearGraphComponent implements UpdateMinimumChargers {
 
   private static DEFAULT_PRESENTATION: ChargersByCountryAndYearPresentation
     = ChargersByCountryAndYearPresentation.PER_THOUSAND_KM_OF_ROAD;
@@ -70,6 +70,7 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
   private chargersByCountryAndYear: DynamicGraphComponent<ChargersByCountryAndYearParams, CountryChartJSData>;
 
   private curPresentation: ChargersByCountryAndYearPresentation;
+  private curMinimumNumberOfChargers: number;
 
   private static getPresentationToText(presentation: ChargersByCountryAndYearPresentation): PresentationToText {
     return ChargersByCountryAndYearGraphComponent.PRESENTATIONS.find(text => text.presentation === presentation);
@@ -95,13 +96,16 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
     return ChargersByCountryAndYearGraphComponent.getPresentationToText(this.curPresentation);
   }
 
-  ngAfterViewInit(): void {
+  init(minimumNumberOfChargers: number): void {
+
+    this.curMinimumNumberOfChargers = minimumNumberOfChargers;
 
     this.updatePresentation(ChargersByCountryAndYearGraphComponent.DEFAULT_PRESENTATION);
 
     const params: ChargersByCountryAndYearParams = new ChargersByCountryAndYearParams(
       this.curPresentation,
       null,
+      minimumNumberOfChargers,
       BaseByCountryAndYearGraphComponent.MAX_COUNTRIES,
       null,
       null);
@@ -117,19 +121,30 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
   }
 
   updateGraph(countries: string[]): void {
-    this.updateGraphForPresentation(countries, this.curPresentation);
+    this.updateGraphForPresentation(countries, this.curMinimumNumberOfChargers, this.curPresentation);
   }
 
-  private updateGraphForPresentation(countries: string[], presentation: ChargersByCountryAndYearPresentation): void {
+  private updateGraphForPresentation(
+    countries: string[],
+    minimumNumberOfChargers: number,
+    presentation: ChargersByCountryAndYearPresentation): void {
+
     const params: ChargersByCountryAndYearParams = new ChargersByCountryAndYearParams(
       presentation,
       countries,
+      minimumNumberOfChargers,
       BaseByCountryAndYearGraphComponent.MAX_COUNTRIES,
       null,
       null);
 
     this.chargersByCountryAndYear.update(params, this.chargersByCountryAndYearService)
       .subscribe(result => this.updateCountriesAndEmitChanged(result.displayedCountries, result.allCountries));
+  }
+
+  updateMinimumChargers(value: number): void {
+    this.curMinimumNumberOfChargers = value;
+
+    this.updateGraphForPresentation(this.selectedCountries, value, this.curPresentation);
   }
 
   onChargersByCountryAndYearPresentationChange(value: string): void {
@@ -144,6 +159,6 @@ export class ChargersByCountryAndYearGraphComponent extends BaseByCountryAndYear
     const presentation: ChargersByCountryAndYearPresentation = presentationText.presentation;
 
     this.updatePresentation(presentation);
-    this.updateGraphForPresentation(this.selectedCountries, presentation);
+    this.updateGraphForPresentation(this.selectedCountries, this.curMinimumNumberOfChargers, presentation);
   }
 }
