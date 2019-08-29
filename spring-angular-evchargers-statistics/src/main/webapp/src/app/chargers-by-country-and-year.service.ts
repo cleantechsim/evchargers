@@ -13,6 +13,8 @@ export enum ChargersByCountryAndYearPresentation {
   PER_THOUSAND_KM_OF_ROAD
 }
 
+declare var findDeployUrl: () => string;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -27,7 +29,7 @@ export class ChargersByCountryAndYearService
 
     const result: Subject<CountryChartJSData> = new Subject<CountryChartJSData>();
 
-    this.http.post<any>('/rest/statistics/chargersByYear', params).subscribe(data => {
+    this.http.post<any>(findDeployUrl() + '/rest/statistics/chargersByYear', params).subscribe(data => {
 
       let chartJS: CountryChartJSData;
 

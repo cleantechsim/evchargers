@@ -17,4 +17,61 @@
   <app-root></app-root>
 </body>
 
+<script type="text/javascript">
+
+  // Hack function to find URL passed to ng build --deploy-url
+  function findDeployUrl() {
+
+    var scriptTags = document.getElementsByTagName('script');
+
+    var deployUrl = null;
+
+    for (var i = 0; i < scriptTags.length; ++i) {
+      var src = scriptTags[i].src;
+
+      if (src.endsWith('runtime.js')) {
+
+        var str;
+
+        if (src.startsWith('http://')) {
+          str = skipToPath(src, 'http://');
+        }
+        else if (src.startsWith('https://')) {
+          str = skipToPath(src, 'https://');
+        }
+        else {
+          str = src;
+        }
+
+        if (str != null) {
+          var slashIndex = str.lastIndexOf('/');
+
+          if (slashIndex > 0) {
+            deployUrl = str.substring(0, slashIndex);
+            break;
+          }
+        }
+      }
+    }
+
+    return deployUrl != null ? deployUrl : '';
+  }
+
+  function skipToPath(str, prefix) {
+    str = str.substr(prefix.length);
+
+    var index = str.indexOf('/');
+
+    if (index < 0) {
+      str = null;
+    }
+    else {
+      str = str.substr(index)
+    }
+
+    return str;
+  }
+
+</script>
+
 </html>

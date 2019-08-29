@@ -6,6 +6,8 @@ import { CountryChartJSData, CommonByCountryAndYearParams } from './common.model
 
 import { BaseByCountryAndYearServiceHelper, JSONCountryBase } from './base-by-country-and-year.service-helper';
 
+declare var findDeployUrl: () => string;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -18,7 +20,7 @@ export class CapacityByCountryAndYearService implements DynamicGraphService<Capa
   getGraphData(params: CapacityByCountryAndYearParams): Observable<CountryChartJSData> {
     const result: Subject<CountryChartJSData> = new Subject<CountryChartJSData>();
 
-    this.http.get<any>('/rest/statistics/capacityByYear').subscribe(data => {
+    this.http.get<any>(findDeployUrl() + '/rest/statistics/capacityByYear').subscribe(data => {
 
       const chartJS: CountryChartJSData = BaseByCountryAndYearServiceHelper.getChartData<JSONCountryBase>(
         data.countries,
