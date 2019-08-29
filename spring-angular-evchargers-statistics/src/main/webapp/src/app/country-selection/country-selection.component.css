@@ -5,14 +5,24 @@
     flex-direction: column;
 }
 
-.country-selection-label {
+.country-selection-label, .country-selection-order-label {
     font-family: sans-serif;
+
+    display: block;
+}
+
+.country-selection-label {
     font-size: 1em;
     font-weight: 650;
 
-    display: block;
+    padding: 1em 0 0.5em 0;
+}
 
-    padding: 1em 0 1em 0;
+.country-selection-order-label {
+    font-size: 0.85em;
+    font-weight: 450;
+
+    padding: 0.5em 0 0.5em 0;
 }
 
 .country-selection-list {

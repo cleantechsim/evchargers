@@ -42,7 +42,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   get capacityHeader() {
-    return 'Showing average power of chargers added each year';
+    return 'Showing average capacity in KW of chargers added each year';
   }
 
   onMinimumChargersUpdate(value: string): void {

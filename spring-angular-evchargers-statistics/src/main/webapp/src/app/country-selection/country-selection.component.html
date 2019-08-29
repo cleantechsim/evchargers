@@ -1,5 +1,6 @@
 <div class="country-selection-wrapper">
     <label class="country-selection-label">Select countries (max {{maximumSelection}})</label>
+    <label class="country-selection-order-label">List ordered by highest value first</label>
     <div class="country-selection-list">
         <div *ngFor="let country of allCountries">
             <input type="checkbox" [attr.checked]="country.displayed ? 'checked' : null"
