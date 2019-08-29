@@ -71,19 +71,20 @@ class GeoClusteringPointMerger:
         merged_points, removed_points = GeoClusteringPointMerger._merge_distances(
             distances_below_max)
 
-        debug(indent, 'GeoClusteringPointMerger.merge_points_with_distances_below_max', 'after merging got merged ' + str(len(merged_points)) + ', removed ' +
+        debug(indent, 'GeoClusteringPointMerger.merge_points_with_distances_below_max',
+              'after merging got merge points ' + str(len(merged_points)) + ' from removed ' +
               str(len(removed_points)))
 
-        updated_distances = distances.remove_distances_with_points(
+        remaining_distances = distances.remove_distances_with_points(
             removed_points)
 
         debug(indent, 'GeoClusteringPointMerger.merge_points_with_distances_below_max',
-              'removing points from ' + str(distances.count()) + ' to ' + str(updated_distances.count()))
+              'removing points from input distances ' + str(distances.count()) + ' down to remaining ' + str(remaining_distances.count()))
 
         exit(indent, 'GeoClusteringPointMerger.merge_points_with_distances_below_max',
              'returning ' + str(len(merged_points)) + ' from ' + str(distances_below_max.count()))
 
-        return merged_points, updated_distances
+        return merged_points, remaining_distances
 
     @staticmethod
     def _merge_distances(distances, debug=False):
