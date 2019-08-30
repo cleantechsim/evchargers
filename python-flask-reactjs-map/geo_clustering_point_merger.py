@@ -86,38 +86,41 @@ class GeoClusteringPointMerger:
 
         return merged_points, remaining_distances
 
+    '''
+    Merge points in distances by merging one distance and the next one that does not have any merged points.
+    If distances are sorted then this always produces the same output result
+    '''
+
     @staticmethod
     def _merge_distances(distances, debug=False):
 
-        distances_set = distances.to_set()
+        if not distances.sorted:
+            raise 'Input not sorted'
+
+        distances_array = distances.to_array()
+
         merged_points = []
         removed_points = set()
 
-        while len(distances_set) != 0:
+        # Maintain index for next to merge.
+        for i in range(0, len(distances_array)):
 
-            to_iterate = list(distances_set)
+            distance = distances_array[i]
 
-            for distance in to_iterate:
-                # Can merge points unless one of them were already removed
-                if distance.from_point in removed_points or distance.to_point in removed_points:
-                    if debug:
-                        print 'Already removed'
+            # Can merge points unless one of them were already removed
+            if distance.from_point in removed_points or distance.to_point in removed_points:
+                if debug:
+                    print 'Already merged one or both points in some earlier distance, skip'
 
-                    distances_set.remove(distance)
-                else:
-                    # Merge point and remove
-                    removed_points.add(distance.from_point)
-                    removed_points.add(distance.to_point)
+            else:
+                # Merge point and remove
+                removed_points.add(distance.from_point)
+                removed_points.add(distance.to_point)
 
-                    distances_set.remove(distance)
+                merged = _MergedClusteringPoint(
+                    distance.from_point,
+                    distance.to_point)
 
-                    merged = _MergedClusteringPoint(
-                        distance.from_point,
-                        distance.to_point)
-
-                    merged_points.append(merged)
-
-        if len(distances_set) != 0:
-            raise Exception('Expected empty set')
+                merged_points.append(merged)
 
         return merged_points, removed_points

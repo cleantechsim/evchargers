@@ -33,6 +33,7 @@ class GeoDistances:
     def __init__(self, distances):
 
         self.distances = distances
+        self.sorted = False
 
     def __str__(self):
         return str(self.distances)
@@ -45,9 +46,13 @@ class GeoDistances:
 
     def sort(self):
         GeoDistances._sort_distances_array(self.distances)
+        self.sorted = True
 
     def to_set(self):
         return set(self.distances)
+
+    def to_array(self):
+        return [] + self.distances
 
     def get_distinct_points(self, indent):
 
@@ -82,8 +87,15 @@ class GeoDistances:
         for distance in self.distances:
             if distance.distance < max_distance_km:
                 distances.append(distance)
+            else:
+                if self.sorted:
+                    break
 
-        return GeoDistances(distances)
+        result = GeoDistances(distances)
+
+        result.sorted = self.sorted
+
+        return result
 
     def count_below_max(self, max_diameter_km):
         count = 0
