@@ -158,7 +158,12 @@ class GeoDistances:
 
         outer_count = 0
 
-        for point, close_points in grouped_points.items():
+        items = grouped_points.items()
+
+        if len(items) != len(points):
+            raise 'Did not return mapping for all points'
+
+        for point, close_points in items:
 
             if close_points != None:
                 # Find the distances for all close points
