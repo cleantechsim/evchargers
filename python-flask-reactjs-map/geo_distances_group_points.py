@@ -1,6 +1,6 @@
 from haversine import haversine
 
-from utils import enter, exit, debug, compare_numbers
+from utils import enter, exit, debug, compare_numbers, print_array_in_columns
 
 
 class GeoDistancesGroupPoints:
@@ -16,6 +16,11 @@ class GeoDistancesGroupPoints:
 
         comparator = GeoDistancesGroupPoints._compare_points_by_latitude_descending_then_longitude_ascending
         sorted_by_latitude.sort(comparator)
+
+        '''
+        print_array_in_columns(len(sorted_by_latitude), 5, lambda i: str(
+            sorted_by_latitude[i].get_point()))
+        '''
 
         # Have all points sorted by latitude, create list of lists for all points
         # that are latitude-wise less than max_km away from each point

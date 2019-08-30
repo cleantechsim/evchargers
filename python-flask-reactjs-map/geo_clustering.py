@@ -139,6 +139,10 @@ class GeoClustering:
                                                          points,
                                                          max_diameter_km)
 
+        if True:
+            distances.sort()
+            distances.print_distances(5)
+
         # Should merge points that are closer than specfied km
 
         # distances = GeoDistances.make_distances(points)
