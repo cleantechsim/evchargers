@@ -39,3 +39,6 @@ elif cmd == "test":
 elif cmd == "webapp":
     if __name__ == '__main__':
         app.run()
+
+else:
+    raise 'Unknown command'
