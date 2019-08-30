@@ -1,6 +1,7 @@
 
 from flask import Blueprint, jsonify, request
 
+from geo_types import GeoSwNe
 from geo_hash import GeoHash
 from geo_elasticsearch import GeoElasticSearch
 from geo_clustering import GeoClustering
@@ -29,42 +30,29 @@ def get_map():
           ', markerDiameterKM=' + str(markerDiameterKM) + ')')
     '''
 
-    get_map_params(indent + 1, swLatitude, swLongitude, neLatitude,
-                   neLongitude, markerDiameterKM)
+    geo_sw_ne = GeoSwNe(swLatitude, swLongitude, neLatitude,
+                        neLongitude)
+
+    result = get_map_params(indent + 1, geo_sw_ne, markerDiameterKM)
 
     exit(indent, 'get_map', '')
 
+    return result
 
-def get_map_params(indent, swLatitude, swLongitude, neLatitude, neLongitude, markerDiameterKM):
+
+def get_map_params(indent, geo_sw_ne, markerDiameterKM):
 
     enter(indent, 'get_map_params', '')
-
-    if not _within(-90, 90, swLatitude):
-        raise('Exception latitude not within range')
-
-    if not _within(-180, 180, swLongitude):
-        raise('Exception longitude not within range')
-
-    if not _within(-90, 90, neLatitude):
-        raise('Exception latitude not within range')
-
-    if not _within(-180, 180, neLongitude):
-        raise('Exception longitude not within range')
 
     es = GeoElasticSearch()
 
     # Aggregate all points
-
     geo_clustering = GeoClustering(es)
 
     points = geo_clustering.compute_clusters(
         indent + 1,
         markerDiameterKM,
-        neLatitude,
-        swLongitude,
-        swLatitude,
-        neLongitude
-    )
+        geo_sw_ne)
 
     debug(indent, 'get_map_params', 'after clustering call')
 
@@ -73,7 +61,7 @@ def get_map_params(indent, swLatitude, swLongitude, neLatitude, neLongitude, mar
     if points == None:
         debug(indent, 'get_map_params', 'no results for bounds')
     else:
-        debug(indent, 'get_map_params', 'found ' + len(points) + ' points')
+        debug(indent, 'get_map_params', 'found ' + str(len(points)) + ' points')
 
         for point in points:
 
@@ -117,13 +105,11 @@ def get_map_params(indent, swLatitude, swLongitude, neLatitude, neLongitude, mar
 '''
 
 
-def _within(min, max, value):
-    if (max < min):
-        raise Exception('Max < min')
-
-    return value >= min and value <= max
-
-
 if __name__ == '__main__':
-    get_map_params(swLatitude=-5.96575367107, swLongitude=-60.46875,
-                   neLatitude=77.4660284769, neLongitude=60.0, markerDiameterKM=726.277934253574)
+    get_map_params(
+        0,
+        GeoSwNe(swLatitude=-5.96575367107,
+                swLongitude=-60.46875,
+                neLatitude=77.4660284769,
+                neLongitude=60.0),
+        markerDiameterKM=726.277934253574)

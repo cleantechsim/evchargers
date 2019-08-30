@@ -27,6 +27,18 @@ class GeoSwNe:
         if swLongitude > neLongitude:
             raise Exception('swLongitude > neLongitude')
 
+        if not _within(-90, 90, swLatitude):
+            raise('Exception latitude not within range')
+
+        if not _within(-180, 180, swLongitude):
+            raise('Exception longitude not within range')
+
+        if not _within(-90, 90, neLatitude):
+            raise('Exception latitude not within range')
+
+        if not _within(-180, 180, neLongitude):
+            raise('Exception longitude not within range')
+
         self.swLatitude = swLatitude
         self.swLongitude = swLongitude
         self.neLatitude = neLatitude
@@ -167,3 +179,10 @@ class GeoHashPointAggregation:
 
         self.hash = hash
         self.count = count
+
+
+def _within(min, max, value):
+    if (max < min):
+        raise Exception('Max < min')
+
+    return value >= min and value <= max
