@@ -29,6 +29,9 @@ class GeoDistancesGroupPoints:
 
         total = 0
 
+        debug(indent, 'GeoDistancesGroupPoints.group_points',
+              'group by latitude and longitude, max_degrees=' + str(max_degrees))
+
         for i in range(0, num_points):
 
             point = sorted_by_latitude[i]
@@ -52,6 +55,7 @@ class GeoDistancesGroupPoints:
             '''
 
             close_points, down_iter = GeoDistancesGroupPoints._add_if_close(
+                i,
                 sorted_by_latitude,
                 max_degrees,
                 max_km,
@@ -64,14 +68,14 @@ class GeoDistancesGroupPoints:
 
             total = total + down_iter  # up_iter + down_iter
 
-            # debug(indent, '', 'filtered through ' +
-            #      str(total) + ' inner iterations')
-
             # Now has sorted points with candidates where distance might apply
             if False:
                 GeoDistancesGroupPoints._print_computed_points(indent,
                                                                sorted_by_latitude,
                                                                points_to_close_points)
+
+        debug(indent, 'GeoDistancesGroupPoints.group_points', 'filtered through ' +
+              str(total) + ' inner iterations')
 
         exit(indent, 'GeoDistancesGroupPoints.group_points',
              str(len(points_to_close_points)))
@@ -101,6 +105,7 @@ class GeoDistancesGroupPoints:
 
     @staticmethod
     def _add_if_close(
+        i,
         sorted_by_latitude,
         max_degrees_latitude,
         max_km,
@@ -119,6 +124,11 @@ class GeoDistancesGroupPoints:
 
         count = 0
 
+        debug = False
+
+        if debug:
+            print('enter at ' + str(range_start))
+
         for j in range(range_start, range_end, range_step):
 
             count = count + 1
@@ -129,6 +139,10 @@ class GeoDistancesGroupPoints:
 
             latitude_diff = GeoDistancesGroupPoints._diff(latitude_plus_90,
                                                           other_latitude_plus_90)
+
+            if debug:
+                print('## diff ' + str(i) + '/' + str(j) + '/' + str(geo_point) + '/' +
+                      str(other.get_point()) + '=' + str(latitude_diff))
 
             if latitude_diff < max_degrees_latitude:
 
@@ -145,12 +159,15 @@ class GeoDistancesGroupPoints:
                 if longitude_diff_km < max_km:
                     if close_points == None:
                         close_points = []
-
                     close_points.append(other)
 
             else:
+                # print("break after " + str(j - range_start))
                 break
 
+        if debug:
+            print('## close points ' + ('None' if close_points ==
+                                        None else str(len(close_points))))
         return close_points, count
 
     @staticmethod
