@@ -1,7 +1,7 @@
 from haversine import haversine
 import math
 
-from utils import millis, enter, exit, debug
+from utils import millis, enter, exit, debug, print_array_in_columns
 
 from geo_distances_group_points import GeoDistancesGroupPoints
 
@@ -63,6 +63,11 @@ class GeoDistances:
         exit(indent, 'GeoDistances.get_distinct_points', str(len(points)))
 
         return points
+
+    def print_distances(self, columns):
+        print_array_in_columns(len(self.distances),
+                               columns,
+                               lambda i: str(self.distances[i].distance))
 
     '''
         Extract all distances below certain max and also return

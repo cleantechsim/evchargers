@@ -23,3 +23,23 @@ def debug(indent, name, message):
         i
 
     print string + name + ' ' + message
+
+
+def print_array_in_columns(count, columns, get_string):
+
+    string = ''
+
+    for i in range(0, count):
+        mod = (i + 1) % columns
+
+        if string != '':
+            string += ' '
+
+        string += get_string(i)
+
+        if mod == 0 and i > 0:
+            print string
+            string = ''
+
+    if string != '':
+        print string
