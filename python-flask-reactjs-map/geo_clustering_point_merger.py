@@ -79,7 +79,7 @@ class GeoClusteringPointMerger:
             removed_points)
 
         debug(indent, 'GeoClusteringPointMerger.merge_points_with_distances_below_max',
-              'removing points from input distances ' + str(distances.count()) + ' down to remaining ' + str(remaining_distances.count()))
+              'removed points from input distances ' + str(distances.count()) + ' down to remaining ' + str(remaining_distances.count()))
 
         exit(indent, 'GeoClusteringPointMerger.merge_points_with_distances_below_max',
              'returning ' + str(len(merged_points)) + ' from ' + str(distances_below_max.count()))
@@ -113,7 +113,7 @@ class GeoClusteringPointMerger:
                     print 'Already merged one or both points in some earlier distance, skip'
 
             else:
-                # Merge point and remove
+                # Merge point and remove points from points that can be utilised
                 removed_points.add(distance.from_point)
                 removed_points.add(distance.to_point)
 
