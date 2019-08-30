@@ -139,7 +139,7 @@ class GeoClustering:
                                                          points,
                                                          max_diameter_km)
 
-        if True:
+        if False:
             distances.sort()
             distances.print_distances(5)
 
@@ -163,14 +163,22 @@ class GeoClustering:
             debug(indent, 'GeoClustering.merge_aggregations',
                   '--- at start of outer operation has ' + str(distances.count()) + ' to merge')
 
+            # For each iteration, sort distances in ascending order
             distances.sort()
 
+            # For any distances below max, merge this to merged (clustered) points and returned these (merged_points)
+            # and all distances that were not merged
             merged_points, not_merged_distances = GeoClusteringPointMerger.merge_points_with_distances_below_max(
                 indent + 1,
                 distances,
                 max_diameter_km)
 
+            debug(indent, 'GeoClustering.merge_aggregations', 'got merged points ' +
+                  str(len(merged_points)) + ', not merged distances ' + str(not_merged_distances.count()))
+
             if len(merged_points) == 0:
+                # If no points were merged, we have merged all distances that are less than max_diameter_km in distance
+                # not_merged_distances shall then contain all distances
                 done = True
                 found_points = not_merged_distances.get_distinct_points(
                     indent + 1)
