@@ -69,26 +69,35 @@ class GeoDistancesGroupPoints:
 
             # Now has sorted points with candidates where distance might apply
             if False:
-                for i in range(0, num_points):
-                    point = sorted_by_latitude[i]
-
-                    if not points_to_close_points.has_key(point):
-                        debug(indent, 'GeoDistanceGroupPoints.group_points',
-                              'Unknown key ' + str(point))
-                    else:
-
-                        found_points = points_to_close_points[point]
-
-                        points_len = found_points = 0 if found_points == None else len(
-                            found_points)
-
-                        debug(indent, 'GeoDistanceGroupPoints.group_points', 'sorted points at ' + str(i) + ' ' +
-                              str(points_len))
+                GeoDistancesGroupPoints._print_computed_points(indent,
+                                                               sorted_by_latitude,
+                                                               points_to_close_points)
 
         exit(indent, 'GeoDistancesGroupPoints.group_points',
              str(len(points_to_close_points)))
 
         return points_to_close_points
+
+    @staticmethod
+    def _print_computed_points(indent, sorted_by_latitude, points_to_close_points):
+
+        num_points = len(sorted_by_latitude)
+
+        for i in range(0, num_points):
+            point = sorted_by_latitude[i]
+
+            if not points_to_close_points.has_key(point):
+                debug(indent, 'GeoDistanceGroupPoints.group_points',
+                      'Unknown key ' + str(point))
+            else:
+
+                found_points = points_to_close_points[point]
+
+                points_len = found_points = 0 if found_points == None else len(
+                    found_points)
+
+                debug(indent, 'GeoDistanceGroupPoints.group_points', 'sorted points at ' + str(i) + ' ' +
+                      str(points_len))
 
     @staticmethod
     def _add_if_close(
