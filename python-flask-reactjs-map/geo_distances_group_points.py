@@ -38,6 +38,8 @@ class GeoDistancesGroupPoints:
         debug(indent, 'GeoDistancesGroupPoints.group_points',
               'group by latitude and longitude, max_degrees=' + str(max_degrees))
 
+        empty_array = []
+
         for i in range(0, num_points):
 
             point = sorted_by_latitude[i]
@@ -68,7 +70,8 @@ class GeoDistancesGroupPoints:
                 i + 1, num_points, 1,
                 geo_point,
                 one_longitude_degree_km,
-                close_points)
+                close_points,
+                empty_array)
 
             points_to_close_points[point] = close_points
 
@@ -120,7 +123,8 @@ class GeoDistancesGroupPoints:
         range_step,
         geo_point,
         one_longitude_degree_km,
-        close_points
+        close_points,
+        empty_array
     ):
         latitude = geo_point.latitude
         latitude_plus_90 = latitude + 90.0
@@ -164,7 +168,7 @@ class GeoDistancesGroupPoints:
 
                 if longitude_diff_km < max_km:
                     if close_points == None:
-                        close_points = []
+                        close_points = empty_array
                     close_points.append(other)
 
             else:
