@@ -1,6 +1,6 @@
 from haversine import haversine
 
-from utils import enter, exit, debug
+from utils import enter, exit, debug, compare_numbers
 
 
 class GeoDistancesGroupPoints:
@@ -14,7 +14,8 @@ class GeoDistancesGroupPoints:
         # Sort the points by latitude
         sorted_by_latitude = [] + points
 
-        sorted_by_latitude.sort(GeoDistancesGroupPoints._point_by_latitude)
+        comparator = GeoDistancesGroupPoints._compare_points_by_latitude_descending_then_longitude_ascending
+        sorted_by_latitude.sort(comparator)
 
         # Have all points sorted by latitude, create list of lists for all points
         # that are latitude-wise less than max_km away from each point
@@ -171,21 +172,32 @@ class GeoDistancesGroupPoints:
         return close_points, count
 
     @staticmethod
-    def _point_by_latitude(point, other):
+    def _compare_points_by_latitude(point, other):
 
         # add 90 to latitude for avoiding positive /negative around equator
         pl = point.get_point().latitude + 90.0
         ol = other.get_point().latitude + 90.0
 
-        if pl < ol:
-            result = -1
-        elif pl > ol:
-            result = 1
-        else:
-            result = 0
+        return compare_numbers(pl, ol)
 
-        # Sort descending order
-        return -result
+    @staticmethod
+    def _compare_points_by_longitude(point, other):
+        pl = point.get_point().longitude + 180.0
+        ol = other.get_point().longitude + 180.0
+
+        return compare_numbers(pl, ol)
+
+    @staticmethod
+    def _compare_points_by_latitude_descending_then_longitude_ascending(point, other):
+
+        result = - GeoDistancesGroupPoints._compare_points_by_latitude(point,
+                                                                       other)
+
+        if result == 0:
+            result = GeoDistancesGroupPoints._compare_points_by_longitude(point,
+                                                                          other)
+
+        return result
 
     @staticmethod
     def _diff(val, other):

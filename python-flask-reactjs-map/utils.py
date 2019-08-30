@@ -25,6 +25,17 @@ def debug(indent, name, message):
     print string + name + ' ' + message
 
 
+def compare_numbers(num, other):
+    if num < other:
+        result = -1
+    elif num > other:
+        result = 1
+    else:
+        result = 0
+
+    return result
+
+
 def print_array_in_columns(count, columns, get_string):
 
     string = ''
