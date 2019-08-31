@@ -1,5 +1,5 @@
 
-function updateMarkers(map, markers, debug) {
+function updateMarkers(map, allMarkers, markers, debug) {
 
     if (!map) {
         throw "No map"
@@ -66,8 +66,7 @@ function updateMarkers(map, markers, debug) {
         }
     })
 
-    // Swap map of current markers
-    allMarkers = updatedMarkers;
+    return updatedMarkers;
 }
 
 function createSVGMarker(pos, count) {

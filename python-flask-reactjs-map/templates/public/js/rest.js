@@ -1,4 +1,4 @@
-function queryClustersAndPoints(map, eventType) {
+function queryClustersAndPoints(map, eventType, allMarkers, onupdate) {
 
     const debug = false;
 
@@ -27,7 +27,11 @@ function queryClustersAndPoints(map, eventType) {
         + '&markerDiameterKM=' + markerWidthKMs
 
     ).then(function (response) {
-        updateMarkers(map, response.data, debug);
+        updatedMarkers = updateMarkers(map, allMarkers, response.data, debug);
+
+        if (onupdate) {
+            onupdate(updatedMarkers);
+        }
     })
 }
 
