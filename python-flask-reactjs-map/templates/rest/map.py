@@ -6,6 +6,8 @@ from geo_hash import GeoHash
 from geo_elasticsearch import GeoElasticSearch
 from geo_clustering import GeoClustering
 
+import sys
+
 import json
 
 from utils import enter, exit, debug
@@ -44,7 +46,17 @@ def get_map_params(indent, geo_sw_ne, markerDiameterKM):
 
     enter(indent, 'get_map_params', '')
 
-    es = GeoElasticSearch()
+    es_host = "localhost"
+    es_port = 9200
+
+    print('3# argv ' + json.dumps(sys.argv))
+    if len(sys.argv) > 2:
+        es_host = sys.argv[2]
+
+    if len(sys.argv) > 3:
+        es_port = int(sys.argv[3])
+
+    es = GeoElasticSearch(es_host, es_port)
 
     # Aggregate all points
     geo_clustering = GeoClustering(es)

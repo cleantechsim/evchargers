@@ -7,8 +7,8 @@ class GeoElasticSearch:
 
     GEO_POINTS = 'geopoints'
 
-    def __init__(self):
-        self.es = Elasticsearch()
+    def __init__(self, host, port):
+        self.es = Elasticsearch([host + ':' + str(port)])
 
         if not self.es.indices.exists(index=self.GEO_POINTS):
             self.es.indices.create(index=self.GEO_POINTS, body={
