@@ -1,7 +1,7 @@
 
 var _requestSequenceNo = 0;
 
-function queryClustersAndPoints(map, eventType, allMarkers, onupdate) {
+function queryClustersAndPoints(map, eventType, allMarkers, markerWidthInPixels, onupdate) {
 
     const debug = false;
 
@@ -11,9 +11,6 @@ function queryClustersAndPoints(map, eventType, allMarkers, onupdate) {
 
     var zoom = map.getZoom();
     var bounds = map.getBounds();
-
-
-    var markerWidthInPixels = 30;
 
     var markerWidthKMs = computeMaxDiameterMarker(map, markerWidthInPixels, debug);
 

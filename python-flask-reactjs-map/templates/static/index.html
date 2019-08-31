@@ -18,10 +18,15 @@
 
     <script>
 
+
         var _allMarkers = {};
+
+        var _markerWidthInPixels = 30;
 
         document.addEventListener('DOMContentLoaded', event => {
             var map = L.map('map').setView([51.505, -0.09], 2.2);
+
+            map.addEventListener('zoom', event => updateMarkerSizeOnZoom(map, _allMarkers, _markerWidthInPixels));
 
             // map.addEventListener('zoomend', event => queryClustersAndPoints(map, 'zoomend'));
             map.addEventListener('resize', event => query(map, 'resize'));
@@ -36,7 +41,12 @@
         })
 
         function query(map, event) {
-            queryClustersAndPoints(map, event, _allMarkers, updatedMarkers => _allMarkers = updatedMarkers);
+            queryClustersAndPoints(
+                map,
+                event,
+                _allMarkers,
+                _markerWidthInPixels,
+                updatedMarkers => _allMarkers = updatedMarkers);
         }
     </script>
 </body>

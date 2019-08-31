@@ -112,3 +112,20 @@ function _createSVGMarker(placement, count) {
                 return L.svgOverlay(svgElement, svgElementBounds);
                 */
 }
+
+function updateMarkerSizeOnZoom(map, allMarkers, markerWidthInPixels) {
+
+    for (key of Object.keys(allMarkers)) {
+        parts = key.split('_');
+
+        latitude = parseFloat(parts[0]);
+        longitude = parseFloat(parts[1]);
+
+        var updatedPlacement = findBoundingBox(map, latitude, longitude, markerWidthInPixels);
+
+        var value = allMarkers[key];
+
+        value.added.setBounds(updatedPlacement);
+    }
+}
+
