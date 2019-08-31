@@ -80,31 +80,6 @@ def get_map_params(indent, geo_sw_ne, markerDiameterKM):
     return jsonify(result)
 
 
-'''
-
-    aggregations = es.aggregate_points_with_filter(
-        precision, neLatitude, swLongitude, swLatitude, neLongitude)
-
-    # print('Returned from ES')
-
-    result = []
-
-    if False:
-        for key, value in aggregations.items():
-            decoded = GeoHash.decode(key)
-
-            item = {
-                "latitude": float(decoded.value.latitude),
-                "longitude": float(decoded.value.longitude),
-                "count": value
-            }
-
-            result.append(item)
-
-    return jsonify(result)
-'''
-
-
 if __name__ == '__main__':
     get_map_params(
         0,
