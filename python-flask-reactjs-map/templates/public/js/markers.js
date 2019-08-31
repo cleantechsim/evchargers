@@ -44,7 +44,7 @@ function updateMarkers(map, allMarkers, markers, debug) {
             markerData.added = markerData.overlay.addTo(map);
 
             if (debug) {
-                console.log('## added marker ' + added + ' at ' + JSON.stringify(added.placement));
+                console.log('## added marker ' + markerData.added + ' at ' + JSON.stringify(markerData.placement));
             }
 
             // Add to map maintained on clientside so can dynamically remove later
@@ -75,8 +75,10 @@ function createSVGMarker(pos, count) {
 
     svg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
 
-    svg.setAttribute('width', 100);
-    svg.setAttribute('height', 100);
+    svg.setAttribute('style', 'width: 150px; height: 150px;')
+
+    svg.setAttribute('width', "150px");
+    svg.setAttribute('height', "150px");
 
     svg.setAttribute('viewBox', '0 0 500 500');
 
