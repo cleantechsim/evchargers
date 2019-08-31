@@ -24,23 +24,8 @@ function computeMaxDiameterMarker(map, markerWidthInPixels, debug) {
 
 
     if (debug) {
-        console.log('## world width ' + (halfWorldWidthMeters * 2 / 1000));
-        console.log('## center latitude ' + centerLatitude);
-        console.log('## width in meters ' + geoWidthMeters + ', km ' + (geoWidthMeters / 1000))
-
-        var geoHeightMeters = map.distance(
-            L.latLng(
-                mapGeoBounds.getNorth(),
-                centerLongitude
-            ),
-            L.latLng(
-                mapGeoBounds.getSouth(),
-                centerLongitude)
-        );
-
-        console.log('## heigh in meters ' + geoHeightMeters + ', km ' + (geoHeightMeters / 1000))
+        _printMapDebug(map, mapGeoBounds, centerLatitude, centerLongitude, geoWidthMeters, halfWorldWidthMeters);
     }
-
 
     var pixelWorldBounds = map.getPixelWorldBounds();
     var pixelWorldWidth = pixelWorldBounds.max.x - pixelWorldBounds.min.x;
@@ -50,29 +35,7 @@ function computeMaxDiameterMarker(map, markerWidthInPixels, debug) {
         console.log('## display width ' + displayWidthInPixels + ', pixel width ' + pixelWorldWidth);
     }
 
-    if (displayWidthInPixels > pixelWorldWidth) {
-        // Showing more than the complete world map, stop displaying clustering
-        mapWidthMeters = null;
-    }
-    else if (displayWidthInPixels > pixelWorldWidth / 2) {
-        // When computing map width in km we have to take heed of map.distance()
-        // returnning the shortest path around the globe, not across the map as it is displayed
-        if (geoWidthMeters < halfWorldWidthMeters) {
-            // Displaying more than half of world but map width less than half
-            // which means distance was measured "on the other side of the globe"
-            // Adjust by subtracting from circumference
-
-            mapWidthMeters = (halfWorldWidthMeters * 2) - geoWidthMeters;
-        }
-        else {
-            // Return map width meters. This code path probably never runs
-            mapWidthMeters = geoWidthMeters;
-        }
-    }
-    else {
-        // Showing less than half, just returns mapWidthMeters
-        mapWidthMeters = geoWidthMeters;
-    }
+    var mapWidthMeters = _getMapWidthMeters(displayWidthInPixels, pixelWorldWidth, geoWidthMeters, halfWorldWidthMeters)
 
     if (debug) {
         console.log('## map width in meters ' + mapWidthMeters);
@@ -106,6 +69,52 @@ function computeMaxDiameterMarker(map, markerWidthInPixels, debug) {
     return markerDiameterKMs;
 }
 
+function _getMapWidthMeters(displayWidthInPixels, pixelWorldWidth, geoWidthMeters, halfWorldWidthMeters) {
+    if (displayWidthInPixels > pixelWorldWidth) {
+        // Showing more than the complete world map, stop displaying clustering
+        mapWidthMeters = null;
+    }
+    else if (displayWidthInPixels > pixelWorldWidth / 2) {
+        // When computing map width in km we have to take heed of map.distance()
+        // returnning the shortest path around the globe, not across the map as it is displayed
+        if (geoWidthMeters < halfWorldWidthMeters) {
+            // Displaying more than half of world but map width less than half
+            // which means distance was measured "on the other side of the globe"
+            // Adjust by subtracting from circumference
+
+            mapWidthMeters = (halfWorldWidthMeters * 2) - geoWidthMeters;
+        }
+        else {
+            // Return map width meters. This code path probably never runs
+            mapWidthMeters = geoWidthMeters;
+        }
+    }
+    else {
+        // Showing less than half, just returns mapWidthMeters
+        mapWidthMeters = geoWidthMeters;
+    }
+
+    return mapWidthMeters;
+}
+
+function _printMapDebug(map, mapGeoBounds, centerLatitude, centerLongitude, geoWidthMeters, halfWorldWidthMeters) {
+
+    console.log('## world width ' + (halfWorldWidthMeters * 2 / 1000));
+    console.log('## center latitude ' + centerLatitude);
+    console.log('## width in meters ' + geoWidthMeters + ', km ' + (geoWidthMeters / 1000))
+
+    var geoHeightMeters = map.distance(
+        L.latLng(
+            mapGeoBounds.getNorth(),
+            centerLongitude
+        ),
+        L.latLng(
+            mapGeoBounds.getSouth(),
+            centerLongitude)
+    );
+
+    console.log('## heigh in meters ' + geoHeightMeters + ', km ' + (geoHeightMeters / 1000))
+}
 
 function normalizeLongitude(longitude) {
     var result;
