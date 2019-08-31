@@ -26,7 +26,7 @@ function _queryPoints(map, zoom, bounds, markerWidthKMs, markerWidthInPixels, se
     swLongitude = normalizeLongitude(bounds._southWest.lng);
     neLongitude = normalizeLongitude(bounds._northEast.lng);
 
-    axios.get('/rest/map'
+    axios.get(getPathNamePrefix() + '/rest/map'
         + '?zoom=' + zoom
         + '&swLatitude=' + bounds._southWest.lat
         + '&swLongitude=' + swLongitude
