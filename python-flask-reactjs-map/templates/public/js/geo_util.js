@@ -131,3 +131,20 @@ function normalizeLongitude(longitude) {
 
     return result;
 }
+
+function findBoundingBox(map, latitude, longitude, markerWidthInPixels) {
+
+    var latLng = L.latLng(latitude, longitude);
+
+    var mapPoint = map.project(latLng, map.getZoom());
+
+    var radiusPixels = markerWidthInPixels / 2;
+
+    var swPoint = L.point(mapPoint.x - radiusPixels, mapPoint.y - radiusPixels);
+    var nePoint = L.point(mapPoint.x + radiusPixels, mapPoint.y + radiusPixels);
+
+    return L.latLngBounds(
+        map.unproject(swPoint, map.getZoom()),
+        map.unproject(nePoint, map.getZoom())
+    );
+}

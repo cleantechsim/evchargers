@@ -12,7 +12,9 @@ function queryClustersAndPoints(map, eventType, allMarkers, onupdate) {
     swLongitude = normalizeLongitude(bounds._southWest.lng);
     neLongitude = normalizeLongitude(bounds._northEast.lng);
 
-    var markerWidthKMs = computeMaxDiameterMarker(map, 25, debug);
+    var markerWidthInPixels = 30;
+
+    var markerWidthKMs = computeMaxDiameterMarker(map, markerWidthInPixels, debug);
 
     if (debug) {
         console.log('## marker width in kms ' + markerWidthKMs);
@@ -27,7 +29,7 @@ function queryClustersAndPoints(map, eventType, allMarkers, onupdate) {
         + '&markerDiameterKM=' + markerWidthKMs
 
     ).then(function (response) {
-        updatedMarkers = updateMarkers(map, allMarkers, response.data, debug);
+        updatedMarkers = updateMarkers(map, allMarkers, response.data, markerWidthInPixels, debug);
 
         if (onupdate) {
             onupdate(updatedMarkers);

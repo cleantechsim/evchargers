@@ -1,5 +1,5 @@
 
-function updateMarkers(map, allMarkers, markers, debug) {
+function updateMarkers(map, allMarkers, markers, markerWidthInPixels, debug) {
 
     if (!map) {
         throw "No map"
@@ -21,7 +21,7 @@ function updateMarkers(map, allMarkers, markers, debug) {
         var marker = markers[i];
         var key = '' + marker.latitude + '_' + marker.longitude + '_' + marker.count;
 
-        if (updateMarkers[key]) {
+        if (updatedMarkers[key]) {
             throw "Multiple updates at " + key
         }
 
@@ -39,7 +39,9 @@ function updateMarkers(map, allMarkers, markers, debug) {
 
             // var added = L.marker([marker.latitude, marker.longitude]).addTo(map)
 
-            var markerData = createSVGMarker([marker.latitude, marker.longitude], marker.count);
+            var placement = findBoundingBox(map, marker.latitude, marker.longitude, markerWidthInPixels)
+
+            var markerData = _createSVGMarker(placement, marker.count);
 
             markerData.added = markerData.overlay.addTo(map);
 
@@ -69,7 +71,7 @@ function updateMarkers(map, allMarkers, markers, debug) {
     return updatedMarkers;
 }
 
-function createSVGMarker(pos, count) {
+function _createSVGMarker(placement, count) {
 
     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
@@ -91,11 +93,6 @@ function createSVGMarker(pos, count) {
     html += '</g>';
 
     svg.innerHTML = html;
-
-    var sw = [pos[0] - 5.05, pos[1] - 5.05];
-    var ne = [pos[0] + 5.05, pos[1] + 5.05];
-
-    var placement = [sw, ne];
 
     var result = {
         'svg': svg,
