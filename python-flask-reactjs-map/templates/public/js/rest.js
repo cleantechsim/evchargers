@@ -1,3 +1,6 @@
+
+var _requestSequenceNo = 0;
+
 function queryClustersAndPoints(map, eventType, allMarkers, onupdate) {
 
     const debug = false;
@@ -9,8 +12,6 @@ function queryClustersAndPoints(map, eventType, allMarkers, onupdate) {
     var zoom = map.getZoom();
     var bounds = map.getBounds();
 
-    swLongitude = normalizeLongitude(bounds._southWest.lng);
-    neLongitude = normalizeLongitude(bounds._northEast.lng);
 
     var markerWidthInPixels = 30;
 
@@ -19,6 +20,14 @@ function queryClustersAndPoints(map, eventType, allMarkers, onupdate) {
     if (debug) {
         console.log('## marker width in kms ' + markerWidthKMs);
     }
+
+    _queryPoints(map, zoom, bounds, markerWidthKMs, markerWidthInPixels, ++_requestSequenceNo, onupdate, allMarkers, debug);
+}
+
+function _queryPoints(map, zoom, bounds, markerWidthKMs, markerWidthInPixels, sequenceNo, onupdate, allMarkers, debug) {
+
+    swLongitude = normalizeLongitude(bounds._southWest.lng);
+    neLongitude = normalizeLongitude(bounds._northEast.lng);
 
     axios.get('/rest/map'
         + '?zoom=' + zoom
@@ -29,10 +38,16 @@ function queryClustersAndPoints(map, eventType, allMarkers, onupdate) {
         + '&markerDiameterKM=' + markerWidthKMs
 
     ).then(function (response) {
-        updatedMarkers = updateMarkers(map, allMarkers, response.data, markerWidthInPixels, debug);
 
-        if (onupdate) {
-            onupdate(updatedMarkers);
+        if (sequenceNo < _requestSequenceNo) {
+            // Expired request, new ones sent
+        }
+        else {
+            updatedMarkers = updateMarkers(map, allMarkers, response.data, markerWidthInPixels, debug);
+
+            if (onupdate) {
+                onupdate(updatedMarkers);
+            }
         }
     })
 }
