@@ -11,7 +11,6 @@ import sys
 
 from haversine import haversine
 
-es = GeoElasticSearch('localhost', 9200)
 
 if len(sys.argv) <= 1:
     raise Exception('Expected args')
@@ -19,6 +18,7 @@ if len(sys.argv) <= 1:
 cmd = sys.argv[1]
 
 if cmd == "generate":
+    es = GeoElasticSearch('localhost', 9200)
 
     if len(sys.argv) > 1:
         count = int(sys.argv[2])
@@ -29,6 +29,7 @@ if cmd == "generate":
     es.upload_points(geo_points)
 
 elif cmd == "test":
+    es = GeoElasticSearch('localhost', 9200)
 
     clustering = GeoClustering(es)
 
@@ -39,7 +40,7 @@ elif cmd == "test":
 
 elif cmd == "webapp":
     if __name__ == '__main__':
-        app.run()
+        app.run('0.0.0.0', 5000)
 
 else:
     raise 'Unknown command'
