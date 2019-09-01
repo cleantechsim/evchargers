@@ -1,5 +1,6 @@
 package org.cleantechsim.evchargers.aws.sqs.to.elasticsearch;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -24,9 +25,13 @@ import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class SQSToElasticSearchMain {
 	
@@ -88,6 +93,9 @@ public class SQSToElasticSearchMain {
 					break;
 				}
 				
+				final JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
+				final JsonFactory jsonFactory = new JsonFactory();
+				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				for (Message message : result.getMessages()) {
 					
 					final String publishedMessage = message.getBody();
@@ -95,7 +103,31 @@ public class SQSToElasticSearchMain {
 					final JsonNode published = objectMapper.readTree(publishedMessage);
 					
 					final String id = published.get("ID").asText();
-					
+
+                    final JsonNode addressInfo = published.get("AddressInfo");
+                    final JsonNode latitude = addressInfo.get("Latitude");
+                    final JsonNode longitude = addressInfo.get("Longitude");
+
+                    final String jsonToIndex;
+
+                    if (latitude != null && longitude != null) {
+
+                        final String location = latitude.asText() + ',' + longitude.asText();
+                        final JsonNode locationNode = jsonNodeFactory.textNode(location);
+
+                        ((ObjectNode) published).set("location", locationNode);
+
+                        final JsonGenerator generator = jsonFactory.createGenerator(baos);
+
+                        objectMapper.writeTree(generator, published);
+
+                        jsonToIndex = new String(baos.toByteArray());
+
+                        baos.reset();
+                    } else {
+                        jsonToIndex = publishedMessage;
+                    }
+
 					// Post this to ES index
 					
 					if (!connection.isOpen()) {
@@ -106,22 +138,8 @@ public class SQSToElasticSearchMain {
 					
 					final String url = "/evchargers/_doc/" + id;
 					
-					final HttpPut put = new HttpPut(url);
+					final HttpResponse response = sendPutRequest(url, jsonToIndex	, route, connection);
 					
-					final StringEntity entity = new StringEntity(publishedMessage, ContentType.APPLICATION_JSON);
-					
-					put.setEntity(entity);
-					
-					put.setHeader("Host", route.getTargetHost().getHostName() + ':' + route.getTargetHost().getPort());
-					
-					put.addHeader("Content-type", "application/json");
-					put.addHeader("Content-length", String.valueOf(entity.getContentLength()));
-					
-					connection.sendRequestHeader(put);
-					connection.sendRequestEntity(put);
-					
-					final HttpResponse response = connection.receiveResponseHeader();
-
 					if (response.getEntity() != null) {
 						EntityUtils.consume(response.getEntity());
 					}
@@ -132,7 +150,7 @@ public class SQSToElasticSearchMain {
 					
 					++ count;
 					
-					if (count % 5000 == 0) {
+					if (count % 10000 == 0) {
 						System.out.println("Processed " + count + " since start");
 					}
 					
@@ -149,4 +167,27 @@ public class SQSToElasticSearchMain {
 			}
 		}
 	}
+	
+    private static HttpResponse sendPutRequest(String url, String publishedMessage, HttpRoute route,
+	    HttpClientConnection connection) throws HttpException, IOException {
+
+        final HttpPut put = new HttpPut(url);
+
+    	final StringEntity entity = new StringEntity(publishedMessage, ContentType.APPLICATION_JSON);
+    
+    	put.setEntity(entity);
+    
+    	put.setHeader("Host", route.getTargetHost().getHostName() + ':' + route.getTargetHost().getPort());
+    
+    	put.addHeader("Content-type", "application/json");
+    	put.addHeader("Content-length", String.valueOf(entity.getContentLength()));
+    
+    	connection.sendRequestHeader(put);
+    	connection.sendRequestEntity(put);
+    
+    	final HttpResponse response = connection.receiveResponseHeader();
+    
+    	return response;
+    }
+	
 }
