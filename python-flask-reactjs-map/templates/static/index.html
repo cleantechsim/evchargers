@@ -18,16 +18,15 @@
 
     <script>
 
-
         var _allMarkers = {};
 
         var _markerWidthInPixels = 30;
 
-        var _initialPathNamePrefix = null; 
+        var _initialPathNamePrefix = null;
 
         document.addEventListener('DOMContentLoaded', event => {
 
-	    _initialPathNamePrefix = window.location.pathname;
+            _initialPathNamePrefix = window.location.pathname;
 
             var map = L.map('map').setView([51.505, -0.09], 2.2);
 
@@ -55,7 +54,7 @@
         }
 
         function getPathNamePrefix() {
-		return _initialPathNamePrefix && _initialPathNamePrefix.length > 0 ? _initialPathNamePrefix : '';
+            return _initialPathNamePrefix && _initialPathNamePrefix.length > 0 ? _initialPathNamePrefix : '';
         }
 
     </script>

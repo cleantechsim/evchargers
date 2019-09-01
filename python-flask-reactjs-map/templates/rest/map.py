@@ -49,7 +49,6 @@ def get_map_params(indent, geo_sw_ne, markerDiameterKM):
     es_host = "localhost"
     es_port = 9200
 
-    print('3# argv ' + json.dumps(sys.argv))
     if len(sys.argv) > 2:
         es_host = sys.argv[2]
 
