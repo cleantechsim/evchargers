@@ -7,5 +7,5 @@ COPY . /app
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "run.py", "webapp", "es", "9200"]
+CMD ["python", "run.py", "webapp", "es", "9200", "evchargers"]
 
