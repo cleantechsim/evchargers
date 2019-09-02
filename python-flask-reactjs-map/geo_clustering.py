@@ -53,10 +53,16 @@ class GeoClustering:
 
         geo_bounds = geo_sw_ne.to_geo_bounds()
 
+        cur_geohash_precision = GeoHashPrecisionFinder.find_geohash_bits_from_width_geo_bounds_kms(
+            geo_bounds
+        )
+
+        '''
         cur_geohash_precision = GeoHashPrecisionFinder.find_geohash_precision_from_width_degrees(
             geo_bounds.width(),
             10
         )
+        '''
 
         debug(indent, 'get_map_params', 'got precision ' + str(cur_geohash_precision) +
               ' for ' + str(geo_bounds.width))

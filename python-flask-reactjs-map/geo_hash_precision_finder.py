@@ -1,4 +1,62 @@
+from haversine import haversine
+
+
 class GeoHashPrecisionFinder:
+
+    @staticmethod
+    def find_geohash_bits_from_width_geo_bounds_kms(geo_bounds):
+
+        mid_longitude = geo_bounds.top() - (geo_bounds.height() / 2)
+
+        kms = haversine(
+            (
+                geo_bounds.left(),
+                mid_longitude
+            ),
+            (
+                geo_bounds.right(),
+                mid_longitude
+            )
+        )
+
+        print('## find from kms ' + str(kms))
+
+        return GeoHashPrecisionFinder.find_geohash_bits_from_width_kms(kms)
+
+    @staticmethod
+    def find_geohash_bits_from_width_kms(width_kms):
+
+        # Use a simple lookup for at what width of display to use which precision
+        # width_kms is width of display in kms at the mid height of the display
+
+        mapping = {
+            20000: 1,
+            5000: 2,
+            350: 3,
+            100: 4,
+            10: 5,
+            3: 6
+        }
+
+        precision = -1
+
+        sorted_keys = [] + mapping.keys()
+
+        sorted_keys.sort(lambda key, other: 1 if key <
+                         other else (-1 if key > other else 0))
+
+        for key in sorted_keys:
+            if width_kms > key:
+                precision = mapping[key]
+                break
+
+        if precision == -1:
+            sorted = [] + mapping.values()
+            sorted.sort()
+
+            precision = sorted[len(sorted) - 1]
+
+        return precision
 
     # Find the bit precision level at which it is suitable to return geohash points
     # that is we split in such and such many grid cells
