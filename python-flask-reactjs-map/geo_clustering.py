@@ -55,7 +55,7 @@ class GeoClustering:
 
         cur_geohash_precision = GeoHashPrecisionFinder.find_geohash_precision_from_width_degrees(
             geo_bounds.width(),
-            50
+            10
         )
 
         debug(indent, 'get_map_params', 'got precision ' + str(cur_geohash_precision) +
