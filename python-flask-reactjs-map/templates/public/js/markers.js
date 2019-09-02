@@ -80,8 +80,7 @@ function _createSVGMarker(placement, count) {
     svg.setAttribute('viewBox', '0 0 500 500');
 
     var html = '<g>'
-    html += '<circle cx="250" cy="250" r="200" stroke="blue" fill="blue"/>';
-    // html += '<rect x="0" y="0" width="100" height="100" fill="red"></rect>';
+    html += '<circle cx="250" cy="250" r="200" stroke="#00AA50" stroke-width="15" fill="#00C0A0"/>';
     html += '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="10em" fill="black">'
     html += count.toString();
     html += '</text>';
