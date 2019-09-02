@@ -77,11 +77,6 @@ function _createSVGMarker(placement, count) {
 
     svg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
 
-    svg.setAttribute('style', 'width: 150px; height: 150px;')
-
-    svg.setAttribute('width', "150px");
-    svg.setAttribute('height', "150px");
-
     svg.setAttribute('viewBox', '0 0 500 500');
 
     var html = '<g>'
