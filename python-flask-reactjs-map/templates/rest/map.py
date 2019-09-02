@@ -48,6 +48,8 @@ def get_map_params(indent, geo_sw_ne, markerDiameterKM):
 
     es_host = "localhost"
     es_port = 9200
+    es_index = GeoElasticSearch.GEO_POINTS
+    es_field = "location"
 
     if len(sys.argv) > 2:
         es_host = sys.argv[2]
@@ -55,7 +57,13 @@ def get_map_params(indent, geo_sw_ne, markerDiameterKM):
     if len(sys.argv) > 3:
         es_port = int(sys.argv[3])
 
-    es = GeoElasticSearch(es_host, es_port)
+    if len(sys.argv) > 4:
+        es_index = sys.argv[4]
+
+    if len(sys.argv) > 5:
+        es_field = sys.argv[5]
+
+    es = GeoElasticSearch(es_host, es_port, es_index, es_field)
 
     # Aggregate all points
     geo_clustering = GeoClustering(es)

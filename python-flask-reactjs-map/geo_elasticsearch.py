@@ -7,15 +7,19 @@ class GeoElasticSearch:
 
     GEO_POINTS = 'geopoints'
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, index_param, field):
+
+        self.field = field
+        self.index = index_param
+
         self.es = Elasticsearch([host + ':' + str(port)])
 
-        if not self.es.indices.exists(index=self.GEO_POINTS):
-            self.es.indices.create(index=self.GEO_POINTS, body={
+        if not self.es.indices.exists(index=index_param):
+            self.es.indices.create(index=index_param, body={
                 "mappings": {
                     "_doc": {
                         "properties": {
-                            "location": {
+                            field: {
                                 "type": "geo_point"
                             }
                         }
@@ -35,16 +39,16 @@ class GeoElasticSearch:
                 str(point.latitude) + ',' + str(point.longitude) + '"}\n'
 
         print 'Add points "' + es_points + '"'
-        self.es.bulk(index=self.GEO_POINTS, body=es_points)
+        self.es.bulk(index=self.index, body=es_points)
 
     def aggregate_points(self, precision):
         result = self.es.search(
-            index=self.GEO_POINTS,
+            index=self.index,
             body={
                 "aggregations": {
                     "large-grid": {
                         "geohash_grid": {
-                            "field": "location",
+                            "field": self.field,
                             "precision": precision
                         }
                     }
@@ -62,13 +66,13 @@ class GeoElasticSearch:
 
     def aggregate_points_with_filter(self, precision, geo_bounds):
         result = self.es.search(
-            index=self.GEO_POINTS,
+            index=self.index,
             body={
                 "aggregations": {
                     "zoomed-in": {
                         "filter": {
                             "geo_bounding_box": {
-                                "location": {
+                                self.field: {
                                     "top_left": str(geo_bounds.top()) + ", " + str(geo_bounds.left()),
                                     "bottom_right": str(geo_bounds.bottom()) + ", " + str(geo_bounds.right())
                                 }
@@ -77,7 +81,7 @@ class GeoElasticSearch:
                         "aggregations": {
                             "zoom1": {
                                 "geohash_grid": {
-                                    "field": "location",
+                                    "field": self.field,
                                     "precision": precision
                                 }
                             }

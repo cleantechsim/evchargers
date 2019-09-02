@@ -18,7 +18,7 @@ if len(sys.argv) <= 1:
 cmd = sys.argv[1]
 
 if cmd == "generate":
-    es = GeoElasticSearch('localhost', 9200)
+    es = GeoElasticSearch('localhost', 9200, GeoElasticSearch.GEO_POINTS, 'location')
 
     if len(sys.argv) > 1:
         count = int(sys.argv[2])
@@ -29,7 +29,7 @@ if cmd == "generate":
     es.upload_points(geo_points)
 
 elif cmd == "test":
-    es = GeoElasticSearch('localhost', 9200)
+    es = GeoElasticSearch('localhost', 9200, GeoElasticSearch.GEO_POINTS, 'location')
 
     clustering = GeoClustering(es)
 
