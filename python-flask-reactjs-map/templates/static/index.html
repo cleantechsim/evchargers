@@ -54,7 +54,12 @@
         }
 
         function getPathNamePrefix() {
-            return _initialPathNamePrefix && _initialPathNamePrefix.length > 0 ? _initialPathNamePrefix : '';
+            return _initialPathNamePrefix
+                && _initialPathNamePrefix.length > 0
+                && _initialPathNamePrefix !== '/'
+
+                ? _initialPathNamePrefix
+                : '';
         }
 
     </script>

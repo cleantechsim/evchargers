@@ -8,9 +8,9 @@ def index():
 
     proxied_uri = request.headers.get('X-Proxied-URI')
 
-    print('proxied uri ' + proxied_uri)
-
     if proxied_uri != None and proxied_uri.endswith('/'):
-        proxied_uri = proxied_uri[0:len(proxied_uri) - 1]
+        prefix = proxied_uri[0:len(proxied_uri) - 1]
+    else:
+        prefix = ''
 
-    return render_template("index.html", url_prefix=proxied_uri)
+    return render_template("index.html", url_prefix=prefix)
