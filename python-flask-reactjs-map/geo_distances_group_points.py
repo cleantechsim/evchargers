@@ -38,8 +38,6 @@ class GeoDistancesGroupPoints:
         debug(indent, 'GeoDistancesGroupPoints.group_points',
               'group by latitude and longitude, max_degrees=' + str(max_degrees))
 
-        empty_array = []
-
         for i in range(0, num_points):
 
             point = sorted_by_latitude[i]
@@ -49,8 +47,6 @@ class GeoDistancesGroupPoints:
 
             one_longitude_degree_km = haversine((latitude, 0), (latitude, 1))
 
-            close_points = None
-
             '''
                         close_points, up_iter = GeoDistancesGroupPoints._add_if_close(
                             sorted_by_latitude,
@@ -58,8 +54,7 @@ class GeoDistancesGroupPoints:
                             max_km,
                             i - 1, -1, -1,
                             geo_point,
-                            one_longitude_degree_km,
-                            close_points)
+                            one_longitude_degree_km)
             '''
 
             close_points, down_iter = GeoDistancesGroupPoints._add_if_close(
@@ -69,9 +64,7 @@ class GeoDistancesGroupPoints:
                 max_km,
                 i + 1, num_points, 1,
                 geo_point,
-                one_longitude_degree_km,
-                close_points,
-                empty_array)
+                one_longitude_degree_km)
 
             points_to_close_points[point] = close_points
 
@@ -123,8 +116,6 @@ class GeoDistancesGroupPoints:
         range_step,
         geo_point,
         one_longitude_degree_km,
-        close_points,
-        empty_array
     ):
         latitude = geo_point.latitude
         latitude_plus_90 = latitude + 90.0
@@ -135,6 +126,8 @@ class GeoDistancesGroupPoints:
         count = 0
 
         debug = False
+
+        close_points = None
 
         if debug:
             print('enter at ' + str(range_start))
@@ -168,7 +161,7 @@ class GeoDistancesGroupPoints:
 
                 if longitude_diff_km < max_km:
                     if close_points == None:
-                        close_points = empty_array
+                        close_points = []
                     close_points.append(other)
 
             else:
