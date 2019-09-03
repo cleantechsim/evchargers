@@ -163,9 +163,12 @@ class GeoDistances:
         if len(items) != len(points):
             raise 'Did not return mapping for all points'
 
+        # Points that do not have any close points
+        points_with_no_close_points = []
+
         for point, close_points in items:
 
-            if close_points != None:
+            if close_points != None and len(close_points) > 0:
                 # Find the distances for all close points
                 count = GeoDistances._make_distance_from_outer(
                     point,
@@ -175,12 +178,8 @@ class GeoDistances:
                     all_distances)
 
                 outer_count = outer_count + count
-
-                # print('## found distances ' + str(count) +
-                #       ' for ' + str(len(close_points)))
-
-            # print('## adding ' + str(len(close_points)) +
-            #      ' resulting in ' + str(len(all_distances)))
+            else:
+                points_with_no_close_points.append(point)
 
         debug(indent, 'GeoDistances.make_distances_with_max',
               'found outer count ' + str(outer_count))
@@ -188,9 +187,9 @@ class GeoDistances:
         result = GeoDistances(all_distances)
 
         exit(indent, 'GeoDistances.make_distances_with_max',
-             str(result.count()))
+             str(result.count()) + '/' + str(len(points_with_no_close_points)))
 
-        return result
+        return result, points_with_no_close_points
 
     @staticmethod
     def make_distances(points, debug=False):

@@ -141,9 +141,9 @@ class GeoClustering:
         debug(indent, 'GeoClustering.merge_aggregations',
               '--- by checking latitude and longitude distances')
 
-        distances = GeoDistances.make_distances_with_max(indent + 1,
-                                                         points,
-                                                         max_diameter_km)
+        distances, points_with_no_close_points = GeoDistances.make_distances_with_max(indent + 1,
+                                                                                      points,
+                                                                                      max_diameter_km)
 
         if False:
             distances.sort()
@@ -186,11 +186,11 @@ class GeoClustering:
                 # If no points were merged, we have merged all distances that are less than max_diameter_km in distance
                 # not_merged_distances shall then contain all distances
                 done = True
-                found_points = not_merged_distances.get_distinct_points(
+                found_points_set = not_merged_distances.get_distinct_points(
                     indent + 1)
 
                 debug(indent, 'GeoClustering.merge_aggregations',
-                      'Iteration done, returning ' + str(len(found_points)))
+                      'Iteration done, returning ' + str(len(found_points_set)))
 
             else:
                 # Only compute distances for merged points since none merged are out of distance from anything else anyways
@@ -206,6 +206,13 @@ class GeoClustering:
                 debug(indent, 'GeoClustering.merge_aggregations', '--- added merged distances ' +
                       str(distances_for_merged.count()) + ' to not merged ' + str(not_merged_distances.count()) + ' gives ' + str(distances.count()))
 
-        exit(indent, 'GeoClustering.merge_aggregations', str(len(found_points)))
+        debug(indent, 'GeoClustering.merge_aggregations', 'Adding ' +
+              str(len(points_with_no_close_points)) + ' to ' + str(len(found_points_set)))
 
-        return found_points
+        for point in points_with_no_close_points:
+            found_points_set.add(point)
+
+        exit(indent, 'GeoClustering.merge_aggregations',
+             str(len(found_points_set)))
+
+        return found_points_set
