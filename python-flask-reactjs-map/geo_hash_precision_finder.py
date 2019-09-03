@@ -30,12 +30,16 @@ class GeoHashPrecisionFinder:
         # width_kms is width of display in kms at the mid height of the display
 
         mapping = {
-            20000: 1,
-            5000: 2,
-            350: 3,
-            100: 4,
-            10: 5,
-            3: 6
+            30000: 1,  # above 30000
+            20000: 2,
+            10000: 3,
+            1000: 4,
+            250: 5,
+            50: 6,
+            10: 7,
+            3: 8,
+            0.5: 9,
+            0.1: 10
         }
 
         precision = -1

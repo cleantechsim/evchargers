@@ -122,20 +122,20 @@ class GeoHashPrecisionFinderTest(unittest.TestCase):
             GeoHashPrecisionFinder.find_geohash_bits_from_width_kms(40000),
             1)
 
-    def test_find_geohash_bits_from_width_kms_5000(self):
+    def test_find_geohash_bits_from_width_kms_30000(self):
         self.assertEquals(
-            GeoHashPrecisionFinder.find_geohash_bits_from_width_kms(5000),
+            GeoHashPrecisionFinder.find_geohash_bits_from_width_kms(30000),
             2)
 
-    def test_find_geohash_bits_from_width_kms_1000(self):
+    def test_find_geohash_bits_from_width_kms_15000(self):
         self.assertEquals(
-            GeoHashPrecisionFinder.find_geohash_bits_from_width_kms(1000),
+            GeoHashPrecisionFinder.find_geohash_bits_from_width_kms(15000),
             3)
 
-    def test_find_geohash_bits_from_width_kms_0_1(self):
+    def test_find_geohash_bits_from_width_kms_0_01(self):
         self.assertEquals(
-            GeoHashPrecisionFinder.find_geohash_bits_from_width_kms(0.1),
-            6)
+            GeoHashPrecisionFinder.find_geohash_bits_from_width_kms(0.01),
+            10)
 
 
 if __name__ == '__main__':
