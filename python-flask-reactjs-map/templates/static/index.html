@@ -44,13 +44,24 @@
             }).addTo(map);
         })
 
+        var ongoingQuery = false;
+
         function query(map, event) {
-            queryClustersAndPoints(
-                map,
-                event,
-                _allMarkers,
-                _markerWidthInPixels,
-                updatedMarkers => _allMarkers = updatedMarkers);
+
+            if (!ongoingQuery) {
+                queryClustersAndPoints(
+                    map,
+                    event,
+                    _allMarkers,
+                    _markerWidthInPixels,
+                    updatedMarkers => {
+                        ongoingQuery = false;
+
+                        _allMarkers = updatedMarkers;
+                    });
+
+                ongoingQuery = true;
+            }
         }
 
         function getPathNamePrefix() {
