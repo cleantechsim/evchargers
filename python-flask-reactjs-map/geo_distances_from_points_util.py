@@ -6,9 +6,9 @@ from geo_distance import Distance
 class GeoDistancesFromPointsUtil:
 
     @staticmethod
-    def _make_distance_from_outer(outer, points, range_start, range_length, distances):
+    def _make_distance_from_outer(outer, points, range_start, range_length, max_distance_to_append, distances):
 
-        count = 0
+        appended = 0
         for j in range(range_start, range_length):
 
             inner = points[j]
@@ -25,10 +25,9 @@ class GeoDistancesFromPointsUtil:
             distance_km = haversine(
                 outer_point.to_tuple(), inner_point.to_tuple())
 
-            # print('## distance ' + str(distance_km))
+            if max_distance_to_append != None and distance_km <= max_distance_to_append:
+                distances.append(Distance(distance_km, outer, inner))
 
-            distances.append(Distance(distance_km, outer, inner))
+                appended = appended + 1
 
-            count = count + 1
-
-        return count
+        return appended

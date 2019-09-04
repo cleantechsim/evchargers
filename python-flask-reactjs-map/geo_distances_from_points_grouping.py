@@ -38,6 +38,7 @@ class GeoDistancesFromPointsGrouping:
                     close_points,
                     0,
                     len(close_points),
+                    max_km,
                     all_distances)
 
                 outer_count = outer_count + count

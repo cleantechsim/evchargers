@@ -170,6 +170,7 @@ class GeoDistances:
                                                                  points,
                                                                  i + 1,
                                                                  length,
+                                                                 None,
                                                                  distances)
 
         if debug:
