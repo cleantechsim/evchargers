@@ -4,19 +4,7 @@ import unittest
 from geo_distances import GeoDistances
 from geo_types import GeoPoint
 
-# Simple test point class with same API as clustering points
-
-
-class TestPoint:
-
-    def __init__(self, latitude, longitude):
-        self.point = GeoPoint(latitude, longitude)
-
-    def get_point(self):
-        return self.point
-
-    def __str__(self):
-        return self.point.__str__()
+from test_point import TestPoint
 
 
 class GeoDistancesTest(unittest.TestCase):
