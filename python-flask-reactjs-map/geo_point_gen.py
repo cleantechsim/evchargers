@@ -9,10 +9,10 @@ class GeoPointGen:
     def generate_with_world_bounds(num_points):
         world_bounds = GeoBounds(90, -180, 180, 360)
 
-        return GeoPointGen.generate_in_bounds(num_points, world_bounds)
+        return GeoPointGen.generate_with_bounds(num_points, world_bounds)
 
     @staticmethod
-    def generate_in_bounds(num_points, geo_bounds):
+    def generate_with_bounds(num_points, geo_bounds):
 
         points = []
 

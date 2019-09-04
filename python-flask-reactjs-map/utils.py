@@ -11,7 +11,12 @@ def enter(indent, name, message):
 
 
 def exit(indent, name, result):
-    debug(indent, name, '[EXIT] ' + result)
+    debug(indent, name, '[EXIT]' if result == None else '[EXIT] ' + result)
+
+
+def set_debug(value):
+
+    return True
 
 
 def debug(indent, name, message):
@@ -54,3 +59,20 @@ def print_array_in_columns(count, columns, get_string):
 
     if string != '':
         print string
+
+# comparison that takes float rounding errors into account
+
+
+FLOAT_MARGIN = 0.0000001
+
+
+def float_gt(number, other):
+    return number - other > FLOAT_MARGIN
+
+
+def float_lt(number, other):
+    return other - number > FLOAT_MARGIN
+
+
+def float_eq(number, other):
+    return abs(number - other) < FLOAT_MARGIN

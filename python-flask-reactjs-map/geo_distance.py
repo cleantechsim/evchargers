@@ -14,3 +14,9 @@ class Distance:
 
     def __repr__(self):
         return self.__str__()
+
+    def __hash__(self):
+        return int(self.distance) + id(self.from_point) + id(self.to_point)
+
+    def __eq__(self, other):
+        return self.distance.__eq__(other.distance) and self.from_point == other.from_point and self.to_point == other.to_point

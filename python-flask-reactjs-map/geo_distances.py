@@ -4,8 +4,10 @@ import math
 from utils import millis, enter, exit, debug, print_array_in_columns
 
 from geo_distances_from_points_grouping import GeoDistancesFromPointsGrouping
+from geo_distances_from_points_buckets import GeoDistancesFromPointsBuckets
 from geo_distances_from_points_util import GeoDistancesFromPointsUtil
 from geo_distance import Distance
+from geo_utils import find_points_with_no_close_points
 
 '''
 For finding all distances between points and sorting those.
@@ -38,6 +40,9 @@ class GeoDistances:
 
     def to_array(self):
         return [] + self.distances
+
+    def find_points_not_in_distances(self, points):
+        return find_points_with_no_close_points(points, self.distances)
 
     def get_distinct_points(self, indent):
 
@@ -130,21 +135,34 @@ class GeoDistances:
         return GeoDistances(updated)
 
     @staticmethod
-    def make_distances_with_max(indent, points, max_km):
+    def make_distances_with_max(indent, points, geo_bounds, max_km):
         enter(indent, 'GeoDistances.make_distances_with_max', 'points=' + str(len(points)) +
               ' max_km=' + str(max_km))
 
+        '''
         all_distances, points_with_no_close_points = GeoDistancesFromPointsGrouping.make_distances_with_max(
             indent + 1,
             points,
             max_km)
+        '''
 
+        algorithm = GeoDistancesFromPointsGrouping()
+
+        all_distances = []
+
+        algorithm.make_distances_with_max(
+            indent + 1,
+            points,
+            geo_bounds,
+            max_km,
+            lambda distance: all_distances.append(distance)
+        )
         distances = GeoDistances(all_distances)
 
         exit(indent, 'GeoDistances.make_distances_with_max',
-             str(distances.count()) + '/' + str(len(points_with_no_close_points)))
+             str(distances.count()))
 
-        return distances, points_with_no_close_points
+        return distances
 
     @staticmethod
     def make_distances(points, debug=False):
@@ -171,7 +189,7 @@ class GeoDistances:
                                                                 i + 1,
                                                                 length,
                                                                 None,
-                                                                distances)
+                                                                lambda distance: distances.append(distance))
 
         if debug:
             print('Number of distances ' + str(len(distances)) +

@@ -7,8 +7,7 @@ from geo_distances_from_points_util import GeoDistancesFromPointsUtil
 
 class GeoDistancesFromPointsGrouping:
 
-    @staticmethod
-    def make_distances_with_max(indent, points, max_km):
+    def make_distances_with_max(self, indent, points, geo_bounds, max_km, add_distance_function):
 
         enter(indent, 'GeoDistancesFromPointsGrouping.make_distances_with_max', 'points=' + str(len(points)) +
               ' max_km=' + str(max_km))
@@ -17,17 +16,12 @@ class GeoDistancesFromPointsGrouping:
                                                               points,
                                                               max_km)
 
-        all_distances = []
-
         outer_count = 0
 
         items = grouped_points.items()
 
         if len(items) != len(points):
             raise 'Did not return mapping for all points'
-
-        # Points that do not have any close points
-        points_with_no_close_points = []
 
         for point, close_points in items:
 
@@ -39,16 +33,11 @@ class GeoDistancesFromPointsGrouping:
                     0,
                     len(close_points),
                     max_km,
-                    all_distances)
+                    add_distance_function)
 
                 outer_count = outer_count + count
-            else:
-                points_with_no_close_points.append(point)
 
         debug(indent, 'GeoDistancesFromPointsGrouping.make_distances_with_max',
               'found outer count ' + str(outer_count))
 
-        exit(indent, 'GeoDistancesFromPointsGrouping.make_distances_with_max',
-             str(len(all_distances)) + '/' + str(len(points_with_no_close_points)))
-
-        return all_distances, points_with_no_close_points
+        exit(indent, 'GeoDistancesFromPointsGrouping.make_distances_with_max', None)
