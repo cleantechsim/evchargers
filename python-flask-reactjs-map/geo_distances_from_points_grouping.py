@@ -33,7 +33,7 @@ class GeoDistancesFromPointsGrouping:
 
             if close_points != None and len(close_points) > 0:
                 # Find the distances for all close points
-                count = GeoDistancesFromPointsUtil._make_distance_from_outer(
+                count = GeoDistancesFromPointsUtil.make_distance_from_outer(
                     point,
                     close_points,
                     0,

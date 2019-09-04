@@ -166,12 +166,12 @@ class GeoDistances:
             outer = points[i]
 
             # Must find distances between all geo hashes
-            GeoDistancesFromPointsUtil._make_distance_from_outer(outer,
-                                                                 points,
-                                                                 i + 1,
-                                                                 length,
-                                                                 None,
-                                                                 distances)
+            GeoDistancesFromPointsUtil.make_distance_from_outer(outer,
+                                                                points,
+                                                                i + 1,
+                                                                length,
+                                                                None,
+                                                                distances)
 
         if debug:
             print('Number of distances ' + str(len(distances)) +

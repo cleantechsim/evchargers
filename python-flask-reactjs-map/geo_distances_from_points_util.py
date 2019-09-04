@@ -6,7 +6,7 @@ from geo_distance import Distance
 class GeoDistancesFromPointsUtil:
 
     @staticmethod
-    def _make_distance_from_outer(outer, points, range_start, range_length, max_distance_to_append, distances):
+    def make_distance_from_outer(outer, points, range_start, range_length, max_distance_to_append, distances):
 
         appended = 0
         for j in range(range_start, range_length):
