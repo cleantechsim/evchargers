@@ -3,29 +3,14 @@ import math
 
 from utils import millis, enter, exit, debug, print_array_in_columns
 
-from geo_distances_group_points import GeoDistancesGroupPoints
+from geo_distances_from_points_grouping import GeoDistancesFromPointsGrouping
+from geo_distances_from_points_util import GeoDistancesFromPointsUtil
+from geo_distance import Distance
 
 '''
 For finding all distances between points and sorting those.
 Useful for hierarchial clustering algorithm where we have to find which points can be merged
 '''
-
-
-class _Distance:
-
-    def __init__(self, distance, from_point, to_point):
-        self.distance = distance
-        self.from_point = from_point
-        self.to_point = to_point
-
-    def get_distance(self):
-        return self.distance
-
-    def __str__(self):
-        return '{ d=' + str(self.distance) + ', from=' + str(self.from_point) + ', to=' + str(self.to_point) + ' }'
-
-    def __repr__(self):
-        return self.__str__()
 
 
 class GeoDistances:
@@ -146,50 +131,20 @@ class GeoDistances:
 
     @staticmethod
     def make_distances_with_max(indent, points, max_km):
-
         enter(indent, 'GeoDistances.make_distances_with_max', 'points=' + str(len(points)) +
               ' max_km=' + str(max_km))
 
-        grouped_points = GeoDistancesGroupPoints.group_points(indent + 1,
-                                                              points,
-                                                              max_km)
+        all_distances, points_with_no_close_points = GeoDistancesFromPointsGrouping.make_distances_with_max(
+            indent + 1,
+            points,
+            max_km)
 
-        all_distances = []
-
-        outer_count = 0
-
-        items = grouped_points.items()
-
-        if len(items) != len(points):
-            raise 'Did not return mapping for all points'
-
-        # Points that do not have any close points
-        points_with_no_close_points = []
-
-        for point, close_points in items:
-
-            if close_points != None and len(close_points) > 0:
-                # Find the distances for all close points
-                count = GeoDistances._make_distance_from_outer(
-                    point,
-                    close_points,
-                    0,
-                    len(close_points),
-                    all_distances)
-
-                outer_count = outer_count + count
-            else:
-                points_with_no_close_points.append(point)
-
-        debug(indent, 'GeoDistances.make_distances_with_max',
-              'found outer count ' + str(outer_count))
-
-        result = GeoDistances(all_distances)
+        distances = GeoDistances(all_distances)
 
         exit(indent, 'GeoDistances.make_distances_with_max',
-             str(result.count()) + '/' + str(len(points_with_no_close_points)))
+             str(distances.count()) + '/' + str(len(points_with_no_close_points)))
 
-        return result, points_with_no_close_points
+        return distances, points_with_no_close_points
 
     @staticmethod
     def make_distances(points, debug=False):
@@ -211,11 +166,11 @@ class GeoDistances:
             outer = points[i]
 
             # Must find distances between all geo hashes
-            GeoDistances._make_distance_from_outer(outer,
-                                                   points,
-                                                   i + 1,
-                                                   length,
-                                                   distances)
+            GeoDistancesFromPointsUtil._make_distance_from_outer(outer,
+                                                                 points,
+                                                                 i + 1,
+                                                                 length,
+                                                                 distances)
 
         if debug:
             print('Number of distances ' + str(len(distances)) +
@@ -224,34 +179,6 @@ class GeoDistances:
         return distances
 
     @staticmethod
-    def _make_distance_from_outer(outer, points, range_start, range_length, distances):
-
-        count = 0
-        for j in range(range_start, range_length):
-
-            inner = points[j]
-
-            # skip if comparing to same
-            if (outer is inner):
-                continue
-
-            # find geographical distance
-
-            outer_point = outer.get_point()
-            inner_point = inner.get_point()
-
-            distance_km = haversine(
-                outer_point.to_tuple(), inner_point.to_tuple())
-
-            # print('## distance ' + str(distance_km))
-
-            distances.append(_Distance(distance_km, outer, inner))
-
-            count = count + 1
-
-        return count
-
-    @staticmethod
     def _sort_distances_array(distances):
         # sort the distances by shortest first
-        distances.sort(key=_Distance.get_distance)
+        distances.sort(key=Distance.get_distance)
