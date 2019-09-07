@@ -1,7 +1,7 @@
 
 import unittest
 
-from geo_distances_from_points_buckets import _compute_factors
+from geo_clustering.geo_distances_from_points_buckets import _compute_factors
 
 
 class GeoDistancesFromPointsBuckets(unittest.TestCase):

@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from geo_types import GeoSwNe
 from geo_hash import GeoHash
 from geo_elasticsearch import GeoElasticSearch
-from geo_clustering import GeoClustering
+from geo_clustering.geo_clustering import GeoClustering
 
 import sys
 

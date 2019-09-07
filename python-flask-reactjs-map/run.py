@@ -6,7 +6,7 @@ from geo_elasticsearch import GeoElasticSearch
 from templates import app
 from geo_types import GeoSwNe
 
-from geo_clustering import GeoClustering
+from geo_clustering.geo_clustering import GeoClustering
 import sys
 
 from haversine import haversine

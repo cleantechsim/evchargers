@@ -6,10 +6,10 @@ from haversine import haversine
 from utils import millis
 from geo_types import GeoBounds, GeoPoint
 from geo_point_gen import GeoPointGen
-from geo_distance import Distance
-from geo_distances_from_points_buckets import GeoDistancesFromPointsBuckets
-from geo_distances_from_points_grouping import GeoDistancesFromPointsGrouping
-from geo_distances_from_points_combinatorial import GeoDistancesFromPointsCombinatorial
+from geo_clustering.geo_distance import Distance
+from geo_clustering.geo_distances_from_points_buckets import GeoDistancesFromPointsBuckets
+from geo_clustering.geo_distances_from_points_grouping import GeoDistancesFromPointsGrouping
+from geo_clustering.geo_distances_from_points_combinatorial import GeoDistancesFromPointsCombinatorial
 from test_point import TestPoint
 
 
