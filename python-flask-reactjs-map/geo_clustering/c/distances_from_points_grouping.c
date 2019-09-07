@@ -20,8 +20,8 @@ static int make_distances_from_outer(
     int num_in_dst
 );
 
-
 int make_distances_with_max(
+    indent_t indent,
     const geo_clustered_point_t *const points,
     uint32_t num_points,
     const int max_km,
@@ -34,6 +34,8 @@ int make_distances_with_max(
     int num_distances = 0;
 
     const geo_scratch_clustered_point_t *scratch_point = NULL;
+
+    enter(indent, "num_points=%d, max_km=%f", num_points, max_km);
     
     if (!scratch_buf_init(&scratch_buf, 10000, BYTES(scratch_point, 1))) {
         ok = FALSE;
@@ -49,7 +51,7 @@ int make_distances_with_max(
             ok = FALSE;
         }
         else {
-            ok = group_points(points, num_points, grouped_points, max_km, &scratch_buf);
+            ok = group_points(indent + 1, points, num_points, grouped_points, max_km, &scratch_buf);
    
             for (int i = 0; i < num_points; ++ i) {
 
@@ -97,7 +99,11 @@ int make_distances_with_max(
         scratch_buf_free(&scratch_buf);
     }
 
-    return ok ? num_distances : -1;
+    const int32_t result = ok ? num_distances : -1;
+
+    exit(indent, "result=%d", result);
+
+    return result;
 }
 
 static int make_distances_from_outer(

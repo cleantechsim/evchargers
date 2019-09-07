@@ -4,8 +4,10 @@
 #include "bitmap.h"
 #include "scratchbuf.h"
 #include "geo_scratch_types.h"
+#include "debug.h"
 
 int32_t merge_distances_below_max(
+    indent_t indent,
     const geo_scratch_distance_t *const distances,
     uint32_t num_distances,
     float max_diameter_km,

@@ -9,6 +9,8 @@
 #include "geo_clustering.h"
 #include "distances_from_points_grouping.h"
 
+#include "debug.h"
+
 const int NUM_POINTS = 100;
 
 static void test_haversine();
@@ -18,7 +20,7 @@ static float random_0_to_1();
 static void gen_points(geo_clustered_point_t *const dst, uint32_t num_points);
 static uint32_t sum_points(const geo_clustered_point_t *points, uint32_t num_points);
 
-static void test(const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km);
+static void test(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km);
 
 int main(int argc, char **argv){
 
@@ -40,12 +42,12 @@ int main(int argc, char **argv){
     test_points[2].geo_point.latitude = 1;
     test_points[2].geo_point.longitude = 3;
 
-    test(test_points, 3, 2000);
+    test(0, test_points, 3, 2000);
 
     return 0;
 }
 
-static void test(const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km) {
+static void test(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km) {
 
     scratch_buf_t distances_buf;
 
@@ -56,13 +58,14 @@ static void test(const geo_clustered_point_t *const test_points, uint32_t num_po
         scratch_buf_t out_points_scratch_buf;
 
         const int num_distances = make_distances_with_max(
+            indent + 1,
             test_points,
             num_points,
             max_diameter_km,
             &distances_buf
         );
 
-        printf("Got %d distances\n", num_distances);
+        debug(indent, "Got %d distances\n", num_distances);
 
         scratch_buf_free(&distances_buf);
 
@@ -72,7 +75,9 @@ static void test(const geo_clustered_point_t *const test_points, uint32_t num_po
             fprintf(stderr, "Failed to init out points\n");
         }
         else {
+    
             const int32_t num_merged = merge_aggregations(
+                indent + 1,
                 test_points,
                 num_points,
                 max_diameter_km,

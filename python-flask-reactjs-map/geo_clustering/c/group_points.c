@@ -13,6 +13,7 @@ static int compare_points(geo_point_t *point, geo_point_t *other);
 static float diff(float val, float other);
 
 static boolean add_if_close(
+    indent_t indent,
     const geo_clustered_point_t *const sorted_by_latitude,
     const float max_degrees_latitude,
     const float max_km,
@@ -24,11 +25,14 @@ static boolean add_if_close(
     scratch_buf_t *scratch_buf);
 
 boolean group_points(
+    indent_t indent,
     const geo_clustered_point_t *const points, 
     const size_t num_points,
     geo_scratch_point_array_t *const dst,
     const float max_km,
     scratch_buf_t *scratch_buf) {
+
+    enter(indent, "num_points=%d, max_km=%f", num_points, max_km);
 
     size_t one_point_bytes = BYTES(points, 1);
     size_t all_point_bytes = BYTES(points, num_points);
@@ -58,6 +62,7 @@ boolean group_points(
                 KILOMETERS);
 
             ok = add_if_close(
+                indent + 1,
                 sorted_by_latitude,
                 max_degrees,
                 max_km,
@@ -76,10 +81,13 @@ boolean group_points(
         free(sorted_by_latitude);
     }
 
+    exit(indent, "ok=%d", ok);
+
     return ok;
 }
 
 static boolean add_if_close(
+    indent_t indent,
     const geo_clustered_point_t *const sorted_by_latitude,
     const float max_degrees_latitude,
     const float max_km,
@@ -99,6 +107,9 @@ static boolean add_if_close(
     int added = 0;
 
     boolean ok = TRUE;
+
+    enter(indent, "max_degrees_latitude=%f, max_km=%f, range_start=%d, range_end=%d, one_longitude_degree_km=%d",
+            max_degrees_latitude, max_km, range_start, range_end, one_longitude_degree_km);
 
     for (int j = range_start; j < range_end; ++ j) {
        
@@ -187,6 +198,8 @@ static boolean add_if_close(
             dst->count = added;
         }
     }
+
+    exit(indent, "ok=%d", ok);
 
     return ok;
 }

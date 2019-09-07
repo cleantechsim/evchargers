@@ -7,7 +7,10 @@
 
 #include "bitmap.h"
 
+#include "debug.h"
+
 static int32_t _merge_aggregations(
+    indent_t indent,
 
     const geo_input_point_t *const input_points,
     uint32_t num_input_points,
@@ -25,7 +28,7 @@ static int32_t _merge_aggregations(
     scratch_buf_t *const merge_points_scratch_buf);
 
 int32_t merge_aggregations(
-
+    indent_t indent,
     const geo_input_point_t *const input_points,
     uint32_t num_input_points,
 
@@ -35,6 +38,8 @@ int32_t merge_aggregations(
     scratch_buf_t *const out_points
 
 ) {
+
+    enter(indent, "num_input_points=%d, max_diameter_km=%f", num_input_points, max_diameter_km);
 
     /* Allocate bitmap of points that are removed for each iteration */
     bitmap_t *removed_points_bitmap = bitmap_allocate(num_input_points);
@@ -61,6 +66,7 @@ int32_t merge_aggregations(
             else {
 
                 const int32_t merged = _merge_aggregations(
+                    indent + 1,
                     input_points,
                     num_input_points,
                     max_diameter_km,
@@ -86,10 +92,15 @@ int32_t merge_aggregations(
         bitmap_free(removed_points_bitmap);
     }
 
-    return ok ? num_points : -1;
+    const int32_t result = ok ? num_points : -1;
+
+    exit(indent, "result=%d", result);
+
+    return result;
 }
 
 static int32_t _merge_aggregations(
+    indent_t indent,
 
     const geo_input_point_t *const input_points,
     uint32_t num_input_points,
@@ -113,9 +124,12 @@ static int32_t _merge_aggregations(
 
     boolean ok = TRUE;
 
+    enter(indent, "num_input_points=%d, max_diameter_km=%f", num_input_points, max_diameter_km);
+
     while (ok && !done) {
         /* Find all distances that are below max */
         const int32_t num_distances = make_distances_with_max(
+                    indent + 1,
                     cur_points,
                     cur_num_points,
                     max_diameter_km,
@@ -127,6 +141,7 @@ static int32_t _merge_aggregations(
         }
         else {
             const int32_t merged_distances = merge_distances_below_max(
+                        indent + 1,
                         distances_scratch_buf->buf,
                         num_distances,
                         max_diameter_km,
@@ -180,7 +195,7 @@ static int32_t _merge_aggregations(
                     *dst = *src; 
                 }
 
-                printf("Got new cur_num_points %d\n", num_points_in_scratch_buf);
+                debug(indent, "Got new cur_num_points %d", num_points_in_scratch_buf);
 
                 cur_points = out_points->buf;
                 cur_num_points = num_points_in_scratch_buf;
@@ -190,5 +205,9 @@ static int32_t _merge_aggregations(
         }
     }
 
-    return ok ? cur_num_points : -1;
+    const int32_t result = ok ? cur_num_points : -1;
+
+    exit(indent, "result=%d", result);
+
+    return result;
 }

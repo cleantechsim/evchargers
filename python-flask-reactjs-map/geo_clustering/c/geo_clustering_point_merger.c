@@ -1,22 +1,22 @@
-#include <stdio.h>
-
-#include "scratchbuf.h"
-#include "bitmap.h"
+#include "debug.h"
 
 #include "geo_clustering_point_merger.h"
 #include "geo_clustering_types.h"
 
 static void merged_clustering_point_init(
+        indent_t indent,
         geo_merged_point_t *const point,
         const geo_scratch_distance_t *const to_merge);
 
 static void compute_mid_point(
+        indent_t indent,
         geo_merged_point_t *const dst,
         const geo_clustered_point_t *const from,
         const geo_clustered_point_t *const to);
 
 
 int32_t merge_distances_below_max(
+    indent_t indent,
     const geo_scratch_distance_t *const distances,
     uint32_t num_distances,
     float max_diameter_km,
@@ -27,6 +27,8 @@ int32_t merge_distances_below_max(
     boolean ok = TRUE;
 
     uint32_t merged_points_added = 0;
+
+    enter(indent, "num_distances=%d, max_diameter_km=%f", num_distances, max_diameter_km);
 
     for (int i = 0; i < num_distances; ++ i) {
 
@@ -59,20 +61,26 @@ int32_t merge_distances_below_max(
 
             geo_merged_point_t *dst = scratch_buf_at(out_merged_points, merged_points_added ++);
 
-            merged_clustering_point_init(dst, distance);
+            merged_clustering_point_init(indent + 1, dst, distance);
         }
     } 
 
-    return ok ? merged_points_added : -1;
+    const int32_t result = ok ? merged_points_added : -1;
+
+    exit(indent, "result=%d", result);
+
+    return result;
 }
 
 
 static void merged_clustering_point_init(
+        indent_t indent,
         geo_merged_point_t *const point,
         const geo_scratch_distance_t *const to_merge) {
 
 
    compute_mid_point(
+        indent,
         point,
         (const geo_clustered_point_t *)&to_merge->from_point,
         (const geo_clustered_point_t *)&to_merge->to_point); 
@@ -80,6 +88,7 @@ static void merged_clustering_point_init(
 }
 
 static void compute_mid_point(
+        indent_t indent,
         geo_merged_point_t *const dst,
         const geo_clustered_point_t *const from,
         const geo_clustered_point_t *const to) {
@@ -95,7 +104,7 @@ static void compute_mid_point(
     const float computed_latitude = (from_latitude + to_latitude) / sum_count;
     const float computed_longitude = (from_longitude + to_longitude) / sum_count;
 
-    printf("set sum count %d from %d and %d\n",
+    debug(indent, "set sum count %d from %d and %d",
                 sum_count,
                 from->count,
                 to->count);
