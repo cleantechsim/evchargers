@@ -32,13 +32,13 @@ int main(int argc, char **argv){
     test_points[0].geo_point.latitude = 0;
     test_points[0].geo_point.longitude = 0;
     
-    test_points[0].count = 15;
-    test_points[0].geo_point.latitude = 3;
-    test_points[0].geo_point.longitude = 1;
+    test_points[1].count = 15;
+    test_points[1].geo_point.latitude = 3;
+    test_points[1].geo_point.longitude = 1;
  
-    test_points[0].count = 30;
-    test_points[0].geo_point.latitude = 1;
-    test_points[0].geo_point.longitude = 3;
+    test_points[2].count = 30;
+    test_points[2].geo_point.latitude = 1;
+    test_points[2].geo_point.longitude = 3;
 
     test(test_points, 3, 2000);
 

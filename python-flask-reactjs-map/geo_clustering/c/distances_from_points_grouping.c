@@ -37,7 +37,7 @@ int make_distances_with_max(
         ok = FALSE;
     }
     else {
-        geo_point_array_t *grouped_points = NULL;
+        geo_scratch_point_array_t *grouped_points = NULL;
         
         const size_t grouped_points_bytes = BYTES(grouped_points, num_points);
 
@@ -53,7 +53,7 @@ int make_distances_with_max(
 
                 const geo_clustered_point_t *outer = &points[i];
 
-                const geo_point_array_t *const close_points = &grouped_points[i];
+                const geo_scratch_point_array_t *const close_points = &grouped_points[i];
                 if (close_points->count > 0) {
                 
                     const int group_distances = make_distances_from_outer(
@@ -82,7 +82,7 @@ int make_distances_with_max(
             }
 
             for (int i = 0; i < num_points; ++ i) {
-                geo_point_array_t *array = &grouped_points[i];
+                geo_scratch_point_array_t *array = &grouped_points[i];
 
                 if (array->points != NULL) {
                     free(array->points);
@@ -141,6 +141,14 @@ static int make_distances_from_outer(
             geo_scratch_distance_t *distance = scratch_buf_at(dst, num_in_dst ++);
 
             ++ count;
+
+            if (from_index == j) {
+                fprintf(stderr, "from_index == j\n");
+            }
+
+            if (outer == inner) {
+                fprintf(stderr, "outer == inner\n");
+            }
 
             distance->distance = distance_km;
             distance->from_point = *outer;

@@ -15,6 +15,11 @@ typedef struct {
 
 } geo_scratch_distance_t;
 
+typedef struct {
+    geo_clustered_point_t *points;
+    unsigned int count;
+} geo_scratch_point_array_t;
+
 #endif
 
 

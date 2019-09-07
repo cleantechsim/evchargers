@@ -21,12 +21,6 @@ typedef geo_clustered_point_t geo_input_point_t;
 /* points that are merged by other points in clustering algorithm */
 typedef geo_clustered_point_t geo_merged_point_t;
 
-typedef struct {
-    geo_clustered_point_t *points;
-    unsigned int count;
-} geo_point_array_t;
-
-
 #endif
 
 

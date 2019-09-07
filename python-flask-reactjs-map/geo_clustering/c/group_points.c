@@ -19,14 +19,14 @@ static boolean add_if_close(
     const int range_start,
     const int range_end,
     const geo_clustered_point_t *const geo_point,
-    geo_point_array_t *const dst,
+    geo_scratch_point_array_t *const dst,
     const float one_longitude_degree_km,
     scratch_buf_t *scratch_buf);
 
 boolean group_points(
     const geo_clustered_point_t *const points, 
     const size_t num_points,
-    geo_point_array_t *const dst,
+    geo_scratch_point_array_t *const dst,
     const float max_km,
     scratch_buf_t *scratch_buf) {
 
@@ -86,7 +86,7 @@ static boolean add_if_close(
     const int range_start,
     const int range_end,
     const geo_clustered_point_t *const clustered_point,
-    geo_point_array_t *const dst,
+    geo_scratch_point_array_t *const dst,
     const float one_longitude_degree_km,
     scratch_buf_t *scratch_buf) {
 
