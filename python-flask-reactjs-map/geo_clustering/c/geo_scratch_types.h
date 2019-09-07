@@ -16,7 +16,13 @@ typedef struct {
 } geo_scratch_distance_t;
 
 typedef struct {
-    geo_clustered_point_t *points;
+    geo_clustered_point_t base;
+
+    uint32_t original_index;
+} geo_scratch_clustered_point_t;
+
+typedef struct {
+    geo_scratch_clustered_point_t *points;
     unsigned int count;
 } geo_scratch_point_array_t;
 

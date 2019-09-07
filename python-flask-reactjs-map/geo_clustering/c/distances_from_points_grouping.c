@@ -12,7 +12,7 @@
 static int make_distances_from_outer(
     int from_index,
     const geo_clustered_point_t *const outer,
-    const geo_clustered_point_t *const points,
+    const geo_scratch_clustered_point_t *const points,
     int range_start,
     int range_end,
     float max_distance_to_append,
@@ -32,8 +32,10 @@ int make_distances_with_max(
     boolean ok;
 
     int num_distances = 0;
+
+    const geo_scratch_clustered_point_t *scratch_point = NULL;
     
-    if (!scratch_buf_init(&scratch_buf, 10000, BYTES(points, 1))) {
+    if (!scratch_buf_init(&scratch_buf, 10000, BYTES(scratch_point, 1))) {
         ok = FALSE;
     }
     else {
@@ -101,7 +103,7 @@ int make_distances_with_max(
 static int make_distances_from_outer(
     int from_index,
     const geo_clustered_point_t *const outer,
-    const geo_clustered_point_t *const points,
+    const geo_scratch_clustered_point_t *const points,
     int range_start,
     int range_end,
     float max_distance_to_append,
@@ -115,13 +117,13 @@ static int make_distances_from_outer(
 
     for (int j = range_start; j < range_end; ++ j) {
 
-        const geo_clustered_point_t *const inner = &points[j];
+        const geo_scratch_clustered_point_t *const inner = &points[j];
 
         const float distance_km = haversine(
             outer->geo_point.latitude,
             outer->geo_point.longitude,
-            inner->geo_point.latitude,
-            inner->geo_point.longitude,
+            inner->base.geo_point.latitude,
+            inner->base.geo_point.longitude,
             KILOMETERS
         );
 
@@ -142,19 +144,15 @@ static int make_distances_from_outer(
 
             ++ count;
 
-            if (from_index == j) {
-                fprintf(stderr, "from_index == j\n");
-            }
-
-            if (outer == inner) {
-                fprintf(stderr, "outer == inner\n");
+            if (from_index == inner->original_index) {
+                fprintf(stderr, "from_index == original_index\n");
             }
 
             distance->distance = distance_km;
             distance->from_point = *outer;
-            distance->to_point = *inner;
+            distance->to_point = inner->base;
             distance->from_point_index = from_index;
-            distance->to_point_index = j;
+            distance->to_point_index = inner->original_index;
         }
     }
 

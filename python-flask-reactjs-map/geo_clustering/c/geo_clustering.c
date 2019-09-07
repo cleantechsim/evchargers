@@ -142,6 +142,8 @@ static int32_t _merge_aggregations(
             }
             else {
 
+                fprintf(stderr, "Add sorting of distances\n");
+
                 uint32_t num_points_in_scratch_buf = merged_distances;
 
                  /* out_points contains merged points.

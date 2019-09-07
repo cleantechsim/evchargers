@@ -148,9 +148,10 @@ static boolean add_if_close(
                     }
                 }
 
-                geo_clustered_point_t *dst = scratch_buf_at(scratch_buf, added ++);
+                geo_scratch_clustered_point_t *dst = scratch_buf_at(scratch_buf, added ++);
 
-                *dst = *other;
+                dst->base = *other;
+                dst->original_index = j;
             }
             else {
                 break;
@@ -160,7 +161,7 @@ static boolean add_if_close(
     }
 
     if (ok) {
-        geo_clustered_point_t *close_points_buf;
+        geo_scratch_clustered_point_t *close_points_buf;
         
         if (added > 0) {
             const size_t close_points_bytes = scratch_buf_size_bytes(scratch_buf, added);
