@@ -52,7 +52,6 @@ boolean group_points(
 
         const float max_degrees = max_km / 100.0;
 
-
         for (int i = 0; i < num_points; ++ i) {
             const geo_clustered_point_t *point = &sorted_by_latitude[i];
 
@@ -61,6 +60,10 @@ boolean group_points(
                 point->geo_point.latitude, 1,
                 KILOMETERS);
 
+            debug(indent, "computing one longitude degree km from latitude %f: %f",
+                point->geo_point.latitude,
+                one_longitude_degree_km);
+ 
             ok = add_if_close(
                 indent + 1,
                 sorted_by_latitude,
@@ -108,7 +111,7 @@ static boolean add_if_close(
 
     boolean ok = TRUE;
 
-    enter(indent, "max_degrees_latitude=%f, max_km=%f, range_start=%d, range_end=%d, one_longitude_degree_km=%d",
+    enter(indent, "max_degrees_latitude=%f, max_km=%f, range_start=%d, range_end=%d, one_longitude_degree_km=%f",
             max_degrees_latitude, max_km, range_start, range_end, one_longitude_degree_km);
 
     for (int j = range_start; j < range_end; ++ j) {
