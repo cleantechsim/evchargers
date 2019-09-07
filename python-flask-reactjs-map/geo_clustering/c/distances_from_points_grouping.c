@@ -2,14 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "distances_from_points_grouping.h"
 #include "haversine.h"
 #include "geo_types.h"
 #include "scratchbuf.h"
 #include "group_points.h"
+#include "geo_scratch_types.h"
 
 static int make_distances_from_outer(
-    const geo_point_t *const outer,
-    const geo_point_t *const points,
+    int from_index,
+    const geo_clustered_point_t *const outer,
+    const geo_clustered_point_t *const points,
     int range_start,
     int range_end,
     float max_distance_to_append,
@@ -19,7 +22,7 @@ static int make_distances_from_outer(
 
 
 int make_distances_with_max(
-    const geo_point_t *const points,
+    const geo_clustered_point_t *const points,
     uint32_t num_points,
     const int max_km,
     scratch_buf_t *distances_scratch_buf
@@ -48,13 +51,13 @@ int make_distances_with_max(
    
             for (int i = 0; i < num_points; ++ i) {
 
-                const geo_point_t *outer = &points[i];
+                const geo_clustered_point_t *outer = &points[i];
 
                 const geo_point_array_t *const close_points = &grouped_points[i];
-
                 if (close_points->count > 0) {
                 
                     const int group_distances = make_distances_from_outer(
+                                        i,
                                         outer,
                                         close_points->points,
                                         0,
@@ -96,8 +99,9 @@ int make_distances_with_max(
 }
 
 static int make_distances_from_outer(
-    const geo_point_t *const outer,
-    const geo_point_t *const points,
+    int from_index,
+    const geo_clustered_point_t *const outer,
+    const geo_clustered_point_t *const points,
     int range_start,
     int range_end,
     float max_distance_to_append,
@@ -111,13 +115,13 @@ static int make_distances_from_outer(
 
     for (int j = range_start; j < range_end; ++ j) {
 
-        const geo_point_t *const inner = &points[j];
+        const geo_clustered_point_t *const inner = &points[j];
 
         const float distance_km = haversine(
-            outer->latitude,
-            outer->longitude,
-            inner->latitude,
-            inner->longitude,
+            outer->geo_point.latitude,
+            outer->geo_point.longitude,
+            inner->geo_point.latitude,
+            inner->geo_point.longitude,
             KILOMETERS
         );
 
@@ -134,13 +138,15 @@ static int make_distances_from_outer(
                 }
             }
 
-            geo_distance_t *distance = scratch_buf_at(dst, num_in_dst ++);
+            geo_scratch_distance_t *distance = scratch_buf_at(dst, num_in_dst ++);
 
             ++ count;
 
             distance->distance = distance_km;
-            distance->from_point = outer;
-            distance->to_point = inner;
+            distance->from_point = *outer;
+            distance->to_point = *inner;
+            distance->from_point_index = from_index;
+            distance->to_point_index = j;
         }
     }
 

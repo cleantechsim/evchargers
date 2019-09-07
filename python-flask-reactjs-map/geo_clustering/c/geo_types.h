@@ -7,11 +7,6 @@ typedef struct {
 } geo_point_t;
 
 typedef struct {
-    geo_point_t *points;
-    unsigned int count;
-} geo_point_array_t;
-
-typedef struct {
     float distance;
 
     const geo_point_t *from_point;

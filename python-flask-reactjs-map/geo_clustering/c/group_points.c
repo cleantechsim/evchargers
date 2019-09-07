@@ -13,18 +13,18 @@ static int compare_points(geo_point_t *point, geo_point_t *other);
 static float diff(float val, float other);
 
 static boolean add_if_close(
-    const geo_point_t *const sorted_by_latitude,
+    const geo_clustered_point_t *const sorted_by_latitude,
     const float max_degrees_latitude,
     const float max_km,
     const int range_start,
     const int range_end,
-    const geo_point_t *const geo_point,
+    const geo_clustered_point_t *const geo_point,
     geo_point_array_t *const dst,
     const float one_longitude_degree_km,
     scratch_buf_t *scratch_buf);
 
 boolean group_points(
-    const geo_point_t *const points, 
+    const geo_clustered_point_t *const points, 
     const size_t num_points,
     geo_point_array_t *const dst,
     const float max_km,
@@ -33,7 +33,7 @@ boolean group_points(
     size_t one_point_bytes = BYTES(points, 1);
     size_t all_point_bytes = BYTES(points, num_points);
 
-    geo_point_t *sorted_by_latitude = malloc(all_point_bytes);
+    geo_clustered_point_t *sorted_by_latitude = malloc(all_point_bytes);
 
     boolean ok = TRUE;
 
@@ -50,11 +50,11 @@ boolean group_points(
 
 
         for (int i = 0; i < num_points; ++ i) {
-            const geo_point_t *point = &sorted_by_latitude[i];
+            const geo_clustered_point_t *point = &sorted_by_latitude[i];
 
             const float one_longitude_degree_km = haversine(
-                point->latitude, 0,
-                point->latitude, 1,
+                point->geo_point.latitude, 0,
+                point->geo_point.latitude, 1,
                 KILOMETERS);
 
             ok = add_if_close(
@@ -80,20 +80,20 @@ boolean group_points(
 }
 
 static boolean add_if_close(
-    const geo_point_t *const sorted_by_latitude,
+    const geo_clustered_point_t *const sorted_by_latitude,
     const float max_degrees_latitude,
     const float max_km,
     const int range_start,
     const int range_end,
-    const geo_point_t *const geo_point,
+    const geo_clustered_point_t *const clustered_point,
     geo_point_array_t *const dst,
     const float one_longitude_degree_km,
     scratch_buf_t *scratch_buf) {
 
-    const float latitude = geo_point->latitude;
+    const float latitude = clustered_point->geo_point.latitude;
     const float latitude_plus_90 = latitude + 90.0;
 
-    const float longitude = geo_point->longitude;
+    const float longitude = clustered_point->geo_point.longitude;
     const float longitude_plus_180 = longitude + 180;
 
     int added = 0;
@@ -102,22 +102,22 @@ static boolean add_if_close(
 
     for (int j = range_start; j < range_end; ++ j) {
        
-        const geo_point_t *const other = &sorted_by_latitude[j];
+        const geo_clustered_point_t *const other = &sorted_by_latitude[j];
         
-        if (other->latitude > geo_point->latitude) {    
+        if (other->geo_point.latitude > clustered_point->geo_point.latitude) {    
             fprintf(stderr, "Expected sorted\n");
         }
 
         // printf("max degrees %f\n", max_degrees_latitude);
   
-        const float other_latitude_plus_90 = other->latitude + 90.0;
+        const float other_latitude_plus_90 = other->geo_point.latitude + 90.0;
 
         const float latitude_diff = diff(latitude_plus_90, other_latitude_plus_90);
 
         if (latitude_diff < max_degrees_latitude) {
 
 
-            const float other_longitude = other->longitude;
+            const float other_longitude = other->geo_point.longitude;
             const float other_longitude_plus_180 = other_longitude + 180.0;
 
             const float longitude_diff = diff(longitude_plus_180, other_longitude_plus_180);
@@ -130,10 +130,10 @@ static boolean add_if_close(
 
                 /*
                 const float distance = haversine(
-                    geo_point->latitude,
-                    geo_point->longitude,
-                    other->latitude,
-                    other->longitude,
+                    clustered_point->geo_point.latitude,
+                    clustered_point->geo_point.longitude,
+                    other->geo_point.latitude,
+                    other->geo_point.longitude,
                     KILOMETERS
                 );
 
@@ -148,7 +148,7 @@ static boolean add_if_close(
                     }
                 }
 
-                geo_point_t *dst = scratch_buf_at(scratch_buf, added ++);
+                geo_clustered_point_t *dst = scratch_buf_at(scratch_buf, added ++);
 
                 *dst = *other;
             }
@@ -160,7 +160,7 @@ static boolean add_if_close(
     }
 
     if (ok) {
-        geo_point_t *close_points_buf;
+        geo_clustered_point_t *close_points_buf;
         
         if (added > 0) {
             const size_t close_points_bytes = scratch_buf_size_bytes(scratch_buf, added);

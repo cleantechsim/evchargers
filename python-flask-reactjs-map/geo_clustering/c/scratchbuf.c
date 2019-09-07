@@ -30,7 +30,7 @@ boolean scratch_buf_realloc(scratch_buf_t *scratch_buf) {
     const size_t realloc_nmemb = scratch_buf->nmemb * 3;
     const size_t realloc_bytes = realloc_nmemb * scratch_buf->memb_size;
 
-    void *reallocated = realloc(scratch_buf, realloc_bytes);
+    void *reallocated = realloc(scratch_buf->buf, realloc_bytes);
 
     boolean ok;
 

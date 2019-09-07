@@ -1,6 +1,8 @@
 #ifndef SCRATCHBUF_H
 #define SCRATCHBUF_H
 
+#include <stddef.h>
+
 #include "types.h"
 
 typedef struct {
