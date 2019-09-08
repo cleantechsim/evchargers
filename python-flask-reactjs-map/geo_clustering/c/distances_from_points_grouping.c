@@ -52,15 +52,17 @@ int make_distances_with_max(
         }
         else {
             ok = group_points(indent + 1, points, num_points, grouped_points, max_km, &scratch_buf);
+            
+            if (ok) {
    
-            for (int i = 0; i < num_points; ++ i) {
+                for (int i = 0; i < num_points; ++ i) {
 
-                const geo_clustered_point_t *outer = &points[i];
+                    const geo_clustered_point_t *outer = &points[i];
 
-                const geo_scratch_point_array_t *const close_points = &grouped_points[i];
-                if (close_points->count > 0) {
+                    const geo_scratch_point_array_t *const close_points = &grouped_points[i];
+                    if (close_points->count > 0) {
                 
-                    const int group_distances = make_distances_from_outer(
+                        const int group_distances = make_distances_from_outer(
                                         i,
                                         outer,
                                         close_points->points,
@@ -69,17 +71,18 @@ int make_distances_with_max(
                                         max_km,
                                         distances_scratch_buf,
                                         num_distances
-                    );
+                        );
 
-                    debug(indent, "at group %d (%f, %f) got %d distances from %d points",
-                        i, outer->geo_point.latitude, outer->geo_point.longitude, group_distances, close_points->count);
+                        debug(indent, "at group %d (%f, %f) got %d distances from %d points",
+                            i, outer->geo_point.latitude, outer->geo_point.longitude, group_distances, close_points->count);
 
-                    if (group_distances < 0) {
-                        ok = FALSE;
-                        break;
+                        if (group_distances < 0) {
+                            ok = FALSE;
+                            break;
+                        }
+
+                        num_distances += group_distances;
                     }
-
-                    num_distances += group_distances;
                 }
             }
 
