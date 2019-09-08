@@ -3,8 +3,9 @@ from flask import Blueprint, jsonify, request
 
 from geo_types import GeoSwNe
 from geo_hash import GeoHash
-from geo_elasticsearch import GeoElasticSearch
 from geo_clustering.geo_clustering import GeoClustering
+
+from geo_elasticsearch import GeoElasticSearch
 
 import sys
 
@@ -13,6 +14,13 @@ import json
 from utils import enter, exit, debug
 
 rest_map_blueprint = Blueprint('rest_map', __name__)
+
+es = None
+
+
+def init_es(elasticsearch):
+    global es
+    es = elasticsearch
 
 
 @rest_map_blueprint.route('/rest/map', methods=['GET'])
@@ -45,25 +53,6 @@ def get_map():
 def get_map_params(indent, geo_sw_ne, markerDiameterKM):
 
     enter(indent, 'get_map_params', '')
-
-    es_host = "localhost"
-    es_port = 9200
-    es_index = GeoElasticSearch.GEO_POINTS
-    es_field = "location"
-
-    if len(sys.argv) > 2:
-        es_host = sys.argv[2]
-
-    if len(sys.argv) > 3:
-        es_port = int(sys.argv[3])
-
-    if len(sys.argv) > 4:
-        es_index = sys.argv[4]
-
-    if len(sys.argv) > 5:
-        es_field = sys.argv[5]
-
-    es = GeoElasticSearch(es_host, es_port, es_index, es_field)
 
     # Aggregate all points
     geo_clustering = GeoClustering(es)
