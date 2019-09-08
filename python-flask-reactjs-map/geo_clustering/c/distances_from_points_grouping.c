@@ -89,14 +89,7 @@ int make_distances_with_max(
                 }
             }
 
-            for (int i = 0; i < num_points; ++ i) {
-                geo_scratch_point_array_t *array = &grouped_points[i];
-
-                if (array->points != NULL) {
-                    free(array->points);
-                }
-            }
-
+            free_grouped_points(grouped_points, num_points);
             free(grouped_points);
         } 
 

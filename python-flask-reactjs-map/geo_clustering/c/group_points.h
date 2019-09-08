@@ -15,5 +15,7 @@ int32_t group_points(
     const float max_km,
     scratch_buf_t *scratch_buf);
 
+void free_grouped_points(geo_scratch_point_array_t *const array, uint32_t num_points);
+ 
 #endif
 

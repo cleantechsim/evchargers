@@ -44,6 +44,11 @@ boolean group_points(
     /* we are not comparing last point to another since there are no more points in the array */
     uint32_t to_process = num_points - 1;
 
+    /* clear for check on whether to free memory */
+    for (uint32_t i = 0; i < num_points; ++ i) {
+        dst[i].points = NULL;
+    }
+
     if (sorted_by_latitude == NULL) {
         ok = FALSE;
     }
@@ -87,11 +92,32 @@ boolean group_points(
         free(sorted_by_latitude);
     }
 
-    const int32_t result = ok ? to_process : -1;
+    int32_t result;
+
+    if (ok) {
+        result = to_process;
+    }
+    else {
+        result = -1;
+
+        free_grouped_points(dst, num_points);
+    }
 
     exit(indent, "result=%d", result);
 
     return result;
+}
+
+void free_grouped_points(geo_scratch_point_array_t *const array, uint32_t num_points) {
+
+    for (int i = 0; i < num_points; ++ i) {
+        geo_scratch_point_array_t *element = &array[i];
+
+        if (element != NULL) {
+            free(element->points);
+            element->points = NULL;
+        }
+    }
 }
 
 static boolean add_if_close(
