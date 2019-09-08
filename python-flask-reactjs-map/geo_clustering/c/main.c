@@ -22,29 +22,47 @@ static uint32_t sum_points(const geo_clustered_point_t *points, uint32_t num_poi
 
 static void test(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km);
 
+static void test_three_points();
+static void test_random_points();
+
 int main(int argc, char **argv){
 
-    geo_input_point_t test_points[NUM_POINTS];
 
     test_haversine();
 
     // if (1) return 0;
 
+    test_random_points();
+
+    return 0;
+}
+
+static void test_three_points() {
+
+    geo_input_point_t test_points[3];
+
     test_points[0].count = 20;
-    test_points[0].geo_point.latitude = 4;
+    test_points[0].geo_point.latitude = 4.5;
     test_points[0].geo_point.longitude = 0.5;
     
     test_points[1].count = 15;
-    test_points[1].geo_point.latitude = 3;
+    test_points[1].geo_point.latitude = 3.5;
     test_points[1].geo_point.longitude = 1;
  
     test_points[2].count = 30;
-    test_points[2].geo_point.latitude = 1;
-    test_points[2].geo_point.longitude = 3;
-
+    test_points[2].geo_point.latitude = 1.5;
+    test_points[2].geo_point.longitude = 4.1;
+    
     test(0, test_points, 3, 2000);
+}
 
-    return 0;
+static void test_random_points() {
+
+    geo_input_point_t test_points[NUM_POINTS];
+
+    gen_points(test_points, NUM_POINTS);
+
+    test(0, test_points, NUM_POINTS, 2000);
 }
 
 static void test_make_distances(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km) {
