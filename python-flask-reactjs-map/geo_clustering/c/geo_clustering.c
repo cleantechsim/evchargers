@@ -12,24 +12,34 @@
 static int32_t _merge_aggregations(
     indent_t indent,
 
-    const geo_input_point_t *const input_points,
+    geo_scratch_clustered_point_t *const input_points,
     uint32_t num_input_points,
 
     float max_diameter_km,
    
-    /* Holds at least space for num_input_points */ 
-    scratch_buf_t *const out_points,
-
     bitmap_t *const removed_points_bitmap,
 
     scratch_buf_t *const distances_scratch_buf,
     
     /* Holds at least space for num_input_points */ 
-    scratch_buf_t *const merge_points_scratch_buf);
+    scratch_buf_t *const merge_points_scratch_buf,
 
-static boolean copy_points_to_scratch_buf(
+    /* Holds at least space for num_input_points */ 
+    scratch_buf_t *const out_points);
+
+static boolean copy_input_points_to_scratch_buf(
         scratch_buf_t *dst_scratch_buf,
         const geo_clustered_point_t *const src,
+        uint32_t num_points);
+
+static boolean copy_scratch_points_to_scratch_buf(
+        scratch_buf_t *dst_scratch_buf,
+        const geo_scratch_clustered_point_t *const src,
+        uint32_t num_points);
+
+static boolean copy_scratch_points_to_output_buf(
+        scratch_buf_t *dst_scratch_buf,
+        const geo_scratch_clustered_point_t *const src,
         uint32_t num_points);
 
 int32_t merge_aggregations(
@@ -65,27 +75,43 @@ int32_t merge_aggregations(
         else {
             scratch_buf_t merged_points_scratch_buf;
 
-            if (!scratch_buf_init(&merged_points_scratch_buf, num_input_points, sizeof (geo_merged_point_t))) {
+            if (!scratch_buf_init(&merged_points_scratch_buf, num_input_points, sizeof (geo_scratch_clustered_point_t))) {
                 ok = FALSE;
             }
             else {
+                scratch_buf_t out_points_scratch_buf;
 
-                const int32_t merged = _merge_aggregations(
-                    indent + 1,
-                    input_points,
-                    num_input_points,
-                    max_diameter_km,
-                    out_points,
-                    removed_points_bitmap,
-                    &distances_scratch_buf,
-                    &merged_points_scratch_buf
-                );
-
-                if (merged < 0) {
+                if (!scratch_buf_init(&out_points_scratch_buf, num_input_points, sizeof (geo_scratch_clustered_point_t))) {
                     ok = FALSE;
                 }
                 else {
-                    num_points = merged;
+                    if (!copy_input_points_to_scratch_buf(&out_points_scratch_buf, input_points, num_input_points)) {
+                        ok = FALSE;
+                    }
+                    else {
+
+                        const int32_t merged = _merge_aggregations(
+                            indent + 1,
+                            out_points_scratch_buf.buf,
+                            num_input_points,
+                            max_diameter_km,
+                            removed_points_bitmap,
+                            &distances_scratch_buf,
+                            &merged_points_scratch_buf,
+                            &out_points_scratch_buf
+                        );
+
+                        if (merged < 0) {
+                            ok = FALSE;
+                        }
+                        else {
+
+                            copy_scratch_points_to_output_buf(out_points, out_points_scratch_buf.buf, merged);
+                            num_points = merged;
+                        }
+                    }
+
+                    scratch_buf_free(&out_points_scratch_buf);
                 }
 
                 scratch_buf_free(&merged_points_scratch_buf);
@@ -107,35 +133,41 @@ int32_t merge_aggregations(
 static int32_t _merge_aggregations(
     indent_t indent,
 
-    const geo_input_point_t *const input_points,
+    geo_scratch_clustered_point_t *const input_points,
     uint32_t num_input_points,
 
     float max_diameter_km,
    
-    /* Holds at least space for num_input_points */ 
-    scratch_buf_t *const out_points,
-
     bitmap_t *const removed_points_bitmap,
 
     scratch_buf_t *const distances_scratch_buf,
     
     /* Holds at least space for num_input_points */ 
-    scratch_buf_t *const merged_points_scratch_buf) {
+    scratch_buf_t *const merged_points_scratch_buf,
+
+    /* Holds at least space for num_input_points */ 
+    scratch_buf_t *const out_points) {
+
 
     boolean done = FALSE;
 
-    const geo_clustered_point_t *cur_points = input_points;
+    geo_scratch_clustered_point_t *cur_points = input_points;
     uint32_t cur_num_points = num_input_points;
 
     /* Copy input to output in case of no points merged */
-    boolean ok = copy_points_to_scratch_buf(
-            out_points,
-            input_points,
-            num_input_points);
+    boolean ok = TRUE;
 
     enter(indent, "num_input_points=%d, max_diameter_km=%f", num_input_points, max_diameter_km);
 
     while (ok && !done) {
+
+        /* Set indexes so can correlate with bitmap */
+
+        for (uint32_t i = 0; i < cur_num_points; ++ i) {
+           cur_points[i].original_index = i; 
+        }
+
+
         /* Find all distances that are below max */
         const int32_t num_distances = make_distances_with_max(
                     indent + 1,
@@ -183,14 +215,14 @@ static int32_t _merge_aggregations(
                             }
                         }
 
-                        geo_clustered_point_t *dst = scratch_buf_at(merged_points_scratch_buf, num_points_in_scratch_buf ++);
+                        geo_scratch_clustered_point_t *dst = scratch_buf_at(merged_points_scratch_buf, num_points_in_scratch_buf ++);
                         *dst = cur_points[i];
                      }
                 }
 
                 if (ok) {
                     /* input from out_points */
-                    if (!copy_points_to_scratch_buf(
+                    if (!copy_scratch_points_to_scratch_buf(
                                 out_points,
                                 merged_points_scratch_buf->buf,
                                 num_points_in_scratch_buf)) {
@@ -200,7 +232,6 @@ static int32_t _merge_aggregations(
                     else {
 
                         debug(indent, "Got new cur_num_points %d", num_points_in_scratch_buf);
-
                         cur_points = out_points->buf;
                         cur_num_points = num_points_in_scratch_buf;
 
@@ -218,9 +249,56 @@ static int32_t _merge_aggregations(
     return result;
 }
 
-static boolean copy_points_to_scratch_buf(
+static boolean copy_scratch_points_to_scratch_buf(
         scratch_buf_t *dst_scratch_buf,
-        const geo_clustered_point_t *const src,
+        const geo_scratch_clustered_point_t *const src,
+        uint32_t num_points) {
+
+    boolean ok = TRUE;
+
+    for (int i = 0; i < num_points; ++ i) {
+        if (i == dst_scratch_buf->nmemb) {
+            if (!scratch_buf_realloc(dst_scratch_buf)) {
+                ok = FALSE;
+                break;
+            }
+        }
+
+        geo_scratch_clustered_point_t *const dst = scratch_buf_at(dst_scratch_buf, i);
+               
+        *dst = src[i];
+    }
+
+    return ok;
+}
+
+static boolean copy_input_points_to_scratch_buf(
+        scratch_buf_t *dst_scratch_buf,
+        const geo_input_point_t *const src,
+        uint32_t num_points) {
+
+    boolean ok = TRUE;
+
+    for (int i = 0; i < num_points; ++ i) {
+        if (i == dst_scratch_buf->nmemb) {
+            if (!scratch_buf_realloc(dst_scratch_buf)) {
+                ok = FALSE;
+                break;
+            }
+        }
+
+        geo_scratch_clustered_point_t *const dst = scratch_buf_at(dst_scratch_buf, i);
+              
+        dst->base = src[i];
+        dst->original_index = -1;
+    }
+
+    return ok;
+}
+
+static boolean copy_scratch_points_to_output_buf(
+        scratch_buf_t *dst_scratch_buf,
+        const geo_scratch_clustered_point_t *const src,
         uint32_t num_points) {
 
     boolean ok = TRUE;
@@ -234,9 +312,11 @@ static boolean copy_points_to_scratch_buf(
         }
 
         geo_clustered_point_t *const dst = scratch_buf_at(dst_scratch_buf, i);
-               
-        *dst = src[i];
+              
+        *dst = src[i].base;
     }
 
     return ok;
 }
+
+

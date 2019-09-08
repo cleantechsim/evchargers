@@ -22,6 +22,7 @@ typedef struct {
 } geo_scratch_clustered_point_t;
 
 typedef struct {
+    geo_scratch_clustered_point_t outer;
     geo_scratch_clustered_point_t *points;
     unsigned int count;
 } geo_scratch_point_array_t;

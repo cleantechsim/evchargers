@@ -15,19 +15,19 @@ static float diff(float val, float other);
 
 static boolean add_if_close(
     indent_t indent,
-    const geo_clustered_point_t *const sorted_by_latitude,
+    const geo_scratch_clustered_point_t *const sorted_by_latitude,
     const float max_degrees_latitude,
     const float max_km,
     const int range_start,
     const int range_end,
-    const geo_clustered_point_t *const geo_point,
+    const geo_scratch_clustered_point_t *const clustered_point,
     geo_scratch_point_array_t *const dst,
     const float one_longitude_degree_km,
     scratch_buf_t *scratch_buf);
 
 boolean group_points(
     indent_t indent,
-    const geo_clustered_point_t *const points, 
+    const geo_scratch_clustered_point_t *const points, 
     const size_t num_points,
     geo_scratch_point_array_t *const dst,
     const float max_km,
@@ -38,7 +38,7 @@ boolean group_points(
     size_t one_point_bytes = BYTES(points, 1);
     size_t all_point_bytes = BYTES(points, num_points);
 
-    geo_clustered_point_t *sorted_by_latitude = malloc(all_point_bytes);
+    geo_scratch_clustered_point_t *sorted_by_latitude = malloc(all_point_bytes);
 
     boolean ok = TRUE;
 
@@ -56,27 +56,27 @@ boolean group_points(
     else {
 
         debug(indent, "%d points before sorting", num_points);
-        print_clustered_points(indent + 1, points, num_points);
+        print_scratch_clustered_points(indent + 1, points, num_points);
 
         memcpy(sorted_by_latitude, points, all_point_bytes);
    
         qsort(sorted_by_latitude, num_points, one_point_bytes, (void*)&compare_points);
 
         debug(indent, "%d points after sorting", num_points);
-        print_clustered_points(indent + 1, sorted_by_latitude, num_points);
+        print_scratch_clustered_points(indent + 1, sorted_by_latitude, num_points);
 
         const float max_degrees = max_km / 100.0;
 
         for (int i = 0; i < to_process; ++ i) {
-            const geo_clustered_point_t *point = &sorted_by_latitude[i];
+            const geo_scratch_clustered_point_t *point = &sorted_by_latitude[i];
 
             const float one_longitude_degree_km = haversine(
-                point->geo_point.latitude, 0,
-                point->geo_point.latitude, 1,
+                point->base.geo_point.latitude, 0,
+                point->base.geo_point.latitude, 1,
                 KILOMETERS);
 
             debug(indent, "computing one longitude degree km from latitude %f: %f",
-                point->geo_point.latitude,
+                point->base.geo_point.latitude,
                 one_longitude_degree_km);
  
             ok = add_if_close(
@@ -129,20 +129,20 @@ void free_grouped_points(geo_scratch_point_array_t *const array, uint32_t num_po
 
 static boolean add_if_close(
     indent_t indent,
-    const geo_clustered_point_t *const sorted_by_latitude,
+    const geo_scratch_clustered_point_t *const sorted_by_latitude,
     const float max_degrees_latitude,
     const float max_km,
     const int range_start,
     const int range_end,
-    const geo_clustered_point_t *const clustered_point,
+    const geo_scratch_clustered_point_t *const clustered_point,
     geo_scratch_point_array_t *const dst,
     const float one_longitude_degree_km,
     scratch_buf_t *scratch_buf) {
 
-    const float latitude = clustered_point->geo_point.latitude;
+    const float latitude = clustered_point->base.geo_point.latitude;
     const float latitude_plus_90 = latitude + 90.0;
 
-    const float longitude = clustered_point->geo_point.longitude;
+    const float longitude = clustered_point->base.geo_point.longitude;
     const float longitude_plus_180 = longitude + 180;
 
     int added = 0;
@@ -154,22 +154,22 @@ static boolean add_if_close(
 
     for (int j = range_start; j < range_end; ++ j) {
        
-        const geo_clustered_point_t *const other = &sorted_by_latitude[j];
+        const geo_scratch_clustered_point_t *const other = &sorted_by_latitude[j];
         
-        if (other->geo_point.latitude > clustered_point->geo_point.latitude) {    
+        if (other->base.geo_point.latitude > clustered_point->base.geo_point.latitude) {    
             fprintf(stderr, "Expected sorted\n");
         }
 
         // printf("max degrees %f\n", max_degrees_latitude);
   
-        const float other_latitude_plus_90 = other->geo_point.latitude + 90.0;
+        const float other_latitude_plus_90 = other->base.geo_point.latitude + 90.0;
 
         const float latitude_diff = diff(latitude_plus_90, other_latitude_plus_90);
 
         if (latitude_diff < max_degrees_latitude) {
 
 
-            const float other_longitude = other->geo_point.longitude;
+            const float other_longitude = other->base.geo_point.longitude;
             const float other_longitude_plus_180 = other_longitude + 180.0;
 
             const float longitude_diff = diff(longitude_plus_180, other_longitude_plus_180);
@@ -202,8 +202,7 @@ static boolean add_if_close(
 
                 geo_scratch_clustered_point_t *dst = scratch_buf_at(scratch_buf, added ++);
 
-                dst->base = *other;
-                dst->original_index = j;
+                *dst= *other;
             }
             else {
                 break;
@@ -235,6 +234,7 @@ static boolean add_if_close(
         }
 
         if (ok) {
+            dst->outer = *clustered_point;
             dst->points = close_points_buf;
             dst->count = added;
         }

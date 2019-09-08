@@ -9,7 +9,7 @@
 
 int32_t group_points(
     indent_t indent,
-    const geo_clustered_point_t *const points, 
+    const geo_scratch_clustered_point_t *const points, 
     const size_t num_points,
     geo_scratch_point_array_t *const dst,
     const float max_km,

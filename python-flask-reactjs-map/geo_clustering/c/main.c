@@ -11,7 +11,7 @@
 
 #include "debug.h"
 
-const int NUM_POINTS = 3;
+const int NUM_POINTS = 1000;
 
 static void test_haversine();
 
@@ -62,7 +62,7 @@ static void test_random_points() {
 
     gen_points(test_points, NUM_POINTS);
 
-    test(0, test_points, NUM_POINTS, 20000);
+    test(0, test_points, NUM_POINTS, 2000);
 }
 
 static void test_make_distances(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km) {
@@ -73,16 +73,27 @@ static void test_make_distances(indent_t indent, const geo_clustered_point_t *co
         fprintf(stderr, "Failed to init scratch buf\n");
     }
     else {
+        geo_scratch_clustered_point_t *scratch_points = malloc(num_points * sizeof (geo_scratch_clustered_point_t));
 
-        const int num_distances = make_distances_with_max(
-            indent + 1,
-            test_points,
-            num_points,
-            max_diameter_km,
-            &distances_buf
-        );
+        if (scratch_points != NULL) {
 
-        debug(indent, "Got %d distances\n", num_distances);
+            for (uint32_t i = 0; i < num_points; ++ i) {
+                scratch_points[i].base = test_points[i];
+                scratch_points[i].original_index = i;
+            }
+
+            const int num_distances = make_distances_with_max(
+                indent + 1,
+                scratch_points,
+                num_points,
+                max_diameter_km,
+                &distances_buf
+            );
+
+            debug(indent, "Got %d distances\n", num_distances);
+
+            free(scratch_points);
+        }
 
         scratch_buf_free(&distances_buf);
     }
@@ -106,13 +117,19 @@ static void test(indent_t indent, const geo_clustered_point_t *const test_points
                 &out_points_scratch_buf
             );
 
-        printf("num_merged %d\n", num_merged);
+        if (num_merged < 0) {
+            fprintf(stderr, "Error while merging\n");
+        }
+        else {
 
-        printf("Got input counts %d\n", sum_points(test_points, num_points));
+            printf("num_merged %d\n", num_merged);
 
-        printf("Got output counts %d\n", sum_points(
+            printf("Got input counts %d\n", sum_points(test_points, num_points));
+
+            printf("Got output counts %d\n", sum_points(
                         out_points_scratch_buf.buf,
                         num_merged));
+        }
 
         scratch_buf_free(&out_points_scratch_buf);
     }
