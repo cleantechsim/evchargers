@@ -11,7 +11,6 @@ static PyObject *merge_aggregations_wrapper(PyObject *self, PyObject *args) {
     float max_diameter_km;
 
     if (!PyArg_ParseTuple(args, "Of", &list, &max_diameter_km)) {
-        printf("No arg\n");
         return NULL;
     }
 
@@ -42,11 +41,8 @@ static PyObject *merge_aggregations_wrapper(PyObject *self, PyObject *args) {
 
                 PyObject *count = PyObject_GetAttrString(clustered_point, "count");
 
-                printf("value %ld\n", PyInt_AsLong(count));
-
                 PyObject *geo_point = PyObject_CallMethod(clustered_point, "get_point", NULL);
                 PyObject *latitude_object = PyObject_GetAttrString(geo_point, "latitude");
-
                 PyObject *longitude_object = PyObject_GetAttrString(geo_point, "longitude");
 
                 input_points[i].count = PyInt_AsLong(count);
@@ -69,7 +65,6 @@ static PyObject *merge_aggregations_wrapper(PyObject *self, PyObject *args) {
 
                     const geo_merged_point_t *const points = out_points.buf;
 
-printf("## initializing point\n");
                     PyObject *params = Py_BuildValue(
                                         "iff",
                                         points[i].count,
@@ -80,7 +75,7 @@ printf("## initializing point\n");
                                                             cls,
                                                             params);
 
-                    // Py_DECREF(params);
+                    /* Py_DECREF(params); */
 
                     if (result_point == NULL) {
                         printf("null result point");
@@ -103,8 +98,6 @@ printf("## initializing point\n");
 
     Py_DECREF(list);
 
-    printf("returning list %p\n", result_list);
-
     if (result_list != NULL) {
         return result_list;
     }
@@ -117,9 +110,9 @@ static PyMethodDef geo_clustering_methods [] = {
     { NULL, NULL, 0, NULL }
 };
 
-PyMODINIT_FUNC initgeo_clustering() {
+PyMODINIT_FUNC initgeo_clustering_c() {
 
-    Py_InitModule3("geo_clustering", geo_clustering_methods, "Test method");
+    Py_InitModule3("geo_clustering_c", geo_clustering_methods, "Test method");
 
 }
 

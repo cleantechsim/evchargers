@@ -5,7 +5,7 @@ TEST := $(shell ls *_test.c)
 
 EXE := ./test
 
-SHARED_NAME := geo_clustering.so
+SHARED_NAME := geo_clustering_c.so
 SHARED := ./$(SHARED_NAME)
 
 INCLUDES := -I/usr/include/python2.7

@@ -3,7 +3,7 @@ import sys
 
 sys.path.append('.')
 
-from geo_clustering import merge_aggregations
+from geo_clustering_c import merge_aggregations
 
 class GeoPoint:
 
