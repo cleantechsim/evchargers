@@ -1,16 +1,20 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#define DEBUG 1
+#define DEBUG 0
 
 typedef char indent_t;
 
 #if (DEBUG == 1)
+
 #   define debug_(indent, format) _debug("DEBUG", __FUNCTION__, indent, format)
 #   define debug(indent, format, ...) _debug("DEBUG", __FUNCTION__, indent, format, __VA_ARGS__)
 #   define enter(indent, format, ...) _debug("ENTER", __FUNCTION__, indent, format, __VA_ARGS__)
 #   define exit(indent, format, ...)  _debug("EXIT",  __FUNCTION__, indent, format, __VA_ARGS__)
+
 #else
+
+#   define debug_(indent, format)
 #   define debug(indent, format, ...)
 #   define enter(indent, format, ...)
 #   define exit(indent, format, ...)

@@ -112,7 +112,7 @@ int make_distances_with_max(
 }
 
 static void print_grouped_points(indent_t indent, const geo_scratch_point_array_t *const groups, uint32_t num_groups) {
-
+#if DEBUG
     for (uint32_t i = 0; i < num_groups; ++ i) {
         const geo_scratch_point_array_t *const group = &groups[i];
 
@@ -129,12 +129,12 @@ static void print_grouped_points(indent_t indent, const geo_scratch_point_array_
                     point->original_index);
         }
     }
-
+#endif
 }
 
 
 static void print_distances(indent_t indent, const geo_scratch_distance_t *const distances, uint32_t count) {
-
+#if DEBUG
     for (uint32_t i = 0; i < count; ++ i) {
         const geo_scratch_distance_t *const distance = &distances[i];
 
@@ -148,6 +148,7 @@ static void print_distances(indent_t indent, const geo_scratch_distance_t *const
                     distance->to_point_index);
 
     }
+#endif
 }
 
 
