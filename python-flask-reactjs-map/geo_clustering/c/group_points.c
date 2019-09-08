@@ -7,6 +7,7 @@
 #include "geo_types.h"
 #include "scratchbuf.h"
 #include "group_points.h"
+#include "print.h"
 
 static int compare_points(geo_point_t *point, geo_point_t *other);
 
@@ -54,9 +55,15 @@ boolean group_points(
     }
     else {
 
+        debug(indent, "%d points before sorting", num_points);
+        print_clustered_points(indent + 1, points, num_points);
+
         memcpy(sorted_by_latitude, points, all_point_bytes);
    
         qsort(sorted_by_latitude, num_points, one_point_bytes, (void*)&compare_points);
+
+        debug(indent, "%d points after sorting", num_points);
+        print_clustered_points(indent + 1, sorted_by_latitude, num_points);
 
         const float max_degrees = max_km / 100.0;
 

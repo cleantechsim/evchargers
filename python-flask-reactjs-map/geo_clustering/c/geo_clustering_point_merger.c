@@ -34,7 +34,7 @@ int32_t merge_distances_below_max(
 
         const geo_scratch_distance_t *const distance = &distances[i];
 
-        debug(indent, "considering point at index %d from (%f, %f) index %d to (%f, %f) index %d",
+        debug(indent, "considering distance at index %d from (%f, %f) index %d to (%f, %f) index %d",
                     i,
                     distance->from_point.geo_point.latitude,
                     distance->from_point.geo_point.longitude,

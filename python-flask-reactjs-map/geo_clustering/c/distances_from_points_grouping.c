@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "debug.h"
 #include "distances_from_points_grouping.h"
 #include "haversine.h"
 #include "geo_types.h"
@@ -19,6 +20,9 @@ static int make_distances_from_outer(
     scratch_buf_t *dst,
     int num_in_dst
 );
+
+static void print_grouped_points(indent_t indent, const geo_scratch_point_array_t *const groups, uint32_t num_groups);
+static void print_distances(indent_t indent, const geo_scratch_distance_t *const distances, uint32_t count);
 
 int make_distances_with_max(
     indent_t indent,
@@ -57,6 +61,8 @@ int make_distances_with_max(
                 ok = FALSE;
             }
             else {
+
+                print_grouped_points(indent + 1, grouped_points, num_groups);
    
                 for (int i = 0; i < num_groups; ++ i) {
 
@@ -65,7 +71,7 @@ int make_distances_with_max(
                     const geo_scratch_point_array_t *const close_points = &grouped_points[i];
                     if (close_points->count > 0) {
                 
-                        const int group_distances = make_distances_from_outer(
+                        const int32_t group_distances = make_distances_from_outer(
                                         i,
                                         outer,
                                         close_points->points,
@@ -82,6 +88,10 @@ int make_distances_with_max(
                         if (group_distances < 0) {
                             ok = FALSE;
                             break;
+                        }
+
+                        if (DEBUG) {
+                            print_distances(indent + 1, distances_scratch_buf->buf, group_distances);
                         }
 
                         num_distances += group_distances;
@@ -102,6 +112,47 @@ int make_distances_with_max(
 
     return result;
 }
+
+static void print_grouped_points(indent_t indent, const geo_scratch_point_array_t *const groups, uint32_t num_groups) {
+
+    for (uint32_t i = 0; i < num_groups; ++ i) {
+        const geo_scratch_point_array_t *const group = &groups[i];
+
+        debug(indent, "group %d", i);
+
+        for (uint32_t j = 0; j < group->count; ++ j) {
+
+            const geo_scratch_clustered_point_t *const point = &group->points[j];
+
+            debug(indent +  1, "point %d (%f, %f) original index %d",
+                    j,
+                    point->base.geo_point.latitude,
+                    point->base.geo_point.longitude,
+                    point->original_index);
+        }
+    }
+
+}
+
+
+static void print_distances(indent_t indent, const geo_scratch_distance_t *const distances, uint32_t count) {
+
+    for (uint32_t i = 0; i < count; ++ i) {
+        const geo_scratch_distance_t *const distance = &distances[i];
+
+        debug(indent, "computed distance at index %d from (%f, %f) index %d to (%f, %f) index %d",
+                    i,
+                    distance->from_point.geo_point.latitude,
+                    distance->from_point.geo_point.longitude,
+                    distance->from_point_index,
+                    distance->to_point.geo_point.latitude,
+                    distance->to_point.geo_point.longitude,
+                    distance->to_point_index);
+
+    }
+}
+
+
 
 static int make_distances_from_outer(
     int from_index,

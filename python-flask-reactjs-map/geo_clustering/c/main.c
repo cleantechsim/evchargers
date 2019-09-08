@@ -11,7 +11,7 @@
 
 #include "debug.h"
 
-const int NUM_POINTS = 100;
+const int NUM_POINTS = 3;
 
 static void test_haversine();
 
@@ -62,7 +62,7 @@ static void test_random_points() {
 
     gen_points(test_points, NUM_POINTS);
 
-    test(0, test_points, NUM_POINTS, 2000);
+    test(0, test_points, NUM_POINTS, 20000);
 }
 
 static void test_make_distances(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km) {
@@ -106,6 +106,8 @@ static void test(indent_t indent, const geo_clustered_point_t *const test_points
                 &out_points_scratch_buf
             );
 
+        printf("num_merged %d\n", num_merged);
+
         printf("Got input counts %d\n", sum_points(test_points, num_points));
 
         printf("Got output counts %d\n", sum_points(
@@ -135,7 +137,7 @@ static void gen_points(geo_clustered_point_t *const dst, uint32_t num_points) {
         point->geo_point.longitude = longitude;
         point->count = 100 * random_0_to_1();
 
-        // printf("Generated point at (%f, %f)\n", latitude, longitude);
+        printf("Generated point at (%f, %f) with count %d\n", latitude, longitude, point->count);
     }
 }
 
@@ -144,6 +146,7 @@ static uint32_t sum_points(const geo_clustered_point_t *points, uint32_t num_poi
     uint32_t count = 0;
 
     for (int i = 0; i < num_points; ++ i) {
+        printf("value %d\n", points[i].count);
         count += points[i].count;
     }
 
