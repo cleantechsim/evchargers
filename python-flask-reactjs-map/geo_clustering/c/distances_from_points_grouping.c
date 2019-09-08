@@ -71,10 +71,8 @@ int make_distances_with_max(
                                         num_distances
                     );
 
-                    /*
-                    printf("got %d distances from %d points\n",
-                        group_distances, close_points->count);
-                    */
+                    debug(indent, "at group %d (%f, %f) got %d distances from %d points",
+                        i, outer->geo_point.latitude, outer->geo_point.longitude, group_distances, close_points->count);
 
                     if (group_distances < 0) {
                         ok = FALSE;

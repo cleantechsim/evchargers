@@ -31,8 +31,8 @@ int main(int argc, char **argv){
     // if (1) return 0;
 
     test_points[0].count = 20;
-    test_points[0].geo_point.latitude = 0;
-    test_points[0].geo_point.longitude = 0;
+    test_points[0].geo_point.latitude = 4;
+    test_points[0].geo_point.longitude = 0.5;
     
     test_points[1].count = 15;
     test_points[1].geo_point.latitude = 3;
@@ -47,7 +47,7 @@ int main(int argc, char **argv){
     return 0;
 }
 
-static void test(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km) {
+static void test_make_distances(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km) {
 
     scratch_buf_t distances_buf;
 
@@ -55,7 +55,6 @@ static void test(indent_t indent, const geo_clustered_point_t *const test_points
         fprintf(stderr, "Failed to init scratch buf\n");
     }
     else {
-        scratch_buf_t out_points_scratch_buf;
 
         const int num_distances = make_distances_with_max(
             indent + 1,
@@ -68,15 +67,20 @@ static void test(indent_t indent, const geo_clustered_point_t *const test_points
         debug(indent, "Got %d distances\n", num_distances);
 
         scratch_buf_free(&distances_buf);
+    }
+}
 
-        /* cluster points */
+static void test(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km) {
 
-        if (!scratch_buf_init(&out_points_scratch_buf, 10000, sizeof (geo_input_point_t))) {
-            fprintf(stderr, "Failed to init out points\n");
-        }
-        else {
-    
-            const int32_t num_merged = merge_aggregations(
+    scratch_buf_t out_points_scratch_buf;
+
+    /* cluster points */
+
+    if (!scratch_buf_init(&out_points_scratch_buf, 10000, sizeof (geo_input_point_t))) {
+        fprintf(stderr, "Failed to init out points\n");
+    }
+    else {
+        const int32_t num_merged = merge_aggregations(
                 indent + 1,
                 test_points,
                 num_points,
@@ -84,14 +88,13 @@ static void test(indent_t indent, const geo_clustered_point_t *const test_points
                 &out_points_scratch_buf
             );
 
-            printf("Got input counts %d\n", sum_points(test_points, num_points));
+        printf("Got input counts %d\n", sum_points(test_points, num_points));
 
-            printf("Got output counts %d\n", sum_points(
+        printf("Got output counts %d\n", sum_points(
                         out_points_scratch_buf.buf,
                         num_merged));
 
-            scratch_buf_free(&out_points_scratch_buf);
-        }
+        scratch_buf_free(&out_points_scratch_buf);
     }
 }
 

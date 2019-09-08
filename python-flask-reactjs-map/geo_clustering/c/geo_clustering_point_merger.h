@@ -12,7 +12,7 @@ int32_t merge_distances_below_max(
     uint32_t num_distances,
     float max_diameter_km,
     scratch_buf_t *out_merged_points,
-    bitmap_t out_removed_points
+    bitmap_t *out_removed_points
 );
 
 #endif
