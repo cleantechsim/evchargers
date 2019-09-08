@@ -10,7 +10,10 @@ static PyObject *merge_aggregations_wrapper(PyObject *self, PyObject *args) {
 
     float max_diameter_km;
 
-    if (!PyArg_ParseTuple(args, "Of", &list, &max_diameter_km)) {
+    const char *module_name;
+    const char *class_name;
+
+    if (!PyArg_ParseTuple(args, "ssOf", &module_name, &class_name, &list, &max_diameter_km)) {
         return NULL;
     }
 
@@ -20,15 +23,15 @@ static PyObject *merge_aggregations_wrapper(PyObject *self, PyObject *args) {
 
     PyObject *result_list;
 
-    PyObject *module_name = PyString_FromString("__main__");
+    PyObject *module_name_object = PyString_FromString(module_name);
 
-    PyObject *module = PyImport_Import(module_name);
+    PyObject *module = PyImport_Import(module_name_object);
 
-    Py_DECREF(module_name);
+    Py_DECREF(module_name_object);
 
     PyObject *module_dict = PyModule_GetDict(module);
 
-    PyObject *cls = PyDict_GetItemString(module_dict, "TestPoint");
+    PyObject *cls = PyDict_GetItemString(module_dict, class_name);
 
     if (input_points != NULL) {
 

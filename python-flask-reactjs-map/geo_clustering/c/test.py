@@ -30,7 +30,7 @@ class TestPoint:
 
 points = [TestPoint(123, 1.5, 3.5)]
 
-result = merge_aggregations(points, 2000.0)
+result = merge_aggregations('__main__', 'TestPoint', points, 2000.0)
 
 if result == None:
     print('result is None')
