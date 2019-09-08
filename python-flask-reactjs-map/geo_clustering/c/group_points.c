@@ -41,6 +41,9 @@ boolean group_points(
 
     boolean ok = TRUE;
 
+    /* we are not comparing last point to another since there are no more points in the array */
+    uint32_t to_process = num_points - 1;
+
     if (sorted_by_latitude == NULL) {
         ok = FALSE;
     }
@@ -52,7 +55,7 @@ boolean group_points(
 
         const float max_degrees = max_km / 100.0;
 
-        for (int i = 0; i < num_points; ++ i) {
+        for (int i = 0; i < to_process; ++ i) {
             const geo_clustered_point_t *point = &sorted_by_latitude[i];
 
             const float one_longitude_degree_km = haversine(
@@ -84,9 +87,11 @@ boolean group_points(
         free(sorted_by_latitude);
     }
 
-    exit(indent, "ok=%d", ok);
+    const int32_t result = ok ? to_process : -1;
 
-    return ok;
+    exit(indent, "result=%d", result);
+
+    return result;
 }
 
 static boolean add_if_close(

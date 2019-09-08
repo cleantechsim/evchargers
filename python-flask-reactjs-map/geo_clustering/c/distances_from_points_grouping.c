@@ -51,11 +51,14 @@ int make_distances_with_max(
             ok = FALSE;
         }
         else {
-            ok = group_points(indent + 1, points, num_points, grouped_points, max_km, &scratch_buf);
+            const int32_t num_groups = group_points(indent + 1, points, num_points, grouped_points, max_km, &scratch_buf);
             
-            if (ok) {
+            if (num_groups < 0) {
+                ok = FALSE;
+            }
+            else {
    
-                for (int i = 0; i < num_points; ++ i) {
+                for (int i = 0; i < num_groups; ++ i) {
 
                     const geo_clustered_point_t *outer = &points[i];
 
