@@ -27,6 +27,11 @@ static int32_t _merge_aggregations(
     /* Holds at least space for num_input_points */ 
     scratch_buf_t *const merge_points_scratch_buf);
 
+static boolean copy_points_to_scratch_buf(
+        scratch_buf_t *dst_scratch_buf,
+        const geo_clustered_point_t *const src,
+        uint32_t num_points);
+
 int32_t merge_aggregations(
     indent_t indent,
     const geo_input_point_t *const input_points,
@@ -122,7 +127,11 @@ static int32_t _merge_aggregations(
     const geo_clustered_point_t *cur_points = input_points;
     uint32_t cur_num_points = num_input_points;
 
-    boolean ok = TRUE;
+    /* Copy input to output in case of no points merged */
+    boolean ok = copy_points_to_scratch_buf(
+            out_points,
+            input_points,
+            num_input_points);
 
     enter(indent, "num_input_points=%d, max_diameter_km=%f", num_input_points, max_diameter_km);
 
@@ -179,28 +188,25 @@ static int32_t _merge_aggregations(
                      }
                 }
 
-                /* input from out_points */
+                if (ok) {
+                    /* input from out_points */
+                    if (!copy_points_to_scratch_buf(
+                                out_points,
+                                merged_points_scratch_buf->buf,
+                                num_points_in_scratch_buf)) {
 
-                for (int i = 0; i < num_points_in_scratch_buf; ++ i) {
-                    if (i == out_points->nmemb) {
-                        if (!scratch_buf_realloc(out_points)) {
-                            ok = FALSE;
-                            break;
-                        }
+                        ok = FALSE;
                     }
+                    else {
 
-                    const geo_clustered_point_t *const src = scratch_buf_at(merged_points_scratch_buf, i);
-                    geo_clustered_point_t *const dst = scratch_buf_at(out_points, i);
-               
-                    *dst = *src; 
+                        debug(indent, "Got new cur_num_points %d", num_points_in_scratch_buf);
+
+                        cur_points = out_points->buf;
+                        cur_num_points = num_points_in_scratch_buf;
+
+                        bitmap_clear(removed_points_bitmap, num_input_points);
+                    }
                 }
-
-                debug(indent, "Got new cur_num_points %d", num_points_in_scratch_buf);
-
-                cur_points = out_points->buf;
-                cur_num_points = num_points_in_scratch_buf;
-
-                bitmap_clear(removed_points_bitmap, num_input_points);
             }
         }
     }
@@ -210,4 +216,27 @@ static int32_t _merge_aggregations(
     exit(indent, "result=%d", result);
 
     return result;
+}
+
+static boolean copy_points_to_scratch_buf(
+        scratch_buf_t *dst_scratch_buf,
+        const geo_clustered_point_t *const src,
+        uint32_t num_points) {
+
+    boolean ok = TRUE;
+
+    for (int i = 0; i < num_points; ++ i) {
+        if (i == dst_scratch_buf->nmemb) {
+            if (!scratch_buf_realloc(dst_scratch_buf)) {
+                ok = FALSE;
+                break;
+            }
+        }
+
+        geo_clustered_point_t *const dst = scratch_buf_at(dst_scratch_buf, i);
+               
+        *dst = src[i];
+    }
+
+    return ok;
 }
