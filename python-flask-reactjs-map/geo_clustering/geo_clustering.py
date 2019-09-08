@@ -6,6 +6,8 @@ from geo_hash_precision_finder import GeoHashPrecisionFinder
 from geo_distances import GeoDistances
 from geo_clustering_point_merger import GeoClusteringPointMerger
 
+from c.geo_clustering_c import merge_aggregations_c
+
 from utils import enter, exit, debug
 
 import json
@@ -121,11 +123,21 @@ class GeoClustering:
         for hash in geo_hash_aggregations.keys():
             decoded_hashes[hash] = GeoHash.decode(hash)
 
+        '''
         points = GeoClustering.merge_aggregations(
             indent + 1,
             points,
             geo_bounds,
             max_diameter_km)
+
+        '''
+
+        points = merge_aggregations_c(
+            "geo_clustering.c.merged_point",
+            "MergedPoint",
+            points,
+            max_diameter_km
+        )
 
         exit(indent, 'GeoClustering.compute_clusters_with_geohash_precision', str(
             len(points)))

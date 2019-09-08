@@ -59,6 +59,7 @@ static PyObject *merge_aggregations_wrapper(PyObject *self, PyObject *args) {
             }
 
             const int32_t merged = merge_aggregations(0, input_points, len, max_diameter_km, &out_points);
+            printf("got merged %d from input %d, make points for class %p\n", merged, len, cls);
 
             if (merged >= 0) {
 
@@ -81,7 +82,7 @@ static PyObject *merge_aggregations_wrapper(PyObject *self, PyObject *args) {
                     /* Py_DECREF(params); */
 
                     if (result_point == NULL) {
-                        printf("null result point");
+                        printf("null result point\n");
                     }
 
                     PyList_Append(result_list, result_point);
@@ -109,7 +110,7 @@ static PyObject *merge_aggregations_wrapper(PyObject *self, PyObject *args) {
 }
 
 static PyMethodDef geo_clustering_methods [] = {
-    { "merge_aggregations", (PyCFunction)merge_aggregations_wrapper, METH_VARARGS, NULL },
+    { "merge_aggregations_c", (PyCFunction)merge_aggregations_wrapper, METH_VARARGS, NULL },
     { NULL, NULL, 0, NULL }
 };
 
