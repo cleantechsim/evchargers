@@ -29,7 +29,7 @@ int make_distances_with_max(
 ) {
     scratch_buf_t scratch_buf;
 
-    boolean ok;
+    boolean ok = TRUE;
 
     int num_distances = 0;
 
