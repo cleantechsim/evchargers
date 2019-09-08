@@ -1,5 +1,7 @@
-SRC := $(shell ls *.c)
+SRC := $(shell ls *.c | grep -v _test.c)
 HEADERS := $(shell ls *.h)
+
+TEST := $(shell ls *_test.c)
 
 EXE=./test
 
