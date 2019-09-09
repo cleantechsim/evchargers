@@ -62,9 +62,13 @@
                     _allMarkers,
                     _markerWidthInPixels,
                     updatedMarkers => {
-                        ongoingQuery = false;
 
                         _allMarkers = updatedMarkers;
+                    },
+
+                    // finally
+                    () => {
+                        ongoingQuery = false;
                     });
 
                 ongoingQuery = true;

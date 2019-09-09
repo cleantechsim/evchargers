@@ -1,7 +1,7 @@
 
 var _requestSequenceNo = 0;
 
-function queryClustersAndPoints(map, eventType, allMarkers, markerWidthInPixels, onupdate) {
+function queryClustersAndPoints(map, eventType, allMarkers, markerWidthInPixels, onupdate, onfinally) {
 
     const debug = false;
 
@@ -18,10 +18,10 @@ function queryClustersAndPoints(map, eventType, allMarkers, markerWidthInPixels,
         console.log('## marker width in kms ' + markerWidthKMs);
     }
 
-    _queryPoints(map, zoom, bounds, markerWidthKMs, markerWidthInPixels, ++_requestSequenceNo, onupdate, allMarkers, debug);
+    _queryPoints(map, zoom, bounds, markerWidthKMs, markerWidthInPixels, ++_requestSequenceNo, onupdate, onfinally, allMarkers, debug);
 }
 
-function _queryPoints(map, zoom, bounds, markerWidthKMs, markerWidthInPixels, sequenceNo, onupdate, allMarkers, debug) {
+function _queryPoints(map, zoom, bounds, markerWidthKMs, markerWidthInPixels, sequenceNo, onupdate, onfinally, allMarkers, debug) {
 
     swLongitude = normalizeLongitude(bounds._southWest.lng);
     neLongitude = normalizeLongitude(bounds._northEast.lng);
@@ -45,6 +45,10 @@ function _queryPoints(map, zoom, bounds, markerWidthKMs, markerWidthInPixels, se
             if (onupdate) {
                 onupdate(updatedMarkers);
             }
+        }
+    }).finally(function () {
+        if (onfinally) {
+            onfinally();
         }
     })
 }
