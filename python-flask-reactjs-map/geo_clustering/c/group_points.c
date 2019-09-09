@@ -75,7 +75,7 @@ boolean group_points(
                 point->base.geo_point.latitude, 1,
                 KILOMETERS);
 
-            debug(indent, "computing one longitude degree km from latitude %f: %f",
+            trace(indent, "computing one longitude degree km from latitude %f: %f",
                 point->base.geo_point.latitude,
                 one_longitude_degree_km);
  
@@ -149,7 +149,7 @@ static boolean add_if_close(
 
     boolean ok = TRUE;
 
-    enter(indent, "max_degrees_latitude=%f, max_km=%f, range_start=%d, range_end=%d, one_longitude_degree_km=%f",
+    trace_enter(indent, "max_degrees_latitude=%f, max_km=%f, range_start=%d, range_end=%d, one_longitude_degree_km=%f",
             max_degrees_latitude, max_km, range_start, range_end, one_longitude_degree_km);
 
     for (int j = range_start; j < range_end; ++ j) {
@@ -240,7 +240,7 @@ static boolean add_if_close(
         }
     }
 
-    exit(indent, "ok=%d", ok);
+    trace_exit(indent, "ok=%d", ok);
 
     return ok;
 }

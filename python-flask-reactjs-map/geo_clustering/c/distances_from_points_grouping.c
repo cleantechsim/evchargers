@@ -80,7 +80,7 @@ int make_distances_with_max(
                                         num_distances
                         );
 
-                        debug(indent, "at group %d (%f, %f) got %d distances from %d points",
+                        trace(indent, "at group %d (%f, %f) got %d distances from %d points",
                             i, outer->base.geo_point.latitude, outer->base.geo_point.longitude, group_distances, close_points->count);
 
                         if (group_distances < 0) {
@@ -88,7 +88,7 @@ int make_distances_with_max(
                             break;
                         }
 
-                        if (DEBUG) {
+                        if (TRACE) {
                             print_distances(indent + 1, distances_scratch_buf->buf, group_distances);
                         }
 
@@ -112,7 +112,7 @@ int make_distances_with_max(
 }
 
 static void print_grouped_points(indent_t indent, const geo_scratch_point_array_t *const groups, uint32_t num_groups) {
-#if DEBUG
+#if TRACE
     for (uint32_t i = 0; i < num_groups; ++ i) {
         const geo_scratch_point_array_t *const group = &groups[i];
 
@@ -134,7 +134,7 @@ static void print_grouped_points(indent_t indent, const geo_scratch_point_array_
 
 
 static void print_distances(indent_t indent, const geo_scratch_distance_t *const distances, uint32_t count) {
-#if DEBUG
+#if TRACE
     for (uint32_t i = 0; i < count; ++ i) {
         const geo_scratch_distance_t *const distance = &distances[i];
 

@@ -163,7 +163,7 @@ static uint32_t sum_points(const geo_clustered_point_t *points, uint32_t num_poi
     uint32_t count = 0;
 
     for (int i = 0; i < num_points; ++ i) {
-        printf("value %d\n", points[i].count);
+        // printf("value %d\n", points[i].count);
         count += points[i].count;
     }
 

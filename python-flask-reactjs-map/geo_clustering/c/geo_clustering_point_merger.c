@@ -34,7 +34,7 @@ int32_t merge_distances_below_max(
 
         const geo_scratch_distance_t *const distance = &distances[i];
 
-        debug(indent, "considering distance at index %d from (%f, %f) index %d to (%f, %f) index %d",
+        trace(indent, "considering distance at index %d from (%f, %f) index %d to (%f, %f) index %d",
                     i,
                     distance->from_point.geo_point.latitude,
                     distance->from_point.geo_point.longitude,
@@ -43,9 +43,9 @@ int32_t merge_distances_below_max(
                     distance->to_point.geo_point.longitude,
                     distance->to_point_index);
 
-        debug(indent, "bitmap initial byte is 0x%01x", UB(out_removed_points)[0]);
+        trace(indent, "bitmap initial byte is 0x%01x", UB(out_removed_points)[0]);
    
-        debug(indent, "is_set %d %d",
+        trace(indent, "is_set %d %d",
                 bitmap_is_set(out_removed_points, distance->from_point_index),
                 bitmap_is_set(out_removed_points, distance->to_point_index));
 
@@ -55,13 +55,13 @@ int32_t merge_distances_below_max(
              || bitmap_is_set(out_removed_points, distance->to_point_index)) {
 
             /* Already merged one or both points, so distance no longer usable */
-            debug_(indent, "skipping distance already set");
+            trace_(indent, "skipping distance already set");
         }
         else {
 
             /* Check that distance within max diameter, if so ignore */
             if (distance->distance > max_diameter_km) {
-                debug_(indent, "skipping distance due to outside of range");
+                trace_(indent, "skipping distance due to outside of range");
                 continue;
             }
 
@@ -123,7 +123,7 @@ static void compute_mid_point(
     const float computed_latitude = (from_latitude + to_latitude) / sum_count;
     const float computed_longitude = (from_longitude + to_longitude) / sum_count;
 
-    enter(indent, "from=(%f, %f) count %d, to=(%f, %f) count %d",
+    trace_enter(indent, "from=(%f, %f) count %d, to=(%f, %f) count %d",
             from->geo_point.latitude,
             from->geo_point.longitude,
             from->count,
@@ -131,7 +131,7 @@ static void compute_mid_point(
             to->geo_point.longitude,
             to->count);
 
-    debug(indent, "set sum count %d from %d and %d",
+    trace(indent, "set sum count %d from %d and %d",
                 sum_count,
                 from->count,
                 to->count);
@@ -140,7 +140,7 @@ static void compute_mid_point(
     dst->geo_point.latitude = computed_latitude;
     dst->geo_point.longitude = computed_longitude;
 
-    exit(indent, "dst=(%f, %f) count=%d",
+    trace_exit(indent, "dst=(%f, %f) count=%d",
         dst->geo_point.latitude,
         dst->geo_point.longitude,
         dst->count);
