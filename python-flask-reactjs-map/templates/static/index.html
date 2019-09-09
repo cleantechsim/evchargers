@@ -43,6 +43,8 @@
                 id: 'mapbox.streets',
                 accessToken: 'pk.eyJ1IjoiY2xlYW50ZWNoc2ltIiwiYSI6ImNqemgzbXFncDBxb2EzbW5yNGthbmw2eWIifQ.zVEa05l5txqao_on4IwX9A'
             }).addTo(map);
+
+            query(map, 'DOMContentLoaded');
         })
 
         var ongoingQuery = false;
