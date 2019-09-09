@@ -71,8 +71,7 @@ function computeMaxDiameterMarker(map, markerWidthInPixels, debug) {
 
 function _getMapWidthMeters(displayWidthInPixels, pixelWorldWidth, geoWidthMeters, halfWorldWidthMeters) {
     if (displayWidthInPixels > pixelWorldWidth) {
-        // Showing more than the complete world map, stop displaying clustering
-        mapWidthMeters = null;
+        mapWidthMeters = 2 * halfWorldWidthMeters;
     }
     else if (displayWidthInPixels > pixelWorldWidth / 2) {
         // When computing map width in km we have to take heed of map.distance()
