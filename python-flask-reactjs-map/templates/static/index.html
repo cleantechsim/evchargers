@@ -58,22 +58,34 @@
         function query(map, event) {
 
             if (!ongoingQuery) {
-                queryClustersAndPoints(
-                    map,
-                    event,
-                    _allMarkers,
-                    _markerWidthInPixels,
-                    updatedMarkers => {
 
-                        _allMarkers = updatedMarkers;
-                    },
-
-                    // finally
-                    () => {
-                        ongoingQuery = false;
-                    });
 
                 ongoingQuery = true;
+                ok = false;
+
+                try {
+                    queryClustersAndPoints(
+                        map,
+                        event,
+                        _allMarkers,
+                        _markerWidthInPixels,
+                        updatedMarkers => {
+
+                            _allMarkers = updatedMarkers;
+                        },
+
+                        // finally
+                        () => {
+                            ongoingQuery = false;
+                        });
+
+                    ok = true;
+                }
+                finally {
+                    if (!ok) {
+                        ongoingQuery = false;
+                    }
+                }
             }
         }
 
