@@ -75,7 +75,7 @@ function _getMapWidthMeters(displayWidthInPixels, pixelWorldWidth, geoWidthMeter
     }
     else if (displayWidthInPixels > pixelWorldWidth / 2) {
         // When computing map width in km we have to take heed of map.distance()
-        // returnning the shortest path around the globe, not across the map as it is displayed
+        // returning the shortest path around the globe, not across the map as it is displayed
         if (geoWidthMeters < halfWorldWidthMeters) {
             // Displaying more than half of world but map width less than half
             // which means distance was measured "on the other side of the globe"
