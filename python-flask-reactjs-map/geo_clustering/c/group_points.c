@@ -43,7 +43,7 @@ boolean group_points(
     boolean ok = TRUE;
 
     /* we are not comparing last point to another since there are no more points in the array */
-    uint32_t to_process = num_points - 1;
+    uint32_t to_process = num_points > 0 ? num_points - 1 : 0;
 
     /* clear for check on whether to free memory */
     for (uint32_t i = 0; i < num_points; ++ i) {
