@@ -113,3 +113,9 @@ function updateMarkerSizeOnZoom(map, allMarkers, markerWidthInPixels) {
     }
 }
 
+function removeAllMarkers(map, allMarkers) {
+
+    for (marker of Object.values(allMarkers)) {
+        marker.added.remove();
+    }
+}
