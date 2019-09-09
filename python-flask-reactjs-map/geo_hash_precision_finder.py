@@ -6,18 +6,25 @@ class GeoHashPrecisionFinder:
     @staticmethod
     def find_geohash_bits_from_width_geo_bounds_kms(geo_bounds):
 
-        mid_longitude = geo_bounds.top() - (geo_bounds.height() / 2)
+        mid_latitude = geo_bounds.top() - (geo_bounds.height() / 2)
 
         kms = haversine(
             (
+                mid_latitude,
                 geo_bounds.left(),
-                mid_longitude
             ),
             (
+                mid_latitude,
                 geo_bounds.right(),
-                mid_longitude
             )
         )
+
+        # width found as shortest path on other side of globe
+        if (geo_bounds.width() > 180):
+            half_world_width = haversine((0, -90), (0, 90))
+            updated = (2 * half_world_width) - kms
+            print('width > 180, return ' + str(updated) + ' from ' + str(kms))
+            kms = updated
 
         print('## find from kms ' + str(kms))
 
@@ -30,8 +37,7 @@ class GeoHashPrecisionFinder:
         # width_kms is width of display in kms at the mid height of the display
 
         mapping = {
-            30000: 1,  # above 30000
-            20000: 2,
+            35000: 2,  # above 35000
             10000: 3,
             1000: 4,
             250: 5,
