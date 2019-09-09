@@ -194,7 +194,7 @@ static int32_t _merge_aggregations(
                 ok = FALSE;
             }
             else if (merged_distances == 0) {
-                break;
+                done = TRUE;
             }
             else {
 
