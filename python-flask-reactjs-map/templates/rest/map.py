@@ -22,6 +22,12 @@ def init_es(elasticsearch):
     global es
     es = elasticsearch
 
+@rest_map_blueprint.route('/rest/search', methods=['GET'])
+def search():
+
+    place = request.args['place']
+
+    return es.search(place)
 
 @rest_map_blueprint.route('/rest/map', methods=['GET'])
 def get_map():

@@ -27,16 +27,48 @@ class GeoElasticSearch:
                 }
             })
 
+    def search(self, place):
+
+        es_result = self.es.search(
+            index=self.index,
+            body={
+                "query": {
+                    "multi_match": {
+                        "query": place,
+                        "fields": ["AddressInfo.Country.Title^4", "AddressInfo.StateOrProvince^3", "AddressInfo.Town^2", "AddressInfo.AddressLine1^1", "AddressInfo.Title^1"]
+                    }
+                },
+                "_source": ["location"],
+                "size": 1
+            }
+        )
+
+        result = None
+        if int(es_result['hits']['total']) > 0:
+
+            location = es_result['hits']['hits'][0]['_source']['location']
+
+            if location != '' and ',' in location:
+
+                split = location.split(',')
+
+                result = {
+                    "latitude": float(split[0]),
+                    "longitude": float(split[1])
+                }
+
+        return {} if result is None else result
+
     def upload_points(self, geo_points):
 
         es_points = ''
         for i in range(0, len(geo_points.points)):
-            es_points += '{"index":{"_id":' + \
-                str(i + 1) + ', "_type":"_doc"}}\n'
+            es_points += '{"index":{"_id":'
+            es_points += str(i + 1) + ', "_type":"_doc"}}\n'
 
             point = geo_points.points[i]
-            es_points += '{"location":"' + \
-                str(point.latitude) + ',' + str(point.longitude) + '"}\n'
+            es_points += '{"location":"' + str(point.latitude)
+            es_points += ',' + str(point.longitude) + '"}\n'
 
         print 'Add points "' + es_points + '"'
         self.es.bulk(index=self.index, body=es_points)

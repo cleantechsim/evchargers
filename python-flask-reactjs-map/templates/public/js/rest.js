@@ -1,6 +1,14 @@
 
 var _requestSequenceNo = 0;
 
+function queryPlace(place, onresult) {
+    axios.get(getPathNamePrefix() + '/rest/search?place=' + encodeURIComponent(place)
+
+    ).then(function (response) {
+        onresult(response.data);
+    })
+}
+
 function queryClustersAndPoints(map, eventType, allMarkers, markerWidthInPixels, onupdate, onfinally) {
 
     const debug = false;

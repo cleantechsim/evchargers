@@ -15,7 +15,19 @@
     <div id="main-view">
         <div id="under-construction">Under construction</div>
 
-        <div id="map"></div>
+        <div id="map-wrapper">
+            <div id="search-view">
+
+                <div id="search-input-view">
+                    <input id="search-input" type=text placeholder="Country, city or street" />
+                </div>
+
+                <div id="search-button">
+                    Search
+                </div>
+            </div>
+            <div id="map"></div>
+        </div>
     </div>
 
     <script>
@@ -47,6 +59,12 @@
             }).addTo(map);
 
             query(map, 'DOMContentLoaded');
+
+            var searchButton = document.getElementById('search-button');
+            var searchInput = document.getElementById('search-input');
+
+            searchInput.onchange = event => searchForPlace(searchInput, map);
+            searchButton.onclick = event => searchForPlace(searchInput, map);
         })
 
         var ongoingQuery = false;
@@ -55,6 +73,16 @@
             removeAllMarkers(map, _allMarkers);
 
             _allMarkers = {};
+        }
+
+        function searchForPlace(searchInput, map) {
+            if (searchInput.value) {
+                queryPlace(searchInput.value, response => {
+                    if (response.latitude && response.longitude) {
+                        map.flyTo(L.latLng(response.latitude, response.longitude), 10);
+                    }
+                })
+            }
         }
 
         function query(map, event) {
