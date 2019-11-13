@@ -12,7 +12,7 @@
 	<description>CleanTechSim EV charger statistics spring server</description>
 
 	<properties>
-        <jacksonVersion>2.9.3</jacksonVersion>
+        <jacksonVersion>2.10.1</jacksonVersion>
 		<azureStorageVersion>8.3.0</azureStorageVersion>
 	</properties>
 
