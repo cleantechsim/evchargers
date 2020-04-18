@@ -132,12 +132,12 @@ class GeoClustering:
 
         '''
 
-        points = merge_aggregations_c(
-            "geo_clustering.c.merged_point",
-            "MergedPoint",
-            points,
-            max_diameter_km
-        )
+        if len(points) > 0:
+            points = merge_aggregations_c(
+                "geo_clustering.c.merged_point",
+                "MergedPoint",
+                points,
+                max_diameter_km)
 
         exit(indent, 'GeoClustering.compute_clusters_with_geohash_precision', str(
             len(points)))
