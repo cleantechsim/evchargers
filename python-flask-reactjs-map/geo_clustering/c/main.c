@@ -6,7 +6,6 @@
 
 #include "geo_types.h"
 #include "geo_algorithm.h"
-#include "distances_from_points_grouping.h"
 
 #include "debug.h"
 
@@ -20,16 +19,12 @@ static void gen_points(geo_clustered_point_t *const dst, uint32_t num_points);
 static uint32_t sum_points(const geo_clustered_point_t *points, uint32_t num_points);
 
 static void test(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km);
-
 static void test_three_points();
 static void test_random_points();
 
 int main(int argc, char **argv){
 
-
     test_haversine();
-
-    // if (1) return 0;
 
     test_random_points();
 
@@ -65,7 +60,6 @@ static void test_random_points() {
 }
 
 static void test(indent_t indent, const geo_clustered_point_t *const test_points, uint32_t num_points, float max_diameter_km) {
-
     geo_clustered_point_t *out_points;
 
     const size_t size = BYTES(out_points, 10000);
@@ -111,7 +105,6 @@ static void gen_points(geo_clustered_point_t *const dst, uint32_t num_points) {
     srand(tv.tv_sec);
 
     for (int i = 0; i < num_points; ++ i) {
-        
         float latitude = random_0_to_1() * 180 - 90;
         float longitude = random_0_to_1() * 360 - 180;
 
@@ -130,7 +123,6 @@ static uint32_t sum_points(const geo_clustered_point_t *points, uint32_t num_poi
     uint32_t count = 0;
 
     for (int i = 0; i < num_points; ++ i) {
-        // printf("value %d\n", points[i].count);
         count += points[i].count;
     }
 
@@ -163,7 +155,6 @@ static void test_haversine() {
         KILOMETERS);
 
     printf("## 3.5 degrees height %f\n", three_degrees_height);
-
  
     const float three_degrees_width = haversine(
         0, 0,
@@ -172,4 +163,3 @@ static void test_haversine() {
 
     printf("## 3.5 degrees width %f\n", three_degrees_width);
 }
-

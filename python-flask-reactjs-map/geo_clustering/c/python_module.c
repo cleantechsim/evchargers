@@ -3,9 +3,10 @@
 #include <Python.h>
 
 #include "types.h"
+
 #include "debug.h"
+
 #include "geo_algorithm.h"
-#include "geo_clustering.h"
 
 static PyObject *merge_aggregations_wrapper(PyObject *self, PyObject *args) {
 
@@ -70,8 +71,6 @@ static PyObject *merge_aggregations_wrapper(PyObject *self, PyObject *args) {
                 max_diameter_km,
                 out_points);
 
-            printf("got merged %d from input %d, make points for class %p\n", merged, len, cls);
-
             result_list = PyList_New(0);
 
             for (uint32_t i = 0; i < merged; ++ i) {
@@ -125,6 +124,5 @@ static PyMethodDef geo_clustering_methods [] = {
 PyMODINIT_FUNC initgeo_clustering_c() {
 
     Py_InitModule3("geo_clustering_c", geo_clustering_methods, "Test method");
-
 }
 
