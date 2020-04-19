@@ -42,16 +42,16 @@ body {
 #search-view {
     position: fixed;
 
-    padding: 1.5em 3em 1.5em 3em;
+    padding: 0.75em 1em 0.75em 1em;
 
     background-color: white;
     
     border: 1px solid #DDDDDD;
     border-radius: 0.5em;
 
-    left: 50%;
-    top: 15%;
-    transform: translate(-50%, -50%);
+    left: 1.5%;
+    top: 25%;
+    /* transform: translate(-50%, -50%); */
 
     z-index: 100000;
 }
@@ -61,13 +61,12 @@ body {
 
     background-color: white;
 
-    border-radius: 0.5em;
+    border-radius: 0.25em;
     border: 1px solid #DDDDDD;
 
-    padding: 1em 1em 1em 1em;
+    padding: 0.1em 0.1em 0.1em 0.1em;
     
-    height: 1.5em;
-
+    height: 1em;
 }
 
 #search-input {
@@ -75,12 +74,11 @@ body {
     border: none;
 
     font-family: sans-serif;
-    font-size: 1em;
+    font-size: 0.85em;
 
     outline: none;
 
-    min-width: 20em;
-
+    min-width: 10em;
 }
 
 #search-button {
@@ -89,16 +87,15 @@ body {
     background-color: #00AA30;
 
     font-family: sans-serif;
-    font-size: 1.05em;
+    font-size: 0.75em;
     font-weight: 600;
 
     border: 1px solid #DDDDDD;
     border-radius: 0.5em;
 
-    padding: 1em;
+    padding: 0.5em;
 
-    height: 1.5em;
-    margin-left: 1.5em;
+    margin-left: 0.5em;
 
     user-select: none;
 }
