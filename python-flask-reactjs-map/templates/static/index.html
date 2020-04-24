@@ -42,6 +42,8 @@
 
         var _initialPathNamePrefix = null;
 
+        const debug = false;
+
         document.addEventListener('DOMContentLoaded', event => {
 
             _initialPathNamePrefix = window.location.pathname;
@@ -97,13 +99,27 @@
                 ongoingQuery = true;
                 ok = false;
 
+                var zoom = map.getZoom();
+                var bounds = map.getBounds();
+
+                if (!bounds) {
+                    throw "bounds not defined";
+                }
+
+                var markerWidthKMs = computeMaxDiameterMarker(map, _markerWidthInPixels, debug);
+
+                if (debug) {
+                    console.log('## marker width in kms ' + markerWidthKMs);
+                }
+
                 try {
                     queryClustersAndPoints(
-                        map,
                         event,
-                        _allMarkers,
-                        _markerWidthInPixels,
-                        updatedMarkers => {
+                        zoom,
+                        bounds,
+                        markerWidthKMs,
+                        markers => {
+                            updatedMarkers = updateMarkers(map, _allMarkers, markers, _markerWidthInPixels, debug);
 
                             _allMarkers = updatedMarkers;
                         },
