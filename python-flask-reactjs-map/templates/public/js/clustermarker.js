@@ -10,6 +10,28 @@ function createSVGClusterOverlay(map, latitude, longitude, count, markerWidthInP
     return overlay;
 }
 
+function createSVGClusterIcon(map, latitude, longitude, count, markerWidthInPixels) {
+
+    var div = _createSVGClusterDiv(count);
+
+    div.style.width = markerWidthInPixels;
+
+    var divIcon = L.divIcon({ html : div, className : 'svg-cluster-icon' });
+
+    return L.marker([ latitude, longitude ], { icon : divIcon })
+}
+
+function _createSVGClusterDiv(count) {
+
+    var svg = _createSVGClusterElement(count);
+    
+    var div = document.createElement('div');
+    
+    div.append(svg);
+
+    return div;
+}
+
 function _createSVGClusterElement(count) {
 
     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
