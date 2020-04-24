@@ -7,6 +7,7 @@
     <script type="text/javascript" src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <script type="text/javascript" src="{{url_prefix}}/public/js/geo_util.js"></script>
+    <script type="text/javascript" src="{{url_prefix}}/public/js/clustermarker.js"></script>
     <script type="text/javascript" src="{{url_prefix}}/public/js/markers.js"></script>
     <script type="text/javascript" src="{{url_prefix}}/public/js/rest.js"></script>
     <script type="text/javascript" src="{{url_prefix}}/public/js/restquerycaller.js"></script>
@@ -53,7 +54,7 @@
 
             var map = L.map('map').setView([51.505, -0.09], 2.2);
 
-            _markers = new Markers(map, debug);
+            _markers = new Markers(map, createSVGClusterOverlay, debug);
 
             // map.addEventListener('zoom', event => updateMarkerSizeOnZoom(map, _allMarkers, _markerWidthInPixels));
 

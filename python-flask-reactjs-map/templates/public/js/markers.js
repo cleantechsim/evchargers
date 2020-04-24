@@ -1,10 +1,11 @@
-function Markers(map, debug) {
+function Markers(map, createMarker, debug) {
 
     if (!map) {
         throw "No map"
     }
 
     this.map = map;
+    this.createMarker = createMarker;
     this.debug = debug;
     this.allMarkers = {};
 }
@@ -43,13 +44,18 @@ Markers.prototype.updateMarkers = function(markers, markerWidthInPixels) {
                 console.log('## map ' + map);
             }
 
-            // var added = L.marker([marker.latitude, marker.longitude]).addTo(map)
+            var layer = this.createMarker(
+                this.map,
+                marker.latitude, marker.longitude, marker.count,
+                markerWidthInPixels);
+            
+            layer.addTo(this.map);
 
-            var placement = findBoundingBox(this.map, marker.latitude, marker.longitude, markerWidthInPixels)
-
-            var markerData = this._createSVGMarker(placement, marker.count);
-
-            markerData.added = markerData.overlay.addTo(this.map);
+            var markerData = {
+                placement : marker,
+                count : marker.count,
+                added : layer
+            };
 
             if (this.debug) {
                 console.log('## added marker ' + markerData.added + ' at ' + JSON.stringify(markerData.placement));
