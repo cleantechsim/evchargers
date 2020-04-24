@@ -60,7 +60,7 @@
 
             // map.addEventListener('zoomend', event => queryClustersAndPoints(map, 'zoomend'));
             map.addEventListener('resize', event => query(map, 'resize'));
-            map.addEventListener('movestart', event => _markers.removeAllMarkers());
+            map.addEventListener('movestart', event => { });
             map.addEventListener('moveend', event => query(map, 'moveend'));
 
             L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
