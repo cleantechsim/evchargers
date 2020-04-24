@@ -35,13 +35,13 @@
     </div>
 
     <script>
-
-        var _allMarkers = {};
+        
+        var _markers;
 
         var _markerWidthInPixels = 50;
 
         var _initialPathNamePrefix = null;
-
+        
         const debug = false;
 
         document.addEventListener('DOMContentLoaded', event => {
@@ -50,12 +50,14 @@
 
             var map = L.map('map').setView([51.505, -0.09], 2.2);
 
+            _markers = new Markers(map, debug);
+
             // map.addEventListener('zoom', event => updateMarkerSizeOnZoom(map, _allMarkers, _markerWidthInPixels));
 
             // map.addEventListener('zoomend', event => queryClustersAndPoints(map, 'zoomend'));
             map.addEventListener('resize', event => query(map, 'resize'));
-            map.addEventListener('movestart', event => removeAll(map, 'movestart'))
-            map.addEventListener('moveend', event => query(map, 'moveend'))
+            map.addEventListener('movestart', event => _markers.removeAllMarkers());
+            map.addEventListener('moveend', event => query(map, 'moveend'));
 
             L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
                 attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -75,12 +77,6 @@
 
         var ongoingQuery = false;
 
-        function removeAll(map, event) {
-            removeAllMarkers(map, _allMarkers);
-
-            _allMarkers = {};
-        }
-
         function searchForPlace(searchInput, map) {
             if (searchInput.value) {
                 queryPlace(searchInput.value, response => {
@@ -94,7 +90,6 @@
         function query(map, event) {
 
             if (!ongoingQuery) {
-
 
                 ongoingQuery = true;
                 ok = false;
@@ -119,9 +114,7 @@
                         bounds,
                         markerWidthKMs,
                         markers => {
-                            updatedMarkers = updateMarkers(map, _allMarkers, markers, _markerWidthInPixels, debug);
-
-                            _allMarkers = updatedMarkers;
+                            _markers.updateMarkers(markers, _markerWidthInPixels);
                         },
 
                         // finally

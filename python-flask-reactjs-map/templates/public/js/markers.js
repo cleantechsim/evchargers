@@ -1,15 +1,21 @@
-
-function updateMarkers(map, allMarkers, markers, markerWidthInPixels, debug) {
+function Markers(map, debug) {
 
     if (!map) {
         throw "No map"
     }
 
-    if (debug || true) {
-        console.log('## map zoom level ' + map.getZoom());
-        console.log('## map bounds ' + JSON.stringify(map.getBounds()));
-        console.log('## pixel world bounds ' + JSON.stringify(map.getPixelWorldBounds()));
-        console.log('## size ' + JSON.stringify(map.getSize()));
+    this.map = map;
+    this.debug = debug;
+    this.allMarkers = {};
+}
+
+Markers.prototype.updateMarkers = function(markers, markerWidthInPixels) {
+
+    if (this.debug || true) {
+        console.log('## map zoom level ' + this.map.getZoom());
+        console.log('## map bounds ' + JSON.stringify(this.map.getBounds()));
+        console.log('## pixel world bounds ' + JSON.stringify(this.map.getPixelWorldBounds()));
+        console.log('## size ' + JSON.stringify(this.map.getSize()));
     }
 
     // Update current markers based on a map of latitude/Longitude/count as string
@@ -25,27 +31,27 @@ function updateMarkers(map, allMarkers, markers, markerWidthInPixels, debug) {
             throw "Multiple updates at " + key
         }
 
-        if (allMarkers[key]) {
+        if (this.allMarkers[key]) {
             // Already exists with same count so no need to update
-            updatedMarkers[key] = allMarkers[key];
+            updatedMarkers[key] = this.allMarkers[key];
         }
         else {
             // New marker, must add
 
-            if (debug) {
+            if (this.debug) {
                 console.log('## process marker ' + JSON.stringify(marker));
                 console.log('## map ' + map);
             }
 
             // var added = L.marker([marker.latitude, marker.longitude]).addTo(map)
 
-            var placement = findBoundingBox(map, marker.latitude, marker.longitude, markerWidthInPixels)
+            var placement = findBoundingBox(this.map, marker.latitude, marker.longitude, markerWidthInPixels)
 
-            var markerData = _createSVGMarker(placement, marker.count);
+            var markerData = this._createSVGMarker(placement, marker.count);
 
-            markerData.added = markerData.overlay.addTo(map);
+            markerData.added = markerData.overlay.addTo(this.map);
 
-            if (debug) {
+            if (this.debug) {
                 console.log('## added marker ' + markerData.added + ' at ' + JSON.stringify(markerData.placement));
             }
 
@@ -55,7 +61,7 @@ function updateMarkers(map, allMarkers, markers, markerWidthInPixels, debug) {
         }
     }
 
-    var existingMarkerKeys = Object.keys(allMarkers);
+    var existingMarkerKeys = Object.keys(this.allMarkers);
 
     existingMarkerKeys.forEach(existingKey => {
 
@@ -64,14 +70,14 @@ function updateMarkers(map, allMarkers, markers, markerWidthInPixels, debug) {
         }
         else {
             // Not in map, remove
-            allMarkers[existingKey].added.remove();
+            this.allMarkers[existingKey].added.remove();
         }
     })
-
-    return updatedMarkers;
+    
+    this.allMarkers = updatedMarkers;
 }
 
-function _createSVGMarker(placement, count) {
+Markers.prototype._createSVGMarker = function(placement, count) {
 
     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
@@ -97,9 +103,9 @@ function _createSVGMarker(placement, count) {
     return result;
 }
 
-function updateMarkerSizeOnZoom(map, allMarkers, markerWidthInPixels) {
+Markers.prototype.updateMarkerSizeOnZoom = function(markerWidthInPixels) {
 
-    for (key of Object.keys(allMarkers)) {
+    for (key of Object.keys(this.allMarkers)) {
         parts = key.split('_');
 
         latitude = parseFloat(parts[0]);
@@ -113,9 +119,11 @@ function updateMarkerSizeOnZoom(map, allMarkers, markerWidthInPixels) {
     }
 }
 
-function removeAllMarkers(map, allMarkers) {
+Markers.prototype.removeAllMarkers = function(map) {
 
-    for (marker of Object.values(allMarkers)) {
+    for (marker of Object.values(this.allMarkers)) {
         marker.added.remove();
     }
+
+    this.allMarkers  =  {};
 }
