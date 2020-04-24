@@ -38,7 +38,6 @@ Markers.prototype.updateMarkers = function(markers, markerWidthInPixels) {
         }
         else {
             // New marker, must add
-
             if (this.debug) {
                 console.log('## process marker ' + JSON.stringify(marker));
                 console.log('## map ' + map);
@@ -48,7 +47,7 @@ Markers.prototype.updateMarkers = function(markers, markerWidthInPixels) {
                 this.map,
                 marker.latitude, marker.longitude, marker.count,
                 markerWidthInPixels);
-            
+
             layer.addTo(this.map);
 
             var markerData = {
@@ -75,8 +74,16 @@ Markers.prototype.updateMarkers = function(markers, markerWidthInPixels) {
             // Still in map
         }
         else {
-            // Not in map, remove
-            this.allMarkers[existingKey].added.remove();
+            // Not in map, remove through animation
+
+            var layer = this.allMarkers[existingKey].added;
+            var element = layer.getElement();
+            
+            element.addEventListener('transitionend', event => {
+                layer.remove();
+            });
+            
+            element.classList.add("marker-remove-transition");
         }
     })
     

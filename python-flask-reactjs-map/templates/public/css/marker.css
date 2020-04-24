@@ -1,0 +1,16 @@
+
+.leaflet-marker-icon, .leaflet-marker-shadow {
+    animation: fadein 0.5s;
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.marker-remove-transition {
+
+    opacity: 0;
+
+    transition: opacity 0.5s ease-out;
+}
