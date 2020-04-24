@@ -9,6 +9,7 @@
     <script type="text/javascript" src="{{url_prefix}}/public/js/geo_util.js"></script>
     <script type="text/javascript" src="{{url_prefix}}/public/js/markers.js"></script>
     <script type="text/javascript" src="{{url_prefix}}/public/js/rest.js"></script>
+    <script type="text/javascript" src="{{url_prefix}}/public/js/restquerycaller.js"></script>
 </head>
 
 <body>
@@ -41,6 +42,8 @@
         var _markerWidthInPixels = 50;
 
         var _initialPathNamePrefix = null;
+
+        var _queryCaller = new RESTQueryCaller();
         
         const debug = false;
 
@@ -108,11 +111,16 @@
                 }
 
                 try {
-                    queryClustersAndPoints(
-                        event,
-                        zoom,
-                        bounds,
-                        markerWidthKMs,
+                    _queryCaller.callQuery(
+
+                        (onupdate, onfinally) => queryClustersAndPoints(
+                            event,
+                            zoom,
+                            bounds,
+                            markerWidthKMs,
+                            onupdate,
+                            onfinally),
+
                         markers => {
                             _markers.updateMarkers(markers, _markerWidthInPixels);
                         },

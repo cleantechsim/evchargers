@@ -1,6 +1,4 @@
 
-var _requestSequenceNo = 0;
-
 function queryPlace(place, onresult) {
     axios.get(getPathNamePrefix() + '/rest/search?place=' + encodeURIComponent(place)
 
@@ -21,10 +19,10 @@ function queryClustersAndPoints(eventType, zoom, bounds, markerWidthKMs, onupdat
         console.log('## marker width in kms ' + markerWidthKMs);
     }
 
-    _queryPoints(zoom, bounds, markerWidthKMs, ++_requestSequenceNo, onupdate, onfinally, debug);
+    _queryPoints(zoom, bounds, markerWidthKMs, onupdate, onfinally, debug);
 }
 
-function _queryPoints(zoom, bounds, markerWidthKMs, sequenceNo, onupdate, onfinally, debug) {
+function _queryPoints(zoom, bounds, markerWidthKMs, onupdate, onfinally, debug) {
 
     swLongitude = normalizeLongitude(bounds._southWest.lng);
     neLongitude = normalizeLongitude(bounds._northEast.lng);
@@ -38,14 +36,8 @@ function _queryPoints(zoom, bounds, markerWidthKMs, sequenceNo, onupdate, onfina
         + '&markerDiameterKM=' + markerWidthKMs
 
     ).then(function (response) {
-
-        if (sequenceNo < _requestSequenceNo) {
-            // Expired request, new ones sent
-        }
-        else {
-            if (onupdate) {
-                onupdate(response.data);
-            }
+        if (onupdate) {
+            onupdate(response.data);
         }
     }).finally(function () {
         if (onfinally) {
