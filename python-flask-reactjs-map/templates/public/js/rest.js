@@ -1,5 +1,6 @@
 
 function queryPlace(place, onresult) {
+    
     axios.get(getPathNamePrefix() + '/rest/search?place=' + encodeURIComponent(place)
 
     ).then(function (response) {
@@ -7,7 +8,7 @@ function queryPlace(place, onresult) {
     })
 }
 
-function queryClustersAndPoints(eventType, zoom, bounds, markerWidthKMs, onupdate, onfinally) {
+function queryClustersAndPoints(eventType, zoom, bounds, markerWidthKMs, onupdate) {
 
     const debug = false;
 
@@ -19,10 +20,10 @@ function queryClustersAndPoints(eventType, zoom, bounds, markerWidthKMs, onupdat
         console.log('## marker width in kms ' + markerWidthKMs);
     }
 
-    _queryPoints(zoom, bounds, markerWidthKMs, onupdate, onfinally, debug);
+    _queryPoints(zoom, bounds, markerWidthKMs, onupdate, debug);
 }
 
-function _queryPoints(zoom, bounds, markerWidthKMs, onupdate, onfinally, debug) {
+function _queryPoints(zoom, bounds, markerWidthKMs, onupdate, debug) {
 
     swLongitude = normalizeLongitude(bounds._southWest.lng);
     neLongitude = normalizeLongitude(bounds._northEast.lng);
@@ -39,10 +40,6 @@ function _queryPoints(zoom, bounds, markerWidthKMs, onupdate, onfinally, debug) 
         if (onupdate) {
             onupdate(response.data);
         }
-    }).finally(function () {
-        if (onfinally) {
-            onfinally();
-        }
-    })
+    });
 }
 

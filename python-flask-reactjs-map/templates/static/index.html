@@ -78,8 +78,6 @@
             searchButton.onclick = event => searchForPlace(searchInput, map);
         })
 
-        var ongoingQuery = false;
-
         function searchForPlace(searchInput, map) {
             if (searchInput.value) {
                 queryPlace(searchInput.value, response => {
@@ -92,52 +90,31 @@
 
         function query(map, event) {
 
-            if (!ongoingQuery) {
+            var zoom = map.getZoom();
+            var bounds = map.getBounds();
 
-                ongoingQuery = true;
-                ok = false;
-
-                var zoom = map.getZoom();
-                var bounds = map.getBounds();
-
-                if (!bounds) {
-                    throw "bounds not defined";
-                }
-
-                var markerWidthKMs = computeMaxDiameterMarker(map, _markerWidthInPixels, debug);
-
-                if (debug) {
-                    console.log('## marker width in kms ' + markerWidthKMs);
-                }
-
-                try {
-                    _queryCaller.callQuery(
-
-                        (onupdate, onfinally) => queryClustersAndPoints(
-                            event,
-                            zoom,
-                            bounds,
-                            markerWidthKMs,
-                            onupdate,
-                            onfinally),
-
-                        markers => {
-                            _markers.updateMarkers(markers, _markerWidthInPixels);
-                        },
-
-                        // finally
-                        () => {
-                            ongoingQuery = false;
-                        });
-
-                    ok = true;
-                }
-                finally {
-                    if (!ok) {
-                        ongoingQuery = false;
-                    }
-                }
+            if (!bounds) {
+                throw "bounds not defined";
             }
+
+            var markerWidthKMs = computeMaxDiameterMarker(map, _markerWidthInPixels, debug);
+
+            if (debug) {
+                console.log('## marker width in kms ' + markerWidthKMs);
+            }
+
+            _queryCaller.callQuery(
+
+                onupdate => queryClustersAndPoints(
+                    event,
+                    zoom,
+                    bounds,
+                    markerWidthKMs,
+                    onupdate),
+
+                markers => {
+                    _markers.updateMarkers(markers, _markerWidthInPixels);
+                });
         }
 
         function getPathNamePrefix() {

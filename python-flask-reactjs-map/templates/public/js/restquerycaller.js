@@ -10,12 +10,12 @@ function RESTQueryCaller() {
     this.requestSequenceNo = 0;
 }
 
-RESTQueryCaller.prototype.callQuery = function(performQuery, onresponse, onfinally) {
+RESTQueryCaller.prototype.callQuery = function(performQuery, onresponse) {
 
-    this._callQuery(performQuery, onresponse, onfinally, ++ this._requestSequenceNo);
+    this._callQuery(performQuery, onresponse, ++ this._requestSequenceNo);
 }
 
-RESTQueryCaller.prototype._callQuery = function(performQuery, onresponse, onfinally, sequenceNo) {
+RESTQueryCaller.prototype._callQuery = function(performQuery, onresponse, sequenceNo) {
 
     performQuery(
         responseData => {
@@ -27,12 +27,5 @@ RESTQueryCaller.prototype._callQuery = function(performQuery, onresponse, onfina
                     onresponse(responseData);
                 }
             }
-        },
-        () => {
-            // finally
-            if (onfinally) {
-                onfinally();
-            }
         });
-
 }
