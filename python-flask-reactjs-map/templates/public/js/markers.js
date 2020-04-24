@@ -11,7 +11,7 @@ function Markers(map, debug) {
 
 Markers.prototype.updateMarkers = function(markers, markerWidthInPixels) {
 
-    if (this.debug || true) {
+    if (this.debug) {
         console.log('## map zoom level ' + this.map.getZoom());
         console.log('## map bounds ' + JSON.stringify(this.map.getBounds()));
         console.log('## pixel world bounds ' + JSON.stringify(this.map.getPixelWorldBounds()));
