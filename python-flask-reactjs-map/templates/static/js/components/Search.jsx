@@ -1,18 +1,21 @@
 import React, { PureComponent } from 'react';
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
 
 export default class Search extends PureComponent {
     render() {
         return (
+            
             <div>
-                <div id="search-input-view">
-                    <input
-                        id="search-input"
-                        type="search"
-                        placeholder="Country, city or street"
-                        spellCheck="false"/>
+                <div id="search-input-view" className="p-float-label">
+                    <InputText id="search-input" type="search" spellCheck="false"></InputText>
+                    {/*
+                    <label htmlFor="search-input">Country, city or street</label>
+                    */}
                 </div>
 
-                <div id="search-button">Search</div>
+                <Button id="search-button" label="Search"/>
+
             </div>);
     }
 }
