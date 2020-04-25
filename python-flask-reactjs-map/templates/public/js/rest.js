@@ -1,5 +1,5 @@
 
-function queryPlace(place, onresult) {
+function queryPlaces(place, onresult) {
     
     axios.get(getPathNamePrefix() + '/rest/search?place=' + encodeURIComponent(place)
 

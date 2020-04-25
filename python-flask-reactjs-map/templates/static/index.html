@@ -76,10 +76,20 @@
         })
 
         function searchForPlace(searchInput, map) {
+
+            console.log('searchForPlace');
+
             if (searchInput.value) {
-                queryPlace(searchInput.value, response => {
-                    if (response.latitude && response.longitude) {
-                        map.flyTo(L.latLng(response.latitude, response.longitude), 10);
+
+                queryPlaces(searchInput.value, response => {
+
+                    if (response.results.length > 0) {
+
+                        var place = response.results[0];
+
+                        if (place.latitude && place.longitude) {
+                            map.flyTo(L.latLng(place.latitude, place.longitude), 10);
+                        }
                     }
                 })
             }

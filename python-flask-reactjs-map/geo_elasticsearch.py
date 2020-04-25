@@ -35,29 +35,56 @@ class GeoElasticSearch:
                 "query": {
                     "multi_match": {
                         "query": place,
-                        "fields": ["AddressInfo.Country.Title^4", "AddressInfo.StateOrProvince^3", "AddressInfo.Town^2", "AddressInfo.AddressLine1^1", "AddressInfo.Title^1"]
+                        "fields": [
+                            "AddressInfo.Country.Title^4",
+                            "AddressInfo.StateOrProvince^3",
+                            "AddressInfo.Town^2",
+                            "AddressInfo.AddressLine1^1",
+                            "AddressInfo.Title^1"
+                        ]
                     }
                 },
-                "_source": ["location"],
+                "_source": [
+                    "AddressInfo.Country.Title",
+                    "AddressInfo.StateOrProvince",
+                    "AddressInfo.Town",
+                    "AddressInfo.AddressLine1",
+                    "AddressInfo.Title",
+                    "location"
+                ],
                 "size": 1
             }
         )
 
-        result = None
+        results = []
+        
         if int(es_result['hits']['total']) > 0:
+            es_hits = es_result['hits']['hits']
 
-            location = es_result['hits']['hits'][0]['_source']['location']
+            for es_hit in es_hits:
 
-            if location != '' and ',' in location:
+                es_source = es_hit['_source']
+                location = es_source['location']
 
-                split = location.split(',')
+                if location != '' and ',' in location:
 
-                result = {
-                    "latitude": float(split[0]),
-                    "longitude": float(split[1])
-                }
+                    split = location.split(',')
+                    address_info = es_source['AddressInfo']
 
-        return {} if result is None else result
+                    result_entry = {
+                        "title" : address_info['Country']['Title'],
+                        "stateOrProvince" : address_info['StateOrProvince'],
+                        "town" : address_info['Town'],
+                        "addressLine1" : address_info['AddressLine1'],
+                        "title" : address_info['Title'],
+                        
+                        "latitude": float(split[0]),
+                        "longitude": float(split[1])
+                    }
+                    
+                    results.append(result_entry)
+
+        return { "results" : results }
 
     def upload_points(self, geo_points):
 
