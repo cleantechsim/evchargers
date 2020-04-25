@@ -168,7 +168,7 @@ class GeoPointAggregation(GeoPoint):
 
 
 class GeoHashAggregation:
-    def __init(self, hash, count):
+    def __init__(self, hash, count):
         self.hash = hash
         self.count = count
 
