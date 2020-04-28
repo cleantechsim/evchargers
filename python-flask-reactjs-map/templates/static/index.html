@@ -11,6 +11,8 @@
     <script type="text/javascript" src="{{url_prefix}}/public/js/clustermarker.js"></script>
     <script type="text/javascript" src="{{url_prefix}}/public/js/markers.js"></script>
     <script type="text/javascript" src="{{url_prefix}}/public/js/rest.js"></script>
+    <script type="text/javascript" src="{{url_prefix}}/public/js/searchservice.js"></script>
+    <script type="text/javascript" src="{{url_prefix}}/public/js/evchargermap.js"></script>
     <script type="text/javascript" src="{{url_prefix}}/public/js/restquerycaller.js"></script>
 </head>
 
@@ -19,110 +21,21 @@
         <div id="under-construction">Under construction</div>
 
         <div id="map-wrapper">
-            <div id="search-view"></div>
-            <div id="map"></div>
         </div>
     </div>
 
+    <script type="text/javascript" src="{{url_prefix}}/public/bundle.js"></script>
+
     <script>
-        
-        var _markers;
-
-        var _markerWidthInPixels = 50;
-
-        var _initialPathNamePrefix = null;
-
-        var _queryCaller = new RESTQueryCaller();
         
         const debug = false;
 
         document.addEventListener('DOMContentLoaded', event => {
 
-            _initialPathNamePrefix = window.location.pathname;
-
-            var map = L.map('map').setView([51.505, -0.09], 2.2);
-
-            _markers = new Markers(map, createSVGClusterIcon, debug);
-
-            map.addEventListener('moveend', event => query(map, 'moveend'));
-
-            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                maxZoom: 18,
-                id: 'mapbox.streets',
-                accessToken: 'pk.eyJ1IjoiY2xlYW50ZWNoc2ltIiwiYSI6ImNqemgzbXFncDBxb2EzbW5yNGthbmw2eWIifQ.zVEa05l5txqao_on4IwX9A'
-            }).addTo(map);
-
-            query(map, 'DOMContentLoaded');
-
-            var searchButton = document.getElementById('search-button');
-            var searchInput = document.getElementById('search-input');
-
-            searchInput.onchange = event => searchForPlace(searchInput, map);
-            searchButton.onclick = event => searchForPlace(searchInput, map);
+            setPathNamePrefix(window.location.pathname);
         })
 
-        function searchForPlace(searchInput, map) {
-
-            console.log('searchForPlace');
-
-            if (searchInput.value) {
-
-                queryPlaces(searchInput.value, response => {
-
-                    if (response.results.length > 0) {
-
-                        var place = response.results[0];
-
-                        if (place.latitude && place.longitude) {
-                            map.flyTo(L.latLng(place.latitude, place.longitude), 10);
-                        }
-                    }
-                })
-            }
-        }
-
-        function query(map, event) {
-
-            var zoom = map.getZoom();
-            var bounds = map.getBounds();
-
-            if (!bounds) {
-                throw "bounds not defined";
-            }
-
-            var markerWidthKMs = computeMaxDiameterMarker(map, _markerWidthInPixels, debug);
-
-            if (debug) {
-                console.log('## marker width in kms ' + markerWidthKMs);
-            }
-
-            _queryCaller.callQuery(
-
-                onupdate => queryClustersAndPoints(
-                    event,
-                    zoom,
-                    bounds,
-                    markerWidthKMs,
-                    onupdate),
-
-                markers => {
-                    _markers.updateMarkers(markers, _markerWidthInPixels);
-                });
-        }
-
-        function getPathNamePrefix() {
-            return _initialPathNamePrefix
-                && _initialPathNamePrefix.length > 0
-                && _initialPathNamePrefix !== '/'
-
-                ? _initialPathNamePrefix
-                : '';
-        }
-
     </script>
-
-    <script type="text/javascript" src="{{url_prefix}}/public/bundle.js"></script>
 </body>
 
 </html>
