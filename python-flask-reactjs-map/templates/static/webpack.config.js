@@ -46,9 +46,9 @@ const config = {
               loader: 'file-loader',
               options: {
                 name: '[path][name].[ext]',
-                outputPath: '/fonts/',
+                outputPath: '../public/fonts/',
                 // loader: 'url-loader'
-                publicPath: '/fonts'
+                publicPath: '/public/fonts'
               }
             }
           ]
