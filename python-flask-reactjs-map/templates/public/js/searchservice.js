@@ -9,7 +9,7 @@ SearchService.prototype.searchForOnePlace = function(searchText, onresult) {
         throw "Search text not defined";
     }
 
-    this._queryPlaces(searchText, response => {
+    this.searchForPlaces(searchText, response => {
 
         var place = response.results.length > 0
             ? response.results[0]
@@ -20,7 +20,7 @@ SearchService.prototype.searchForOnePlace = function(searchText, onresult) {
 }
     
 
-SearchService.prototype._queryPlaces = function(place, onresult) {
+SearchService.prototype.searchForPlaces = function(place, onresult) {
 
     axios.get(getPathNamePrefix() + '/rest/search?place=' + encodeURIComponent(place)
 

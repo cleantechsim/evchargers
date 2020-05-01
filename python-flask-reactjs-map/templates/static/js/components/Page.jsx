@@ -12,6 +12,7 @@ export class Page extends PureComponent {
         this._onMapCreated = this._onMapCreated.bind(this);
         this._onMapMoveEnd = this._onMapMoveEnd.bind(this);
         this._searchForPlaces = this._searchForPlaces.bind(this);
+        this._gotoLocation = this._gotoLocation.bind(this);
 
         this.state = {
             markerWidthInPixels  : 50,
@@ -24,7 +25,8 @@ export class Page extends PureComponent {
         return  <div>
                     <SearchView
                         searchService={this.state.searchService}
-                        onSearch={this._searchForPlaces}/>
+                        onSearch={this._searchForPlaces}
+                        onGotoLocation={this._gotoLocation}/>
                     
                     <Map
                         onCreated={this._onMapCreated}
@@ -97,5 +99,9 @@ export class Page extends PureComponent {
                 this.state.map.gotoLocation(location);
             }
         });
+    }
+
+    _gotoLocation(location) {
+        this.state.map.gotoLocation(location);
     }
 }

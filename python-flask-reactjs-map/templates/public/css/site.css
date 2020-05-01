@@ -62,24 +62,25 @@ body {
     display: inline-block;
 
     background-color: white;
-
+/*
     border-radius: 0.25em;
     border: 1px solid #DDDDDD;
 
     padding: 0.1em 0.1em 0.1em 0.1em;
+*/
     
     height: 1em;
 }
 
 #search-input {
-    
+/*    
     border: none;
 
     font-family: sans-serif;
     font-size: 0.85em;
 
     outline: none;
-
+*/
     min-width: 10em;
 }
 

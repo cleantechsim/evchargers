@@ -2,7 +2,6 @@
 from elasticsearch6 import Elasticsearch
 import json
 
-
 class GeoElasticSearch:
 
     GEO_POINTS = 'geopoints'
@@ -52,13 +51,15 @@ class GeoElasticSearch:
                     "AddressInfo.Title",
                     "location"
                 ],
-                "size": 1
+                "size": 30
             }
         )
 
         results = []
         
-        if int(es_result['hits']['total']) > 0:
+        total_hits = int(es_result['hits']['total'])
+
+        if total_hits > 0:
             es_hits = es_result['hits']['hits']
 
             for es_hit in es_hits:
@@ -72,16 +73,22 @@ class GeoElasticSearch:
                     address_info = es_source['AddressInfo']
 
                     result_entry = {
-                        "title" : address_info['Country']['Title'],
-                        "stateOrProvince" : address_info['StateOrProvince'],
-                        "town" : address_info['Town'],
-                        "addressLine1" : address_info['AddressLine1'],
+                        "country" : address_info['Country']['Title'],
                         "title" : address_info['Title'],
                         
                         "latitude": float(split[0]),
                         "longitude": float(split[1])
                     }
-                    
+
+                    if 'StateOrProvince' in address_info:
+                        result_entry["stateOrProvince"] = address_info['StateOrProvince']
+
+                    if 'Town' in address_info:
+                        result_entry["town"] = address_info['Town']
+
+                    if 'addressLine1' in address_info:
+                        result_entry["addressLine1"] = address_info['AddressLine1']
+
                     results.append(result_entry)
 
         return { "results" : results }

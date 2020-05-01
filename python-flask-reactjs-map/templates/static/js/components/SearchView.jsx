@@ -11,6 +11,7 @@ export class SearchView extends PureComponent {
             <SearchText
                 searchService={this.props.searchService}
                 onSearch={this.props.onSearch}
+                onGotoLocation={this.props.onGotoLocation}
             />
             </div>);
     }
