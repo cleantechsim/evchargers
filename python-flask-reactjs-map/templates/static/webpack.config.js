@@ -10,7 +10,7 @@ const config = {
         publicPath: resolve('../public')
     },
     resolve: {
-        extensions: ['.js','.jsx','.css']
+        extensions: ['.ts','.tsx','.js','.jsx','.css']
     },
     module: {
         rules: [
@@ -21,6 +21,16 @@ const config = {
             query:{
                 presets: ['react','es2015']
             },
+        },
+        {
+          test: /\.tsx?$/,
+          use: 'ts-loader',
+          exclude: /node_modules/,
+        },
+        {
+          enforce: "pre",
+          test: /\.js$/,
+          loader: "source-map-loader"
         },
         {
             test: /\.css$/,
