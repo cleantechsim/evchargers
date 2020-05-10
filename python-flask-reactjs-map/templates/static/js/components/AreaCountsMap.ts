@@ -1,56 +1,60 @@
+import { SearchSuggestion } from "./SearchSuggestion";
 
 export class AreaCountsMap {
 
-    constructor(areaType) {
+    private areaType: string;
+    private areaToCountMap : Map<string, SearchSuggestion[]>;
+
+    constructor(areaType: string) {
 
         this.areaType = areaType;
 
-        this.areaToCountMap = { };
+        this.areaToCountMap = new Map();
     }
 
-    makeSearchSuggestionTitle(key) {
+    makeSearchSuggestionTitle(key : string) {
 
         return key + ' (' + this.areaType + ')';
     }
 
-    addCount(key, searchText, item) {
+    addCount(key: string, searchText: string, item: SearchSuggestion) {
 
         if (!key) {
-            throw new "Key not defined";
+            throw "Key not defined";
         }
 
         const trimmedToLowerCase = key.toLowerCase().trim();
 
         if (trimmedToLowerCase.includes(searchText.toLowerCase())) {
 
-            var locations = this.areaToCountMap[trimmedToLowerCase];
+            let locations:SearchSuggestion[] = this.areaToCountMap.get(trimmedToLowerCase);
 
             if (!locations) {
                 locations = [];
 
-                this.areaToCountMap[trimmedToLowerCase] = locations;
+                this.areaToCountMap.set(trimmedToLowerCase, locations);
             }
 
             locations.push(item);
         }
     }
 
-    sortAndReturnMatches() {
+    sortAndReturnMatches(): AreaMatch[] {
 
-        var matches = [];
+        let matches: AreaMatch[] = [];
 
-        for (var key in this.areaToCountMap) {
+        for (let key of this.areaToCountMap.keys()) {
 
-            const value = {
+            const value: AreaMatch = {
                 area: key,
-                items: this.areaToCountMap[key]
+                items: this.areaToCountMap.get(key)
             };
 
             matches.push(value)
         }
 
         // Sort according to counter in descending order
-        matches.sort((value, other) => {
+        matches.sort((value: AreaMatch, other: AreaMatch) => {
 
             var result;
 
@@ -70,4 +74,10 @@ export class AreaCountsMap {
         // Which has the most matches?
         return matches;
     }
+}
+
+export class AreaMatch {
+
+    public area: string;
+    public items: SearchSuggestion[];
 }
