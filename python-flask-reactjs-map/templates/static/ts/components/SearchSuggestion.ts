@@ -1,4 +1,3 @@
-import { Location } from './Location';
 
 export class SearchSuggestion {
 

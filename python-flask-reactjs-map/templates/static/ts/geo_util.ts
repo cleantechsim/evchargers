@@ -1,11 +1,13 @@
 
-function computeMaxDiameterMarker(map, markerWidthInPixels, debug) {
+import L, { Map, LatLngBounds, Point, LatLng, Bounds } from 'leaflet';
 
-    var mapGeoBounds = map.getBounds();
-    var mapPixelBounds = map.getSize();
+export function computeMaxDiameterMarker(map: Map, markerWidthInPixels: number, debug: boolean) {
 
-    var centerLatitude = mapGeoBounds.getCenter().lat;
-    var centerLongitude = mapGeoBounds.getCenter().lng;
+    const mapGeoBounds: LatLngBounds = map.getBounds();
+    const mapPixelBounds: Point = map.getSize();
+
+    const centerLatitude: number = mapGeoBounds.getCenter().lat;
+    const centerLongitude: number = mapGeoBounds.getCenter().lng;
 
     // Find distance at middle of map
     var geoWidthMeters = map.distance(
@@ -18,7 +20,7 @@ function computeMaxDiameterMarker(map, markerWidthInPixels, debug) {
             mapGeoBounds.getEast())
     );
 
-    var halfWorldWidthMeters = map.distance(
+    const halfWorldWidthMeters: number = map.distance(
         L.latLng(0, 0),
         L.latLng(0, 180));
 
@@ -27,15 +29,15 @@ function computeMaxDiameterMarker(map, markerWidthInPixels, debug) {
         _printMapDebug(map, mapGeoBounds, centerLatitude, centerLongitude, geoWidthMeters, halfWorldWidthMeters);
     }
 
-    var pixelWorldBounds = map.getPixelWorldBounds();
-    var pixelWorldWidth = pixelWorldBounds.max.x - pixelWorldBounds.min.x;
-    var displayWidthInPixels = map.getSize().x;
+    const pixelWorldBounds: Bounds = map.getPixelWorldBounds();
+    const pixelWorldWidth: number = pixelWorldBounds.max.x - pixelWorldBounds.min.x;
+    const displayWidthInPixels: number = map.getSize().x;
 
     if (debug) {
         console.log('## display width ' + displayWidthInPixels + ', pixel width ' + pixelWorldWidth);
     }
 
-    var mapWidthMeters = _getMapWidthMeters(displayWidthInPixels, pixelWorldWidth, geoWidthMeters, halfWorldWidthMeters)
+    const mapWidthMeters: number = _getMapWidthMeters(displayWidthInPixels, pixelWorldWidth, geoWidthMeters, halfWorldWidthMeters)
 
     if (debug) {
         console.log('## map width in meters ' + mapWidthMeters);
@@ -69,7 +71,14 @@ function computeMaxDiameterMarker(map, markerWidthInPixels, debug) {
     return markerDiameterKMs;
 }
 
-function _getMapWidthMeters(displayWidthInPixels, pixelWorldWidth, geoWidthMeters, halfWorldWidthMeters) {
+function _getMapWidthMeters(
+    displayWidthInPixels: number,
+    pixelWorldWidth: number,
+    geoWidthMeters: number,
+    halfWorldWidthMeters: number) {
+    
+    let mapWidthMeters;
+
     if (displayWidthInPixels > pixelWorldWidth) {
         mapWidthMeters = 2 * halfWorldWidthMeters;
     }
@@ -96,7 +105,13 @@ function _getMapWidthMeters(displayWidthInPixels, pixelWorldWidth, geoWidthMeter
     return mapWidthMeters;
 }
 
-function _printMapDebug(map, mapGeoBounds, centerLatitude, centerLongitude, geoWidthMeters, halfWorldWidthMeters) {
+function _printMapDebug(
+    map: Map,
+    mapGeoBounds: LatLngBounds,
+    centerLatitude: number,
+    centerLongitude: number,
+    geoWidthMeters: number,
+    halfWorldWidthMeters: number) {
 
     console.log('## world width ' + (halfWorldWidthMeters * 2 / 1000));
     console.log('## center latitude ' + centerLatitude);
@@ -115,8 +130,8 @@ function _printMapDebug(map, mapGeoBounds, centerLatitude, centerLongitude, geoW
     console.log('## heigh in meters ' + geoHeightMeters + ', km ' + (geoHeightMeters / 1000))
 }
 
-function normalizeLongitude(longitude) {
-    var result;
+export function normalizeLongitude(longitude: number): number {
+    let result: number;
 
     if (longitude > 180) {
         result = 180
@@ -131,16 +146,20 @@ function normalizeLongitude(longitude) {
     return result;
 }
 
-function findBoundingBox(map, latitude, longitude, markerWidthInPixels) {
+export function findBoundingBox(
+    map: Map,
+    latitude: number,
+    longitude: number,
+    markerWidthInPixels: number) : LatLngBounds {
 
-    var latLng = L.latLng(latitude, longitude);
+    const latLng: LatLng = L.latLng(latitude, longitude);
 
-    var mapPoint = map.project(latLng, map.getZoom());
+    const mapPoint: Point = map.project(latLng, map.getZoom());
 
-    var radiusPixels = markerWidthInPixels / 2;
+    const radiusPixels: number = markerWidthInPixels / 2;
 
-    var swPoint = L.point(mapPoint.x - radiusPixels, mapPoint.y - radiusPixels);
-    var nePoint = L.point(mapPoint.x + radiusPixels, mapPoint.y + radiusPixels);
+    const swPoint: Point = L.point(mapPoint.x - radiusPixels, mapPoint.y - radiusPixels);
+    const nePoint: Point = L.point(mapPoint.x + radiusPixels, mapPoint.y + radiusPixels);
 
     return L.latLngBounds(
         map.unproject(swPoint, map.getZoom()),

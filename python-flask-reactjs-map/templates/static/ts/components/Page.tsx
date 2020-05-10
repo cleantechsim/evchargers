@@ -3,10 +3,30 @@ import React, { PureComponent } from 'react';
 
 import { SearchView } from './SearchView';
 import { Map } from  './Map';
+import { EVChargerMap } from '../evchargermap';
+import { RESTQueryCaller, PerformQuery, OnResponse } from '../restquerycaller';
+import { SearchService } from '../searchservice';
+import { Location } from '../location';
 
-export class Page extends PureComponent {
+import { queryClustersAndPoints } from '../rest';
+import { Markers, MarkerPos } from '../markers';
+
+export class PageProps {
+    debug: boolean;
+}
+
+class PageState {
+
+    searchService: SearchService;
+    markerWidthInPixels: number;
+    map: EVChargerMap;
+    queryCaller: any;
+    markers: any;
+}
+
+export class Page extends PureComponent<PageProps, PageState> {
     
-    constructor(props) {
+    constructor(props: PageProps) {
         super(props);
         
         this._onMapCreated = this._onMapCreated.bind(this);
@@ -16,7 +36,10 @@ export class Page extends PureComponent {
 
         this.state = {
             markerWidthInPixels  : 50,
-            searchService : new SearchService()
+            searchService : new SearchService(),
+            map: null,
+            queryCaller: null,
+            markers: null
         };
     }
 
@@ -36,7 +59,7 @@ export class Page extends PureComponent {
                 
     }
 
-    _onMapCreated(map) {
+    private _onMapCreated(map: EVChargerMap) {
         
         const queryCaller = new RESTQueryCaller();
         const markers = map.createMarkers(this.props.debug);
@@ -53,20 +76,20 @@ export class Page extends PureComponent {
         this._queryMap(map, queryCaller, markers, 'created');
     }
 
-    _onMapMoveEnd() {
+    private _onMapMoveEnd() {
         this._query('moveend')
     }
 
-    _query(event) {
+    private _query(event: string) {
     
         this._queryMap(this.state.map, this.state.queryCaller, this.state.markers, event);
     }
 
-    _queryMap(
-        map,
-        queryCaller,
-        markersObj,
-        event) {
+    private _queryMap(
+        map: EVChargerMap,
+        queryCaller: RESTQueryCaller,
+        markersObj: Markers,
+        event: string) {
 
         const zoom = map.getZoom();
         const bounds = map.getBounds();
@@ -76,22 +99,22 @@ export class Page extends PureComponent {
         if (this.props.debug) {
             console.log('## marker width in kms ' + markerWidthKMs);
         }
+        
+        let performQuery: PerformQuery = (onupdate: OnResponse) => queryClustersAndPoints(
+            'didMount',
+            zoom,
+            bounds,
+            markerWidthKMs,
+            onupdate);
     
         queryCaller.callQuery(
-    
-            onupdate => queryClustersAndPoints(
-                'didMount',
-                zoom,
-                bounds,
-                markerWidthKMs,
-                onupdate),
-    
-            markers => {
+            performQuery,
+            (markers: MarkerPos[]) => {
                 markersObj.updateMarkers(markers, this.state.markerWidthInPixels);
             });
     }
 
-    _searchForPlaces(text) {
+    private _searchForPlaces(text: string) {
 
         this.state.searchService.searchForOnePlace(text, location => {
             
@@ -101,7 +124,7 @@ export class Page extends PureComponent {
         });
     }
 
-    _gotoLocation(location) {
+    private _gotoLocation(location: Location) {
         this.state.map.gotoLocation(location);
     }
 }

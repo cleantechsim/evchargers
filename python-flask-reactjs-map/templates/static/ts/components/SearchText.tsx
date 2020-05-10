@@ -8,14 +8,15 @@ import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { SearchSuggestion } from './SearchSuggestion';
-import { Location } from './Location';
-import { SearchResult } from './SearchResult';
+import { Location } from '../location';
+import { SearchResult } from '../searchresult';
+import { SearchService } from '../searchservice';
 
 export class SearchTextProps {
 
-    searchService: any;
-    onSearch: any;
-    onGotoLocation: any;
+    searchService: SearchService;
+    onSearch: (text: string) => void;
+    onGotoLocation: (location: Location) => void;
 }
 
 type SearchTextValue = string | SearchSuggestion;

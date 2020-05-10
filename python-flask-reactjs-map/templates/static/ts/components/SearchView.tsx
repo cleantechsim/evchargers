@@ -2,8 +2,18 @@
 
 import React, { PureComponent } from 'react';
 import { SearchText } from './SearchText';
+import { SearchService } from '../searchservice';
+import { Location } from '../location';
 
-export class SearchView extends PureComponent {
+export class SearchViewProps {
+    
+    searchService: SearchService;
+    onSearch: (text: string) => void;
+    onGotoLocation: (location: Location) => void;
+}
+
+
+export class SearchView extends PureComponent<SearchViewProps> {
 
     render() {
 

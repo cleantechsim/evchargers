@@ -1,11 +1,10 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Page } from './components/Page';
+import { Page } from '../ts/components/Page';
 import routes from './routes';
+import { SearchService } from '../ts/searchservice';
 
-
-const searchService = new SearchService();
 
 const element = <Page debug={false}/>
 
