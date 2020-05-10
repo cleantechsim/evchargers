@@ -2,7 +2,6 @@
 
 from geo_hash import GeoHash
 from geo_types import GeoPoint, GeoBounds
-from geo_hash_precision_finder import GeoHashPrecisionFinder
 
 from c.geo_clustering_c import merge_aggregations_c
 
@@ -44,34 +43,17 @@ class _SearchResultClusteringPoint:  # (_ClusteringPoint):
 
 class GeoClustering:
 
-    def __init__(self, es):
-        self.es = es
-
-    def compute_clusters(self, indent, max_diameter_km, geo_sw_ne):
-
-        enter(indent, 'GeoClustering.compute_clusters', '')
+    def compute_clusters(self, indent, geo_sw_ne, max_diameter_km, geo_hash_aggregations):
 
         geo_bounds = geo_sw_ne.to_geo_bounds()
 
-        cur_geohash_precision = GeoHashPrecisionFinder.find_geohash_bits_from_width_geo_bounds_kms(
-            geo_bounds
-        )
-
-        '''
-        cur_geohash_precision = GeoHashPrecisionFinder.find_geohash_precision_from_width_degrees(
-            geo_bounds.width(),
-            10
-        )
-        '''
-
-        debug(indent, 'get_map_params', 'got precision ' + str(cur_geohash_precision) +
-              ' for ' + str(geo_bounds.width))
+        enter(indent, 'GeoClustering.compute_clusters', '')
 
         result = self.compute_clusters_with_geohash_precision(
             indent + 1,
-            cur_geohash_precision,
             max_diameter_km,
-            geo_sw_ne.to_geo_bounds())
+            geo_sw_ne.to_geo_bounds(),
+            geo_hash_aggregations)
 
         exit(indent, 'GeoClustering.compute_clusters', '')
 
@@ -94,17 +76,14 @@ class GeoClustering:
     def compute_clusters_with_geohash_precision(
             self,
             indent,
-            cur_geohash_precision,
             max_diameter_km,
-            geo_bounds):
+            geo_bounds,
+            geo_hash_aggregations):
 
         enter(indent, 'GeoClustering.compute_clusters_with_geohash_precision', '')
 
         # Get data from ES at more precise level but still aggregated
         # so that are fewer points to get distance between
-
-        geo_hash_aggregations = self.es.aggregate_points_with_filter(
-            cur_geohash_precision, geo_bounds)
 
         debug(indent, 'GeoClustering.compute_clusters_with_geohash_precision', 'geo hash aggregations returned from ElasticSearch ' +
               str(len(geo_hash_aggregations)))

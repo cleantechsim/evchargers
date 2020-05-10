@@ -9,9 +9,10 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { SearchSuggestion } from './SearchSuggestion';
 import { Location } from '../location';
-import { SearchResult } from '../searchresult';
+import { SearchResult } from '../dtos/searchresult';
 import { SearchService } from '../searchservice';
 import { Bounds } from '../bounds';
+
 
 export class SearchTextProps {
 

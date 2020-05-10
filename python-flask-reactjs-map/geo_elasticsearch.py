@@ -125,12 +125,20 @@ class GeoElasticSearch:
 
         buckets = result['aggregations']['large-grid']['buckets']
 
-        print('Got buckets ' +
-              str(len(buckets)))
-
         return buckets
 
-    def aggregate_points_with_filter(self, precision, geo_bounds):
+    def aggregate_search_with_filter(self, precision, geo_bounds, operators):
+        
+        if (operators and len(operators) > 0):
+
+            operators_filter = {
+                "terms" : {
+                    "OperatorID" : operators
+                }
+            }
+        else:
+            operators_filter = { "match_all" : { } }
+
         result = self.es.search(
             index=self.index,
             body={
@@ -146,10 +154,24 @@ class GeoElasticSearch:
                         },
                         "aggregations": {
                             "zoom1": {
-                                "geohash_grid": {
-                                    "field": self.field,
-                                    "precision": precision
+                                "filter" : operators_filter,
+                                "aggregations" : {
+                                    "geohash_entry" : {
+                                        "geohash_grid": {
+                                            "field": self.field,
+                                            "precision": precision
+                                        }
+                                    }
                                 }
+                            },
+                            "operators" : {
+                                "terms": {
+                                    "field": "OperatorID",
+                                    "size": 50
+                                }
+                            },
+                            "missing_operators" : {
+                                "missing" : { "field" : "OperatorID" }
                             }
                         }
                     }
@@ -157,11 +179,16 @@ class GeoElasticSearch:
             },
             params={"size": 0})
 
-        # print('## got result ' + json.dumps(result))
+        geo_hash_to_count = GeoElasticSearch._get_geo_hash_to_count(result)
+        operator_to_count = GeoElasticSearch._operator_to_count(result)
 
-        buckets = result['aggregations']['zoomed-in']['zoom1']['buckets']
+        return AggregateResult(geo_hash_to_count, operator_to_count)
 
-        # print('Got buckets ' + str(len(buckets)))
+    
+    @staticmethod
+    def _get_geo_hash_to_count(result):
+        buckets = result['aggregations']['zoomed-in']['zoom1']['geohash_entry']['buckets']
+
         result = {}
 
         for bucket in buckets:
@@ -172,6 +199,39 @@ class GeoElasticSearch:
 
         return result
 
+    @staticmethod
+    def _operator_to_count(es_result):
+        buckets = es_result['aggregations']['zoomed-in']['operators']['buckets']
+
+        result = []
+
+        for bucket in buckets:
+            operator_id = bucket['key']
+            count = bucket['doc_count']
+
+            result.append({
+                "id" : operator_id,
+                "count": count
+            })
+
+        missing = es_result['aggregations']['zoomed-in']['missing_operators']
+        
+        count = int(missing['doc_count'])
+
+        if count > 0:
+            result.append({
+                "count": count
+            })
+
+        return result
+
+
+class AggregateResult:
+    def __init__(self, geo_hash_to_count, operator_to_count):
+
+        self.geo_hash_to_count = geo_hash_to_count
+        self.operator_to_count = operator_to_count
+        
 
 '''
     def upload_points(self, geo_points):

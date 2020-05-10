@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 
-import { SearchResult } from './searchresult';
+import { SearchResult } from './dtos/searchresult';
 
 declare function getPathNamePrefix() : void;
 

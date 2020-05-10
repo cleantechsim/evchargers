@@ -1,12 +1,7 @@
 
 import L, { Layer } from 'leaflet';
 import { findBoundingBox } from './geo_util';
-
-export class MarkerPos {
-    latitude: number;
-    longitude: number;
-    count: number;
-}
+import { MarkerPos } from './dtos/clusterssresult'
 
 class MarkerState {
 

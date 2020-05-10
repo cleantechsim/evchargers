@@ -6,17 +6,19 @@ from geo_hash import GeoHash
 from geo_clustering.geo_clustering import GeoClustering
 
 from geo_elasticsearch import GeoElasticSearch
+from geo_hash_precision_finder import GeoHashPrecisionFinder
 
 import sys
 
 import json
+
+import requests
 
 from utils import enter, exit, debug
 
 rest_map_blueprint = Blueprint('rest_map', __name__)
 
 es = None
-
 
 def init_es(elasticsearch):
     global es
@@ -40,6 +42,11 @@ def get_map():
     neLongitude = float(request.args['neLongitude'])
     markerDiameterKM = float(request.args['markerDiameterKM'])
 
+    if request.args.has_key('operators'):
+        operators = request.args['operators'].split(",")
+    else:
+        operators = []
+
     '''
     print('get_map(swLatitude=' + str(swLatitude) + ', swLongitude=' + str(swLongitude) +
           ', neLatitude=' + str(neLatitude) + ', neLongitude=' + str(neLongitude) +
@@ -49,28 +56,39 @@ def get_map():
     geo_sw_ne = GeoSwNe(swLatitude, swLongitude, neLatitude,
                         neLongitude)
 
-    result = get_map_params(indent + 1, geo_sw_ne, markerDiameterKM)
+    result = get_map_params(indent + 1, geo_sw_ne, markerDiameterKM, operators)
 
     exit(indent, 'get_map', '')
 
     return result
 
-
-def get_map_params(indent, geo_sw_ne, markerDiameterKM):
+def get_map_params(indent, geo_sw_ne, marker_diameter_km, operators):
 
     enter(indent, 'get_map_params', '')
 
+    geo_bounds = geo_sw_ne.to_geo_bounds()
+
+    cur_geohash_precision = GeoHashPrecisionFinder.find_geohash_bits_from_width_geo_bounds_kms(
+        geo_bounds
+    )
+
+    debug(indent, 'get_map_params', 'got precision ' + str(cur_geohash_precision) +
+            ' for ' + str(geo_bounds.width))
+
+    es_result = es.aggregate_search_with_filter(cur_geohash_precision, geo_bounds, operators)
+
     # Aggregate all points
-    geo_clustering = GeoClustering(es)
+    geo_clustering = GeoClustering()
 
     points = geo_clustering.compute_clusters(
         indent + 1,
-        markerDiameterKM,
-        geo_sw_ne)
+        geo_sw_ne,
+        marker_diameter_km,
+        es_result.geo_hash_to_count)
 
     debug(indent, 'get_map_params', 'after clustering call')
 
-    result = []
+    result_points = []
 
     if points == None:
         debug(indent, 'get_map_params', 'no results for bounds')
@@ -87,12 +105,25 @@ def get_map_params(indent, geo_sw_ne, markerDiameterKM):
                 "count": point.count
             }
 
-            result.append(item)
+            result_points.append(item)
 
-    exit(indent, 'get_map_params', str(len(result)))
+    result = {
+        "points": result_points,
+        "operators": es_result.operator_to_count
+    }
+
+    exit(indent, 'get_map_params', str(len(result_points)))
 
     return jsonify(result)
 
+@rest_map_blueprint.route('/rest/reference_data', methods=['GET'])
+def get_reference_data():
+
+    url = 'https://api.openchargemap.io/v3/referencedata/'
+
+    response = requests.get(url)
+
+    return response.content
 
 if __name__ == '__main__':
     get_map_params(
