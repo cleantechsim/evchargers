@@ -6,6 +6,7 @@ import { Location } from './location';
 import { computeMaxDiameterMarker } from './geo_util';
 
 import { createSVGClusterIcon } from './clustermarker';
+import { Bounds } from './bounds';
 
 export class EVChargerMap {
 
@@ -34,6 +35,16 @@ export class EVChargerMap {
 
         if (location.latitude && location.longitude) {
             this.leafletMap.flyTo(L.latLng(location.latitude, location.longitude), 10);
+        }
+    }
+
+    public gotoBounds(bounds: Bounds) {
+
+        if (bounds.southWest && bounds.northEast) {
+            this.leafletMap.flyToBounds(
+                L.latLngBounds(
+                    L.latLng(bounds.southWest.latitude, bounds.southWest.longitude),
+                    L.latLng(bounds.northEast.latitude, bounds.northEast.longitude)));
         }
     }
 

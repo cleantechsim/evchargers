@@ -2,7 +2,7 @@ import { SearchSuggestion } from "./SearchSuggestion";
 
 export class AreaCountsMap {
 
-    private areaType: string;
+    public areaType: string;
     private areaToCountMap : Map<string, SearchSuggestion[]>;
 
     constructor(areaType: string) {
@@ -14,7 +14,30 @@ export class AreaCountsMap {
 
     makeSearchSuggestionTitle(key : string) {
 
-        return key + ' (' + this.areaType + ')';
+        // Capitalize suggestion title
+        let split: string[] = key.split(/\s+/);
+
+        let title: string = '';
+
+        for (let i = 0; i < split.length; ++ i) {
+            
+            if (title.length > 0) {
+                title += ' ';
+            }
+
+            const part = split[i].trim();
+            
+            if (part.length > 0) {
+                
+                title += part.charAt(0).toUpperCase();
+
+                if (part.length > 1) {
+                    title += part.substr(1);
+                }
+            }
+        }
+
+        return title + ' (' + this.areaType + ')';
     }
 
     addCount(key: string, searchText: string, item: SearchSuggestion) {

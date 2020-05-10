@@ -10,6 +10,7 @@ import { Location } from '../location';
 
 import { queryClustersAndPoints } from '../rest';
 import { Markers, MarkerPos } from '../markers';
+import { Bounds } from '../bounds';
 
 export class PageProps {
     debug: boolean;
@@ -33,6 +34,7 @@ export class Page extends PureComponent<PageProps, PageState> {
         this._onMapMoveEnd = this._onMapMoveEnd.bind(this);
         this._searchForPlaces = this._searchForPlaces.bind(this);
         this._gotoLocation = this._gotoLocation.bind(this);
+        this._gotoBounds = this._gotoBounds.bind(this);
 
         this.state = {
             markerWidthInPixels  : 50,
@@ -49,7 +51,8 @@ export class Page extends PureComponent<PageProps, PageState> {
                     <SearchView
                         searchService={this.state.searchService}
                         onSearch={this._searchForPlaces}
-                        onGotoLocation={this._gotoLocation}/>
+                        onGotoLocation={this._gotoLocation}
+                        onGotoBounds={this._gotoBounds}/>
                     
                     <Map
                         onCreated={this._onMapCreated}
@@ -126,5 +129,9 @@ export class Page extends PureComponent<PageProps, PageState> {
 
     private _gotoLocation(location: Location) {
         this.state.map.gotoLocation(location);
+    }
+
+    private _gotoBounds(bounds: Bounds) {
+        this.state.map.gotoBounds(bounds);
     }
 }

@@ -11,12 +11,14 @@ import { SearchSuggestion } from './SearchSuggestion';
 import { Location } from '../location';
 import { SearchResult } from '../searchresult';
 import { SearchService } from '../searchservice';
+import { Bounds } from '../bounds';
 
 export class SearchTextProps {
 
     searchService: SearchService;
     onSearch: (text: string) => void;
     onGotoLocation: (location: Location) => void;
+    onGotoBounds: (bounds: Bounds) => void;
 }
 
 type SearchTextValue = string | SearchSuggestion;
@@ -40,12 +42,14 @@ export class SearchText extends PureComponent<SearchTextProps, SearchTextState> 
 
     private onSearchTextChanged : (text: string) => void;
     private onSearchClicked : () => void;
+    private onSearchSuggestionSelected : (suggestion: SearchSuggestion) => void;
 
     constructor(props: SearchTextProps) {
         super(props);
         
         this.onSearchTextChanged = this._onSearchTextChanged.bind(this);
         this.onSearchClicked = this._onSearchClicked.bind(this);
+        this.onSearchSuggestionSelected = this._onSearchSuggestionSelected.bind(this);
         
         this.state = {
             searchValue : "",
@@ -59,23 +63,31 @@ export class SearchText extends PureComponent<SearchTextProps, SearchTextState> 
 
             const suggestions = this.makeSearchSuggestions(response.results, text);
 
-            this.setState({...this.state, suggestions: suggestions });
+            this.setState(state => ({...state, suggestions: suggestions }));
         });
 
         this.setState(state => ({
+            ...state,
             searchValue : text
         }));
     }
 
     private _onSearchClicked() {
 
-        const value = this.state.searchValue;
+        const value: SearchTextValue = this.state.searchValue;
 
         if (typeof value === 'string') {
             this.props.onSearch(value);
         }
-        else {
-            this.props.onGotoLocation({ latitude : value.latitude, longitude : value.longitude });
+    }
+
+    private _onSearchSuggestionSelected(suggestion: SearchSuggestion) {
+
+        if (suggestion.location) {
+            this.props.onGotoLocation(suggestion.location);
+        }
+        else if (suggestion.bounds) {
+            this.props.onGotoBounds(suggestion.bounds);
         }
     }
 
@@ -97,8 +109,11 @@ export class SearchText extends PureComponent<SearchTextProps, SearchTextState> 
             
             const suggestion: SearchSuggestion = new SearchSuggestion(
                 result.title,
-                result.latitude,
-                result.longitude);
+                {
+                    latitude: result.latitude,
+                    longitude: result.longitude
+                },
+                null);
 
             searchSuggestions.push(suggestion);
         }
@@ -119,15 +134,27 @@ export class SearchText extends PureComponent<SearchTextProps, SearchTextState> 
             // More than 3 matches for the same item?
             if (firstMatch.items.length > 3) {
 
-                const midPoint = this.findGeoMidpoint(firstMatch.items);
+                let suggestion: SearchSuggestion;
 
-                const suggestion: SearchSuggestion = new SearchSuggestion(
-                            areaMap.makeSearchSuggestionTitle(firstMatch.area),
-                            midPoint.latitude,
-                            midPoint.longitude);
+                const title: string = areaMap.makeSearchSuggestionTitle(firstMatch.area);
+
+                if (areaMap.areaType.toLowerCase() === 'street') {
+
+                    const midPoint: Location = this.findGeoMidpoint(firstMatch.items);
+
+                    suggestion = new SearchSuggestion(title, midPoint, null);
+                }
+                else {
+                    // country, state or town
+                    const bounds: Bounds = this.findBounds(firstMatch.items);
+
+                    suggestion = new SearchSuggestion(title, null, bounds);
+                }
                 
                 // 3 in same area, likely a search match
-                searchSuggestions.push(suggestion);
+                if (suggestion) {
+                    searchSuggestions.push(suggestion);
+                }
             }
         }
     }
@@ -141,8 +168,8 @@ export class SearchText extends PureComponent<SearchTextProps, SearchTextState> 
 
             const item = items[i];
 
-            latitude += item.latitude;
-            longitude += item.longitude;
+            latitude += item.location.latitude;
+            longitude += item.location.longitude;
         }
 
         latitude /= items.length;
@@ -154,6 +181,47 @@ export class SearchText extends PureComponent<SearchTextProps, SearchTextState> 
         };
     }
 
+    private findBounds(items: SearchSuggestion[]) : Bounds {
+
+        let southWest: Location = {
+            latitude: 90,
+            longitude: 180
+        };
+
+        let northEast: Location = {
+            latitude: -90,
+            longitude: -180
+        };
+
+        for (var i = 0; i < items.length; ++ i) {
+
+            const item = items[i];
+
+            const latitude: number = item.location.latitude;
+            const longitude: number= item.location.longitude;
+
+            if (latitude < southWest.latitude) {
+                southWest.latitude = latitude;
+            }
+            
+            if (latitude > northEast.latitude) {
+                northEast.latitude = latitude;
+            }
+
+            if (longitude < southWest.longitude) {
+                southWest.longitude = longitude;
+            }
+            
+            if (longitude > northEast.longitude) {
+                northEast.longitude = longitude;
+            }
+        }
+
+        return {
+            southWest : southWest,
+            northEast : northEast
+        };
+    }
     
     private sortAreasByField(results: SearchResult[], searchText: string) : AreaMaps{
 
@@ -171,25 +239,39 @@ export class SearchText extends PureComponent<SearchTextProps, SearchTextState> 
         for (var i = 0; i < results.length; ++ i) {
 
             const result: SearchResult = results[i];
+
+            const suggestion: SearchSuggestion = this.toSuggestion(result);
             
             if (result.country) {
-                all.countries.addCount(result.country, searchText, result);
+                all.countries.addCount(result.country, searchText, suggestion);
             }
 
             if (result.stateOrProvince) {
-                all.stateOrProvinces.addCount(result.stateOrProvince, searchText, result);
+                all.stateOrProvinces.addCount(result.stateOrProvince, searchText, suggestion);
             }
 
             if (result.town) {
-               all.towns.addCount(result.town, searchText, result);
+               all.towns.addCount(result.town, searchText, suggestion);
             }
 
             if (result.addressLine1) {
-                all.streets.addCount(result.addressLine1, searchText, result);
+                all.streets.addCount(result.addressLine1, searchText, suggestion);
             }
         }
 
         return all;
+    }
+
+    private toSuggestion(result: SearchResult) : SearchSuggestion {
+
+        return new SearchSuggestion(
+            result.title,
+            {
+                latitude: result.latitude,
+                longitude: result.longitude
+            },
+            null);
+
     }
 
 
@@ -204,17 +286,17 @@ export class SearchText extends PureComponent<SearchTextProps, SearchTextState> 
                         placeholder="Country, town or street"
                         field="title"
                         suggestions={this.state.suggestions}
-                        onKeyUp={ (e: any) => { if (e.key == 'Enter') { e.target.blur(); this._onSearchClicked() } }}
-                        onChange={ (e: any) => this.setState({searchValue: e.value}) }
-                        onSelect={ (e: any) => this._onSearchClicked() }
-                        completeMethod={(e: any) => this._onSearchTextChanged(e.query)}
+                        onKeyUp={ (e: any) => { if (e.key == 'Enter') { e.target.blur(); this.onSearchClicked() } }}
+                        onChange={ (e: any) => this.setState(state => ({...state, searchValue: e.value})) }
+                        onSelect={ (e: any) => this.onSearchSuggestionSelected(e.value)}
+                        completeMethod={(e: any) => this.onSearchTextChanged(e.query)}
                         />
                 </div>
 
                 <Button
                     id="search-button"
                     label="Search"
-                    onClick={ this._onSearchClicked }/>
+                    onClick={ this.onSearchClicked }/>
 
             </div>);
     }

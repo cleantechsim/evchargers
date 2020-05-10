@@ -1,13 +1,15 @@
+import { Bounds } from "../bounds";
+import { Location } from "../location";
 
 export class SearchSuggestion {
 
     public title: string;
-    public latitude: number;
-    public longitude: number;
-    
-    constructor(title: string, latitude: number, longitude: number) {
+    public location: Location;
+    public bounds: Bounds;
+
+    constructor(title: string, location: Location, bounds: Bounds) {
         this.title = title;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.location = location;
+        this.bounds = bounds;
     }
 }
