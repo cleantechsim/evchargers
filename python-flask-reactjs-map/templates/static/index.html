@@ -16,18 +16,14 @@
         </div>
     </div>
 
-    <script type="text/javascript" src="{{url_prefix}}/public/bundle.js"></script>
-
     <script>
-        
-        const debug = false;
 
-        document.addEventListener('DOMContentLoaded', event => {
-
-            setPathNamePrefix(window.location.pathname);
-        })
+        /* Store path prefix so can adjust URLs in REST calls */
+        setPathNamePrefix(window.location.pathname);
 
     </script>
+
+    <script type="text/javascript" src="{{url_prefix}}/public/bundle.js"></script>
 </body>
 
 </html>
