@@ -1,4 +1,4 @@
-import { Output, EventEmitter } from '@angular/core';
+import { Output, EventEmitter, Directive } from '@angular/core';
 
 import { Arrays } from './arrays.util';
 
@@ -19,6 +19,7 @@ export class ServerCountries {
     }
 }
 
+@Directive()
 export abstract class BaseByCountryAndYearGraphComponent {
 
     static MAX_COUNTRIES = 1;
