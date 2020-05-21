@@ -26,19 +26,19 @@ export class EVChargerMap {
         }).addTo(this.leafletMap);
     }
 
-    public createMarkers(debug: boolean) {
+    public createMarkers(debug: boolean): Markers {
         
         return new Markers(this.leafletMap, createSVGClusterIcon, debug);
     }
 
-    public gotoLocation(location: Location) {
+    public gotoLocation(location: Location): void {
 
         if (location.latitude && location.longitude) {
             this.leafletMap.flyTo(L.latLng(location.latitude, location.longitude), 10);
         }
     }
 
-    public gotoBounds(bounds: Bounds) {
+    public gotoBounds(bounds: Bounds): void {
 
         if (bounds.southWest && bounds.northEast) {
             this.leafletMap.flyToBounds(
@@ -48,15 +48,15 @@ export class EVChargerMap {
         }
     }
 
-    public getZoom() {
+    public getZoom(): number {
         return this.leafletMap.getZoom();
     }
 
-    public getBounds() {
+    public getBounds(): Location {
         return this.leafletMap.getBounds();
     }
 
-    public computeMaxDiameterMarker(markerWidthInPixels: number, debug: boolean) {
+    public computeMaxDiameterMarker(markerWidthInPixels: number, debug: boolean): number {
         return computeMaxDiameterMarker(this.leafletMap, markerWidthInPixels, debug); 
     }
 }
