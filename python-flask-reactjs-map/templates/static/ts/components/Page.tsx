@@ -15,6 +15,7 @@ import { Bounds } from '../bounds';
 import { NamedOperator } from '../facetinfo';
 import { ReferenceData } from '../dtos/referencedata';
 import { getReferenceData } from '../rest';
+import { Range } from '../range';
 
 export class PageProps {
     debug: boolean;
@@ -29,10 +30,14 @@ class PageState {
     markers: any;
     allVisibleOperators: NamedOperator[];
     selectedOperators: NamedOperator[];
+    kwRange: Range;
+    kwMinMax: Range;
     referenceData: ReferenceData;
 }
 
 export class Page extends PureComponent<PageProps, PageState> {
+
+    private static MAX_KW = 1000;
     
     constructor(props: PageProps) {
         super(props);
@@ -44,8 +49,14 @@ export class Page extends PureComponent<PageProps, PageState> {
         this._gotoBounds = this._gotoBounds.bind(this);
 
         this._updateOnOperatorSelected = this._updateOnOperatorSelected.bind(this);
-        this._processOperatorsResponse = this._processOperatorsResponse.bind(this);
+        this._processQueryResponse = this._processQueryResponse.bind(this);
+        this._updateOnKwRangeSelected = this._updateOnKwRangeSelected.bind(this);
 
+        const kwMinMax = {
+            min: 0,
+            max: Page.MAX_KW
+        };
+        
         this.state = {
             markerWidthInPixels  : 50,
             searchService : new SearchService(),
@@ -54,6 +65,8 @@ export class Page extends PureComponent<PageProps, PageState> {
             markers: null,
             allVisibleOperators: [],
             selectedOperators: null,
+            kwRange: kwMinMax,
+            kwMinMax: kwMinMax,
             referenceData: null
         };
     }
@@ -64,10 +77,12 @@ export class Page extends PureComponent<PageProps, PageState> {
                     <SearchView
                         searchService={this.state.searchService}
                         allVisibleOperators={this.state.allVisibleOperators}
+                        kwMinMax={this.state.kwMinMax}
                         onSearch={this._searchForPlaces}
                         onGotoLocation={this._gotoLocation}
                         onGotoBounds={this._gotoBounds}
-                        onOperatorSelected={this._updateOnOperatorSelected}/>
+                        onOperatorSelected={this._updateOnOperatorSelected}
+                        onKwRangeSelected={this._updateOnKwRangeSelected}/>
                     
                     <ChargerMap
                         onCreated={this._onMapCreated}
@@ -92,7 +107,7 @@ export class Page extends PureComponent<PageProps, PageState> {
             map: map
         }));
 
-        this._queryMap(map, queryCaller, markers, this.state.selectedOperators, 'created');
+        this._queryMap(map, queryCaller, markers, this.state.selectedOperators, this.state.kwRange, 'created');
     }
 
     private _onMapMoveEnd() {
@@ -106,6 +121,7 @@ export class Page extends PureComponent<PageProps, PageState> {
             this.state.queryCaller,
             this.state.markers,
             this.state.selectedOperators,
+            this.state.kwRange,
             event);
     }
 
@@ -116,6 +132,18 @@ export class Page extends PureComponent<PageProps, PageState> {
             this.state.queryCaller,
             this.state.markers,
             operators,
+            this.state.kwRange,
+            event);
+    }
+
+    private _queryKwRange(event: string, kwRange: Range) {
+    
+        this._queryMap(
+            this.state.map,
+            this.state.queryCaller,
+            this.state.markers,
+            this.state.selectedOperators,
+            kwRange,
             event);
     }
 
@@ -124,6 +152,7 @@ export class Page extends PureComponent<PageProps, PageState> {
         queryCaller: RESTQueryCaller,
         markersObj: Markers,
         operators: NamedOperator[],
+        kwRange: Range,
         event: string) {
 
         const zoom = map.getZoom();
@@ -143,14 +172,16 @@ export class Page extends PureComponent<PageProps, PageState> {
             bounds,
             markerWidthKMs,
             operators,
+            kwRange,
             onupdate);
     
         queryCaller.callQuery(
             performQuery,
             (result: ClustersResult) => {
+
                 markersObj.updateMarkers(result.points, this.state.markerWidthInPixels);
 
-                this._processOperatorsResponse(result.operators, createdOrMovedEvent);
+                this._processQueryResponse(result.operators, result.kw_min_max, createdOrMovedEvent);
             });
     }
 
@@ -179,7 +210,10 @@ export class Page extends PureComponent<PageProps, PageState> {
         this._queryOperators('operatorSelected', operators);
     }
 
-    private _processOperatorsResponse(operatorsMap: Operator[], shouldUpdateAllVisible: boolean) {
+    private _processQueryResponse(
+        operatorsMap: Operator[],
+        kwMinMax: Range,
+        shouldUpdateAllVisible: boolean) {
 
         if (!this.state.referenceData) {
             this._queryReferenceData(referenceData => {
@@ -189,7 +223,16 @@ export class Page extends PureComponent<PageProps, PageState> {
         }
         else {
             this._mapAndUpdateOperators(operatorsMap, this.state.referenceData, shouldUpdateAllVisible);
-        }        
+        }
+
+        if (kwMinMax) {
+
+            if (kwMinMax.max > Page.MAX_KW) {
+                kwMinMax.max = Page.MAX_KW;
+            }
+            
+            this.setState(state => ({...state, kwMinMax: kwMinMax}));
+        }
     }
 
     private _mapAndUpdateOperators(operatorsMap: Operator[], referenceData: ReferenceData, shouldUpdateAllVisible: boolean): void {
@@ -246,5 +289,12 @@ export class Page extends PureComponent<PageProps, PageState> {
         }
 
         return found;
+    }
+
+    private _updateOnKwRangeSelected(kwRange: Range) {
+
+        this.setState(state => ({...state, kwRange: kwRange}));
+
+        this._queryKwRange('kwRangeSelected', kwRange);
     }
 }

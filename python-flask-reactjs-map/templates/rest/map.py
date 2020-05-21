@@ -8,13 +8,15 @@ from geo_clustering.geo_clustering import GeoClustering
 from geo_elasticsearch import GeoElasticSearch
 from geo_hash_precision_finder import GeoHashPrecisionFinder
 
+from utils import enter, exit, debug
+from range import Range
+
 import sys
 
 import json
 
 import requests
 
-from utils import enter, exit, debug
 
 rest_map_blueprint = Blueprint('rest_map', __name__)
 
@@ -47,6 +49,21 @@ def get_map():
     else:
         operators = []
 
+    if request.args.has_key('minKw'):
+        min_kw = float(request.args['minKw'])
+    else:
+        min_kw = -1
+    if request.args.has_key('maxKw'):
+
+        max_kw = float(request.args['maxKw'])
+    else:
+        max_kw = -1
+
+    if min_kw >= 0 and max_kw >= 0:
+        kw_range = Range(min_kw, max_kw)
+    else:
+        kw_range = None
+
     '''
     print('get_map(swLatitude=' + str(swLatitude) + ', swLongitude=' + str(swLongitude) +
           ', neLatitude=' + str(neLatitude) + ', neLongitude=' + str(neLongitude) +
@@ -56,13 +73,13 @@ def get_map():
     geo_sw_ne = GeoSwNe(swLatitude, swLongitude, neLatitude,
                         neLongitude)
 
-    result = get_map_params(indent + 1, geo_sw_ne, markerDiameterKM, operators)
+    result = get_map_params(indent + 1, geo_sw_ne, markerDiameterKM, operators, kw_range)
 
     exit(indent, 'get_map', '')
 
     return result
 
-def get_map_params(indent, geo_sw_ne, marker_diameter_km, operators):
+def get_map_params(indent, geo_sw_ne, marker_diameter_km, operators, kw_range):
 
     enter(indent, 'get_map_params', '')
 
@@ -75,7 +92,7 @@ def get_map_params(indent, geo_sw_ne, marker_diameter_km, operators):
     debug(indent, 'get_map_params', 'got precision ' + str(cur_geohash_precision) +
             ' for ' + str(geo_bounds.width))
 
-    es_result = es.aggregate_search_with_filter(cur_geohash_precision, geo_bounds, operators)
+    es_result = es.aggregate_search_with_filter(cur_geohash_precision, geo_bounds, operators, kw_range)
 
     # Aggregate all points
     geo_clustering = GeoClustering()
@@ -109,7 +126,11 @@ def get_map_params(indent, geo_sw_ne, marker_diameter_km, operators):
 
     result = {
         "points": result_points,
-        "operators": es_result.operator_to_count
+        "operators": es_result.operator_to_count,
+        "kw_min_max": {
+            "min": es_result.kw_min_max.min,
+            "max": es_result.kw_min_max.max
+        }
     }
 
     exit(indent, 'get_map_params', str(len(result_points)))

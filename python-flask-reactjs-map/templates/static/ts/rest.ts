@@ -9,6 +9,7 @@ import { ReferenceData } from './dtos/referencedata';
 import { NamedOperator } from './facetinfo';
 import { Operator } from './dtos/clusterssresult';
 import { Bounds } from './bounds';
+import { Range } from './range';
 
 export function queryClustersAndPoints(
     eventType: string,
@@ -16,6 +17,7 @@ export function queryClustersAndPoints(
     bounds: Bounds,
     markerWidthKMs: number,
     operators: Operator[],
+    kwRange: Range,
     onupdate: (data: any) => void) {
 
     const debug: boolean = false;
@@ -24,7 +26,7 @@ export function queryClustersAndPoints(
         console.log('## marker width in kms ' + markerWidthKMs);
     }
 
-    _queryPoints(zoom, bounds, markerWidthKMs, operators, onupdate, debug);
+    _queryPoints(zoom, bounds, markerWidthKMs, operators, kwRange, onupdate, debug);
 }
 
 export function getReferenceData(onresponse: (referenceData: ReferenceData) => void) {
@@ -46,6 +48,7 @@ function _queryPoints(
     bounds: Bounds,
     markerWidthKMs: number,
     operators: Operator[],
+    kwRange: Range,
     onupdate: (data: any) => void,
     debug: boolean) {
 
@@ -70,6 +73,11 @@ function _queryPoints(
 
             queryParams += operators[i].id;
         }
+    }
+    
+    if (kwRange) {
+        queryParams += '&minKw=' + kwRange.min;
+        queryParams += '&maxKw=' + kwRange.max;
     }
 
     axios.get(getPathNamePrefix() + '/rest/map' + queryParams)

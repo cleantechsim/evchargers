@@ -1,9 +1,11 @@
+import { Range } from "../range";
 
 
 export class ClustersResult {
 
     points: MarkerPos[];
     operators: Operator[];
+    kw_min_max: Range;    
 }
 
 export class Operator {

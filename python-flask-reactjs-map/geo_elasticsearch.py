@@ -2,6 +2,8 @@
 from elasticsearch6 import Elasticsearch
 import json
 
+from range import Range
+
 class GeoElasticSearch:
 
     GEO_POINTS = 'geopoints'
@@ -127,17 +129,51 @@ class GeoElasticSearch:
 
         return buckets
 
-    def aggregate_search_with_filter(self, precision, geo_bounds, operators):
+    def aggregate_search_with_filter(self, precision, geo_bounds, operators, kw_range):
         
-        if (operators and len(operators) > 0):
+        filters = []
+
+        if operators and len(operators) > 0:
 
             operators_filter = {
                 "terms" : {
                     "OperatorID" : operators
                 }
             }
-        else:
-            operators_filter = { "match_all" : { } }
+
+            filters.append(operators_filter)
+
+        
+        if kw_range:
+
+            kw_range_filter = {
+                "range" : {
+                    "Connections.PowerKW" : { "gte" : kw_range.min, "lte" : kw_range.max }
+                }
+            }
+
+            filters.append(kw_range_filter)
+
+
+        num_filters = len(filters)
+
+        if num_filters == 0:
+            geo_hash_filter = { "match_all" }
+
+        elif num_filters == 1:
+            geo_hash_filter = filters[0]
+
+        elif num_filters > 1:
+
+            geo_hash_filter = {
+                "bool" : {
+                    "must" : []
+                }
+            }
+
+            for filter in filters:
+                geo_hash_filter['bool']['must'].append(filter)
+
 
         result = self.es.search(
             index=self.index,
@@ -154,7 +190,7 @@ class GeoElasticSearch:
                         },
                         "aggregations": {
                             "zoom1": {
-                                "filter" : operators_filter,
+                                "filter" : geo_hash_filter,
                                 "aggregations" : {
                                     "geohash_entry" : {
                                         "geohash_grid": {
@@ -170,8 +206,22 @@ class GeoElasticSearch:
                                     "size": 50
                                 }
                             },
-                            "missing_operators" : {
+                            "missing-operators" : {
                                 "missing" : { "field" : "OperatorID" }
+                            },
+                            "power-kw-min" : {
+                                "min" : { "field" : "Connections.PowerKW" }
+                            },
+                            "power-kw-max" : {
+                                # Filter out nonsense values, so highest max below 1000KW
+                                "filter" : {
+                                    "range" : { "Connections.PowerKW" : { "lte" : 1000 } }
+                                },
+                                "aggregations" : {
+                                    "power-kw-max-filtered" : {
+                                        "max" : { "field" : "Connections.PowerKW" }
+                                    }
+                                }
                             }
                         }
                     }
@@ -182,7 +232,13 @@ class GeoElasticSearch:
         geo_hash_to_count = GeoElasticSearch._get_geo_hash_to_count(result)
         operator_to_count = GeoElasticSearch._operator_to_count(result)
 
-        return AggregateResult(geo_hash_to_count, operator_to_count)
+        kw_min = result['aggregations']['zoomed-in']['power-kw-min']['value']
+        kw_max = result['aggregations']['zoomed-in']['power-kw-max']['power-kw-max-filtered']['value']
+
+        return AggregateResult(
+            geo_hash_to_count,
+            operator_to_count,
+            Range(kw_min, kw_max))
 
     
     @staticmethod
@@ -214,7 +270,7 @@ class GeoElasticSearch:
                 "count": count
             })
 
-        missing = es_result['aggregations']['zoomed-in']['missing_operators']
+        missing = es_result['aggregations']['zoomed-in']['missing-operators']
         
         count = int(missing['doc_count'])
 
@@ -227,10 +283,11 @@ class GeoElasticSearch:
 
 
 class AggregateResult:
-    def __init__(self, geo_hash_to_count, operator_to_count):
+    def __init__(self, geo_hash_to_count, operator_to_count, kw_min_max):
 
         self.geo_hash_to_count = geo_hash_to_count
         self.operator_to_count = operator_to_count
+        self.kw_min_max = kw_min_max
         
 
 '''
