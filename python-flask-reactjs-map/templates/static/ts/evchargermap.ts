@@ -1,5 +1,5 @@
 
-import L, { Map } from 'leaflet';
+import L, { Map, LatLngBounds } from 'leaflet';
 import { Markers } from './markers';
 import { Location } from './location';
 
@@ -52,8 +52,16 @@ export class EVChargerMap {
         return this.leafletMap.getZoom();
     }
 
-    public getBounds(): Location {
-        return this.leafletMap.getBounds();
+    public getBounds(): Bounds {
+
+        let lfBounds: LatLngBounds = this.leafletMap.getBounds();
+
+        let bounds: Bounds = new Bounds(
+            new Location(lfBounds.getSouthWest().lat, lfBounds.getSouthWest().lng),
+            new Location(lfBounds.getNorthEast().lat, lfBounds.getNorthEast().lng)
+        );
+        
+        return bounds;
     }
 
     public computeMaxDiameterMarker(markerWidthInPixels: number, debug: boolean): number {

@@ -8,11 +8,12 @@ import { LatLngBounds } from 'leaflet';
 import { ReferenceData } from './dtos/referencedata';
 import { NamedOperator } from './facetinfo';
 import { Operator } from './dtos/clusterssresult';
+import { Bounds } from './bounds';
 
 export function queryClustersAndPoints(
     eventType: string,
     zoom: number,
-    bounds: LatLngBounds,
+    bounds: Bounds,
     markerWidthKMs: number,
     operators: Operator[],
     onupdate: (data: any) => void) {
@@ -42,19 +43,19 @@ declare function getPathNamePrefix() : void;
 
 function _queryPoints(
     zoom: number,
-    bounds: LatLngBounds,
+    bounds: Bounds,
     markerWidthKMs: number,
     operators: Operator[],
     onupdate: (data: any) => void,
     debug: boolean) {
 
-    let swLongitude: number = normalizeLongitude(bounds.getSouthWest().lng);
-    let neLongitude: number = normalizeLongitude(bounds.getNorthEast().lng);
+    let swLongitude: number = normalizeLongitude(bounds.southWest.longitude);
+    let neLongitude: number = normalizeLongitude(bounds.northEast.longitude);
 
     let queryParams = '?zoom=' + zoom
-                + '&swLatitude=' + bounds.getSouthWest().lat
+                + '&swLatitude=' + bounds.southWest.latitude
                 + '&swLongitude=' + swLongitude
-                + '&neLatitude=' + bounds.getNorthEast().lat
+                + '&neLatitude=' + bounds.northEast.latitude
                 + '&neLongitude=' + neLongitude
                 + '&markerDiameterKM=' + markerWidthKMs;
 

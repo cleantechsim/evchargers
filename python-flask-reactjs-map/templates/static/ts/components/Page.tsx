@@ -127,7 +127,7 @@ export class Page extends PureComponent<PageProps, PageState> {
         event: string) {
 
         const zoom = map.getZoom();
-        const bounds = map.getBounds();
+        const bounds: Bounds = map.getBounds();
     
         const markerWidthKMs = map.computeMaxDiameterMarker(this.state.markerWidthInPixels,
                                                             this.props.debug);
