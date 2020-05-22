@@ -131,7 +131,9 @@ class GeoElasticSearch:
 
     def aggregate_search_with_filter(self, precision, geo_bounds, operators, kw_range):
         
-        filters = []
+        geo_hash_filters = []
+        operators_filters = []
+        kw_range_filters = []
 
         if operators and len(operators) > 0:
 
@@ -141,7 +143,8 @@ class GeoElasticSearch:
                 }
             }
 
-            filters.append(operators_filter)
+            geo_hash_filters.append(operators_filter)
+            kw_range_filters.append(operators_filter)
 
         
         if kw_range:
@@ -152,28 +155,15 @@ class GeoElasticSearch:
                 }
             }
 
-            filters.append(kw_range_filter)
+            geo_hash_filters.append(kw_range_filter)
+            operators_filters.append(kw_range_filter)
 
+        # Filter out nonsense values, so highest max below 1000KW
+        kw_range_filters.append({ "range" : { "Connections.PowerKW" : { "lte" : 1000 } } })
 
-        num_filters = len(filters)
-
-        if num_filters == 0:
-            geo_hash_filter = { "match_all" }
-
-        elif num_filters == 1:
-            geo_hash_filter = filters[0]
-
-        elif num_filters > 1:
-
-            geo_hash_filter = {
-                "bool" : {
-                    "must" : []
-                }
-            }
-
-            for filter in filters:
-                geo_hash_filter['bool']['must'].append(filter)
-
+        geo_hash_filter        = GeoElasticSearch._get_filter_from_list(geo_hash_filters)
+        operator_values_filter = GeoElasticSearch._get_filter_from_list(operators_filters)
+        kw_range_values_filter = GeoElasticSearch._get_filter_from_list(kw_range_filters)
 
         result = self.es.search(
             index=self.index,
@@ -201,22 +191,29 @@ class GeoElasticSearch:
                                 }
                             },
                             "operators" : {
-                                "terms": {
-                                    "field": "OperatorID",
-                                    "size": 50
+                                "filter" : operator_values_filter,
+                                "aggregations" : {
+                                    "operators-filtered" : {
+                                        "terms": {
+                                            "field": "OperatorID",
+                                            "size": 50
+                                        }
+                                    }
                                 }
                             },
                             "missing-operators" : {
                                 "missing" : { "field" : "OperatorID" }
                             },
                             "power-kw-min" : {
-                                "min" : { "field" : "Connections.PowerKW" }
+                                "filter" : kw_range_values_filter,
+                                "aggregations" : {
+                                    "power-kw-min-filtered" : {
+                                        "min" : { "field" : "Connections.PowerKW" }
+                                    }
+                                }
                             },
                             "power-kw-max" : {
-                                # Filter out nonsense values, so highest max below 1000KW
-                                "filter" : {
-                                    "range" : { "Connections.PowerKW" : { "lte" : 1000 } }
-                                },
+                                "filter" : kw_range_values_filter,
                                 "aggregations" : {
                                     "power-kw-max-filtered" : {
                                         "max" : { "field" : "Connections.PowerKW" }
@@ -232,13 +229,37 @@ class GeoElasticSearch:
         geo_hash_to_count = GeoElasticSearch._get_geo_hash_to_count(result)
         operator_to_count = GeoElasticSearch._operator_to_count(result)
 
-        kw_min = result['aggregations']['zoomed-in']['power-kw-min']['value']
+        kw_min = result['aggregations']['zoomed-in']['power-kw-min']['power-kw-min-filtered']['value']
         kw_max = result['aggregations']['zoomed-in']['power-kw-max']['power-kw-max-filtered']['value']
 
         return AggregateResult(
             geo_hash_to_count,
             operator_to_count,
             Range(kw_min, kw_max))
+
+    @staticmethod
+    def _get_filter_from_list(filters):
+        num_filters = len(filters)
+        
+        if num_filters == 0:
+            result_filter = { "match_all" }
+
+        elif num_filters == 1:
+            result_filter = filters[0]
+
+        elif num_filters > 1:
+
+            result_filter = {
+                "bool" : {
+                    "must" : []
+                }
+            }
+
+            for filter in filters:
+                result_filter['bool']['must'].append(filter)
+
+        return result_filter
+
 
     
     @staticmethod
@@ -257,7 +278,7 @@ class GeoElasticSearch:
 
     @staticmethod
     def _operator_to_count(es_result):
-        buckets = es_result['aggregations']['zoomed-in']['operators']['buckets']
+        buckets = es_result['aggregations']['zoomed-in']['operators']['operators-filtered']['buckets']
 
         result = []
 

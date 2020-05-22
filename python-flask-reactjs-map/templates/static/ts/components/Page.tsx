@@ -164,8 +164,6 @@ export class Page extends PureComponent<PageProps, PageState> {
             console.log('## marker width in kms ' + markerWidthKMs);
         }
 
-        let createdOrMovedEvent: boolean = event === 'created' || event === 'moveend';
-        
         let performQuery: PerformQuery = (onupdate: OnResponse) => queryClustersAndPoints(
             'didMount',
             zoom,
@@ -181,7 +179,7 @@ export class Page extends PureComponent<PageProps, PageState> {
 
                 markersObj.updateMarkers(result.points, this.state.markerWidthInPixels);
 
-                this._processQueryResponse(result.operators, result.kw_min_max, createdOrMovedEvent);
+                this._processQueryResponse(result.operators, result.kw_min_max);
             });
     }
 
@@ -210,19 +208,16 @@ export class Page extends PureComponent<PageProps, PageState> {
         this._queryOperators('operatorSelected', operators);
     }
 
-    private _processQueryResponse(
-        operatorsMap: Operator[],
-        kwMinMax: Range,
-        shouldUpdateAllVisible: boolean) {
+    private _processQueryResponse(operatorsMap: Operator[], kwMinMax: Range) {
 
         if (!this.state.referenceData) {
             this._queryReferenceData(referenceData => {
                 
-                this._mapAndUpdateOperators(operatorsMap, referenceData, shouldUpdateAllVisible);
+                this._mapAndUpdateOperators(operatorsMap, referenceData);
             });
         }
         else {
-            this._mapAndUpdateOperators(operatorsMap, this.state.referenceData, shouldUpdateAllVisible);
+            this._mapAndUpdateOperators(operatorsMap, this.state.referenceData);
         }
 
         if (kwMinMax) {
@@ -235,11 +230,9 @@ export class Page extends PureComponent<PageProps, PageState> {
         }
     }
 
-    private _mapAndUpdateOperators(operatorsMap: Operator[], referenceData: ReferenceData, shouldUpdateAllVisible: boolean): void {
+    private _mapAndUpdateOperators(operatorsMap: Operator[], referenceData: ReferenceData): void {
 
-        if (shouldUpdateAllVisible) {
-            this.setState(state => ({...state, allVisibleOperators: Page._mapOperators(operatorsMap, referenceData)}))
-        }
+        this.setState(state => ({...state, allVisibleOperators: Page._mapOperators(operatorsMap, referenceData)}))
     }
 
     private _queryReferenceData(onResponse: (referenceData: ReferenceData) => void): void {
