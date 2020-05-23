@@ -3,11 +3,8 @@ import axios from 'axios';
 
 import {normalizeLongitude} from './geo_util';
 
-import { LatLngBounds } from 'leaflet';
-
 import { ReferenceData } from './dtos/referencedata';
-import { NamedOperator } from './facetinfo';
-import { Operator } from './dtos/clusterssresult';
+import { Operator, ConnectionType } from './dtos/clusterssresult';
 import { Bounds } from './bounds';
 import { Range } from './range';
 
@@ -17,6 +14,7 @@ export function queryClustersAndPoints(
     bounds: Bounds,
     markerWidthKMs: number,
     operators: Operator[],
+    connectionTypes: ConnectionType[],
     kwRange: Range,
     onupdate: (data: any) => void) {
 
@@ -26,7 +24,7 @@ export function queryClustersAndPoints(
         console.log('## marker width in kms ' + markerWidthKMs);
     }
 
-    _queryPoints(zoom, bounds, markerWidthKMs, operators, kwRange, onupdate, debug);
+    _queryPoints(zoom, bounds, markerWidthKMs, operators, connectionTypes, kwRange, onupdate, debug);
 }
 
 export function getReferenceData(onresponse: (referenceData: ReferenceData) => void) {
@@ -48,6 +46,7 @@ function _queryPoints(
     bounds: Bounds,
     markerWidthKMs: number,
     operators: Operator[],
+    connectionTypes: ConnectionType[],
     kwRange: Range,
     onupdate: (data: any) => void,
     debug: boolean) {
@@ -62,23 +61,14 @@ function _queryPoints(
                 + '&neLongitude=' + neLongitude
                 + '&markerDiameterKM=' + markerWidthKMs;
 
-    if (operators && operators.length > 0) {
-        queryParams += '&operators=';
-        
-        for (let i = 0; i < operators.length; ++ i) {
-
-            if (i > 0) {
-                queryParams += ',';
-            }
-
-            queryParams += operators[i].id;
-        }
-    }
+    queryParams = _addParamValues(queryParams, 'operators', operators, op => op.id);
     
     if (kwRange) {
         queryParams += '&minKw=' + kwRange.min;
         queryParams += '&maxKw=' + kwRange.max;
     }
+
+    queryParams = _addParamValues(queryParams, 'connectionTypes', connectionTypes, ct => ct.id);
 
     axios.get(getPathNamePrefix() + '/rest/map' + queryParams)
     
@@ -87,5 +77,23 @@ function _queryPoints(
             onupdate(response.data);
         }
     });
+}
+
+function _addParamValues<T, V>(queryParams: string, paramName: string, elements: T[], getValue: (element: T) => V) {
+
+    if (elements && elements.length > 0) {
+        queryParams += '&' + paramName + '=';
+        
+        for (let i = 0; i < elements.length; ++ i) {
+
+            if (i > 0) {
+                queryParams += ',';
+            }
+
+            queryParams += getValue(elements[i]);
+        }
+    }
+
+    return queryParams;
 }
 

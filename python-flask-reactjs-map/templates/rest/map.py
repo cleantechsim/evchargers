@@ -64,6 +64,11 @@ def get_map():
     else:
         kw_range = None
 
+    if request.args.has_key('connectionTypes'):
+        connection_types = request.args['connectionTypes'].split(",")
+    else:
+        connection_types = []
+
     '''
     print('get_map(swLatitude=' + str(swLatitude) + ', swLongitude=' + str(swLongitude) +
           ', neLatitude=' + str(neLatitude) + ', neLongitude=' + str(neLongitude) +
@@ -73,13 +78,13 @@ def get_map():
     geo_sw_ne = GeoSwNe(swLatitude, swLongitude, neLatitude,
                         neLongitude)
 
-    result = get_map_params(indent + 1, geo_sw_ne, markerDiameterKM, operators, kw_range)
+    result = get_map_params(indent + 1, geo_sw_ne, markerDiameterKM, operators, kw_range, connection_types)
 
     exit(indent, 'get_map', '')
 
     return result
 
-def get_map_params(indent, geo_sw_ne, marker_diameter_km, operators, kw_range):
+def get_map_params(indent, geo_sw_ne, marker_diameter_km, operators, kw_range, connection_types):
 
     enter(indent, 'get_map_params', '')
 
@@ -92,7 +97,7 @@ def get_map_params(indent, geo_sw_ne, marker_diameter_km, operators, kw_range):
     debug(indent, 'get_map_params', 'got precision ' + str(cur_geohash_precision) +
             ' for ' + str(geo_bounds.width))
 
-    es_result = es.aggregate_search_with_filter(cur_geohash_precision, geo_bounds, operators, kw_range)
+    es_result = es.aggregate_search_with_filter(cur_geohash_precision, geo_bounds, operators, kw_range, connection_types)
 
     # Aggregate all points
     geo_clustering = GeoClustering()
@@ -130,7 +135,8 @@ def get_map_params(indent, geo_sw_ne, marker_diameter_km, operators, kw_range):
         "kw_min_max": {
             "min": es_result.kw_min_max.min,
             "max": es_result.kw_min_max.max
-        }
+        },
+        "connection_types": es_result.connection_type_to_count
     }
 
     exit(indent, 'get_map_params', str(len(result_points)))

@@ -5,11 +5,17 @@ export class ClustersResult {
 
     points: MarkerPos[];
     operators: Operator[];
-    kw_min_max: Range;    
+    connection_types: ConnectionType[];
+    kw_min_max: Range;
 }
 
 export class Operator {
-    id: string;
+    id: number;
+    count: number;
+}
+
+export class ConnectionType {
+    id: number;
     count: number;
 }
 

@@ -1,13 +1,12 @@
 
-import { Operator } from './dtos/clusterssresult';
+import { Operator, ConnectionType } from './dtos/clusterssresult';
 
 export class NamedOperator extends Operator {
 
     name: string;
 }
 
-export class ConnectorType {
+export class NamedConnectionType extends ConnectionType {
     
-    id: number;
     name: string;
 }

@@ -129,14 +129,14 @@ class GeoElasticSearch:
 
         return buckets
 
-    def aggregate_search_with_filter(self, precision, geo_bounds, operators, kw_range):
+    def aggregate_search_with_filter(self, precision, geo_bounds, operators, kw_range, connection_types):
         
         geo_hash_filters = []
         operators_filters = []
         kw_range_filters = []
+        connection_types_filters = []
 
         if operators and len(operators) > 0:
-
             operators_filter = {
                 "terms" : {
                     "OperatorID" : operators
@@ -145,10 +145,9 @@ class GeoElasticSearch:
 
             geo_hash_filters.append(operators_filter)
             kw_range_filters.append(operators_filter)
+            connection_types_filters.append(operators_filter)
 
-        
         if kw_range:
-
             kw_range_filter = {
                 "range" : {
                     "Connections.PowerKW" : { "gte" : kw_range.min, "lte" : kw_range.max }
@@ -157,6 +156,18 @@ class GeoElasticSearch:
 
             geo_hash_filters.append(kw_range_filter)
             operators_filters.append(kw_range_filter)
+            connection_types_filters.append(kw_range_filter)
+
+        if connection_types and len(connection_types) > 0:
+            connection_types_filter = {
+                "terms" : {
+                    "Connections.ConnectionTypeID" : connection_types
+                }
+            }
+
+            operators_filters.append(connection_types_filter)
+            geo_hash_filters.append(connection_types_filter)
+            kw_range_filters.append(connection_types_filter)
 
         # Filter out nonsense values, so highest max below 1000KW
         kw_range_filters.append({ "range" : { "Connections.PowerKW" : { "lte" : 1000 } } })
@@ -164,6 +175,7 @@ class GeoElasticSearch:
         geo_hash_filter        = GeoElasticSearch._get_filter_from_list(geo_hash_filters)
         operator_values_filter = GeoElasticSearch._get_filter_from_list(operators_filters)
         kw_range_values_filter = GeoElasticSearch._get_filter_from_list(kw_range_filters)
+        connection_types_values_filter = GeoElasticSearch._get_filter_from_list(connection_types_filters)
 
         result = self.es.search(
             index=self.index,
@@ -219,7 +231,18 @@ class GeoElasticSearch:
                                         "max" : { "field" : "Connections.PowerKW" }
                                     }
                                 }
-                            }
+                            },
+                            "connector-types" : {
+                                "filter" : connection_types_values_filter,
+                                "aggregations" : {
+                                    "connector-types-filtered" : {
+                                        "terms": {
+                                            "field": "Connections.ConnectionTypeID",
+                                            "size": 50
+                                        }
+                                    }
+                                }
+                            },
                         }
                     }
                 }
@@ -228,6 +251,7 @@ class GeoElasticSearch:
 
         geo_hash_to_count = GeoElasticSearch._get_geo_hash_to_count(result)
         operator_to_count = GeoElasticSearch._operator_to_count(result)
+        connection_type_to_count = GeoElasticSearch._connection_type_to_count(result)
 
         kw_min = result['aggregations']['zoomed-in']['power-kw-min']['power-kw-min-filtered']['value']
         kw_max = result['aggregations']['zoomed-in']['power-kw-max']['power-kw-max-filtered']['value']
@@ -235,7 +259,8 @@ class GeoElasticSearch:
         return AggregateResult(
             geo_hash_to_count,
             operator_to_count,
-            Range(kw_min, kw_max))
+            Range(kw_min, kw_max),
+            connection_type_to_count)
 
     @staticmethod
     def _get_filter_from_list(filters):
@@ -280,16 +305,7 @@ class GeoElasticSearch:
     def _operator_to_count(es_result):
         buckets = es_result['aggregations']['zoomed-in']['operators']['operators-filtered']['buckets']
 
-        result = []
-
-        for bucket in buckets:
-            operator_id = bucket['key']
-            count = bucket['doc_count']
-
-            result.append({
-                "id" : operator_id,
-                "count": count
-            })
+        result = GeoElasticSearch._buckets_to_list(buckets)
 
         missing = es_result['aggregations']['zoomed-in']['missing-operators']
         
@@ -302,13 +318,35 @@ class GeoElasticSearch:
 
         return result
 
+    @staticmethod
+    def _connection_type_to_count(es_result):
+        buckets = es_result['aggregations']['zoomed-in']['connector-types']['connector-types-filtered']['buckets']
+
+        return GeoElasticSearch._buckets_to_list(buckets)
+
+    @staticmethod
+    def _buckets_to_list(buckets):
+        result = []
+
+        for bucket in buckets:
+            operator_id = bucket['key']
+            count = bucket['doc_count']
+
+            result.append({
+                "id" : operator_id,
+                "count": count
+            })
+
+        return result
+
 
 class AggregateResult:
-    def __init__(self, geo_hash_to_count, operator_to_count, kw_min_max):
+    def __init__(self, geo_hash_to_count, operator_to_count, kw_min_max, connection_type_to_count):
 
         self.geo_hash_to_count = geo_hash_to_count
         self.operator_to_count = operator_to_count
         self.kw_min_max = kw_min_max
+        self.connection_type_to_count = connection_type_to_count
         
 
 '''
