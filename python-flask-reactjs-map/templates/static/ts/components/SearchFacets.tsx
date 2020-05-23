@@ -90,6 +90,7 @@ export class SearchFacets extends PureComponent<SearchFacetsProps, SearchFacetsS
                     placeholder = {placeHolder}
                     value = { updatedSelectedOperators }
                     options = { this.props.allVisibleOperators }
+                    maxSelectedLabels={0}
                     onChange = {(e) => {                        
                         this._onOperatorSelected(e.value);
                 }}/>
