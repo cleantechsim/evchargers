@@ -80,5 +80,6 @@ RUN pip install -r requirements.txt
 
 # CMD ["python", "run.py", "webapp", "es", "9200", "evchargers"]
 # CMD ["valgrind", "python", "run.py", "webapp", "cleantechsim.northeurope.cloudapp.azure.com", "9200", "evchargers"]
-CMD ["python", "run.py", "webapp", "cleantechsim.northeurope.cloudapp.azure.com", "9200", "evchargers"]
+#CMD ["python", "run.py", "webapp", "cleantechsim.northeurope.cloudapp.azure.com", "9200", "evchargers"]
+CMD python run.py webapp $ES_HOST $ES_PORT evchargers
 
